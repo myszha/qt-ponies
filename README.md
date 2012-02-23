@@ -9,8 +9,9 @@ Compilation
 ===========
 A compiler supporting C++11 is required, as are Qt libraries.
 
-> # qmake
-> # make
+\# qmake  
+\# make  
+\# ./ponies
 
 
 Running
