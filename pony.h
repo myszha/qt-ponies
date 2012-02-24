@@ -8,20 +8,24 @@
 #include <string>
 #include <unordered_map>
 #include <random>
+#include <memory>
 
 #include "behavior.h"
 #include "effect.h"
 #include "speak.h"
 
-class Pony : public QMainWindow
+class ConfigWindow;
+
+class Pony : public QMainWindow, public std::enable_shared_from_this<Pony>
 {
     Q_OBJECT
 public:
-    explicit Pony(const std::string path, QWidget *parent = 0);
+    explicit Pony(const std::string path, ConfigWindow *config, QWidget *parent = 0);
     ~Pony();
 
     void change_behavior();
     void update_animation(QMovie* movie);
+    std::shared_ptr<Pony> get_shared_ptr();
 
     int x_center;
     int y_center;
@@ -29,6 +33,9 @@ public:
     std::unordered_map<std::string, Behavior> behaviors;
     std::vector<Behavior*> random_behaviors;
     Behavior* current_behavior;
+
+    std::unordered_map<std::string, Speak> speak_lines;
+    std::vector<Speak*> random_speak_lines;
 
 signals:
 
@@ -38,11 +45,14 @@ public slots:
 
 private:
     QLabel label;
-    int64_t started;
-    int64_t duration;
+    QLabel text_label;
+    int64_t behavior_started;
+    int64_t behavior_duration;
+    int64_t speech_started;
     std::random_device rd;
     std::mt19937 gen;
-    float total_probability;
+    float total_behavior_probability;
+    ConfigWindow *config;
 
 };
 

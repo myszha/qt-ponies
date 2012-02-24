@@ -17,10 +17,16 @@ SOURCES += main.cpp \
     pony.cpp \
     behavior.cpp \
     effect.cpp \
-    speak.cpp 
+    speak.cpp \ 
+    configwindow.cpp
 
 HEADERS  += \
     pony.h \
     behavior.h \
     effect.h \
-    speak.h    
+    speak.h \    
+    configwindow.h \
+    csv_parser.h
+
+FORMS += \
+    configwindow.ui

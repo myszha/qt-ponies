@@ -111,20 +111,6 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
     desktop_width = desktop->width();
     desktop_height = desktop->height();
 
-    // TODO: create an animation manager, something like map< name, map<behavior, vector[left,right] > >
-    // else qmovie eat all avaliable file descriptors
-    animations[0] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_left ));
-    animations[1] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_right));
-
-    animations[0]->setCacheMode(QMovie::CacheAll);
-    animations[1]->setCacheMode(QMovie::CacheAll);
-
-    if(!animations[0]->isValid())
-        std::cerr << "ERROR: Pony: '"<< path <<"' Error opening left animation:'"<< animation_left << "' for behavior: '"<< name << "'."<<std::endl;
-    if(!animations[1]->isValid())
-        std::cerr << "ERROR: Pony: '"<< path <<"' Error opening right animation:'"<< animation_right << "' for behavior: '"<< name << "'."<<std::endl;
-
-
 }
 
 Behavior::Behavior(Behavior &&b) noexcept
@@ -159,6 +145,22 @@ void Behavior::choose_angle()
 void Behavior::init()
 {
     movement = Movement::None;
+
+    animations[0] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_left ));
+    animations[1] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_right));
+
+    if(!animations[0]->isValid())
+        std::cerr << "ERROR: Pony: '"<< path <<"' Error opening left animation:'"<< animation_left << "' for behavior: '"<< name << "'."<<std::endl;
+    if(!animations[1]->isValid())
+        std::cerr << "ERROR: Pony: '"<< path <<"' Error opening right animation:'"<< animation_right << "' for behavior: '"<< name << "'."<<std::endl;
+
+    animations[0]->setCacheMode(QMovie::CacheAll);
+    animations[1]->setCacheMode(QMovie::CacheAll);
+
+    if(!animations[0]->isValid())
+        std::cerr << "ERROR: Pony: '"<< path <<"' Error opening left animation:'"<< animation_left << "' for behavior: '"<< name << "'."<<std::endl;
+    if(!animations[1]->isValid())
+        std::cerr << "ERROR: Pony: '"<< path <<"' Error opening right animation:'"<< animation_right << "' for behavior: '"<< name << "'."<<std::endl;
 
     if(movement_allowed != Movement::None && movement_allowed != Movement::MouseOver && movement_allowed != Movement::Sleep){
         std::vector<Behavior::Movement> modes;
@@ -198,6 +200,11 @@ void Behavior::init()
 void Behavior::deinit()
 {
     current_animation->stop();
+    if(animations[0] != nullptr) delete animations[0];
+    if(animations[1] != nullptr) delete animations[1];
+
+    animations[0] = nullptr;
+    animations[1] = nullptr;
 }
 
 void Behavior::update()

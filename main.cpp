@@ -3,9 +3,8 @@
 
 #include <list>
 
+#include "configwindow.h"
 #include "pony.h"
-
-std::list<Pony> ponies;
 
 void remove_pony()
 {
@@ -21,8 +20,12 @@ int main(int argc, char *argv[])
     QTimer timer;
     timer.setInterval(30);
 
+    ConfigWindow config;
+
     for(int i=0;i<1;i++){
         for(auto &i: {
+            "Rainbow Dash",
+            "Rainbow Dash",
             "Rainbow Dash",
             "Derpy",
             "Applejack",
@@ -32,15 +35,16 @@ int main(int argc, char *argv[])
             "Pinkie Pie",
         }){
             try{
-                ponies.emplace_back(i);
+//                config.ponies.emplace_back(i,&config);
+                config.ponies.push_back(std::make_shared<Pony>(i,&config));
             }catch (std::exception &e){
             }
         }
     }
 
 
-    for(auto &i: ponies) {
-        QObject::connect(&timer, SIGNAL(timeout()), &i, SLOT(update()));
+    for(auto &i: config.ponies) {
+        QObject::connect(&timer, SIGNAL(timeout()), i.get(), SLOT(update()));
     }
 
     timer.start();

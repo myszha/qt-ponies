@@ -8,6 +8,7 @@ void csvline_populate(std::vector<std::string> &record, const std::string& line,
 {
     int linepos=0;
     int inquotes=false;
+    int inbrackets=false;
     char c;
     int linemax=line.length();
     std::string curstring;
@@ -22,6 +23,14 @@ void csvline_populate(std::vector<std::string> &record, const std::string& line,
         {
             //beginquotechar
             inquotes=true;
+        }
+        else if (!inquotes && curstring.length()==0 && c=='{')
+        {
+            inbrackets = true;
+        }
+        else if (!inquotes && c=='}')
+        {
+            inbrackets = false;
         }
         else if (inquotes && c=='"')
         {
@@ -38,7 +47,7 @@ void csvline_populate(std::vector<std::string> &record, const std::string& line,
                 inquotes=false;
             }
         }
-        else if (!inquotes && c==delimiter)
+        else if (!inquotes && !inbrackets && c==delimiter)
         {
             //end of field
             record.push_back( curstring );

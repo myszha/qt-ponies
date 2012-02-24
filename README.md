@@ -1,7 +1,7 @@
 qt-ponies
 =========
 
-This is an implementation of desktop-ponies (http://www.desktopponies.com/) in Qt.
+Qt-ponies (pronounced 'cute-ponies') is an implementation of desktop-ponies (http://www.desktopponies.com/) in Qt.
 
 Inspired by qponies project by svenstaro (https://github.com/svenstaro/qponies).
 
