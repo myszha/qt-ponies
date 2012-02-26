@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'configwindow.ui'
 **
-** Created: Sun Feb 26 01:03:07 2012
+** Created: Sun Feb 26 01:39:17 2012
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -35,6 +35,7 @@ class Ui_ConfigWindow
 public:
     QAction *actionAdd_ponies;
     QAction *actionActive_ponies;
+    QAction *actionConfiguration;
     QWidget *centralwidget;
     QGridLayout *gridLayout;
     QStackedWidget *stackedWidget;
@@ -64,6 +65,8 @@ public:
         actionAdd_ponies->setObjectName(QString::fromUtf8("actionAdd_ponies"));
         actionActive_ponies = new QAction(ConfigWindow);
         actionActive_ponies->setObjectName(QString::fromUtf8("actionActive_ponies"));
+        actionConfiguration = new QAction(ConfigWindow);
+        actionConfiguration->setObjectName(QString::fromUtf8("actionConfiguration"));
         centralwidget = new QWidget(ConfigWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         gridLayout = new QGridLayout(centralwidget);
@@ -160,6 +163,7 @@ public:
 
         toolBar->addAction(actionAdd_ponies);
         toolBar->addAction(actionActive_ponies);
+        toolBar->addAction(actionConfiguration);
 
         retranslateUi(ConfigWindow);
 
@@ -177,6 +181,7 @@ public:
         actionAdd_ponies->setToolTip(QApplication::translate("ConfigWindow", "Add ponies", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         actionActive_ponies->setText(QApplication::translate("ConfigWindow", "Active ponies", 0, QApplication::UnicodeUTF8));
+        actionConfiguration->setText(QApplication::translate("ConfigWindow", "Configuration", 0, QApplication::UnicodeUTF8));
         addpony_button->setText(QApplication::translate("ConfigWindow", "Add pony", 0, QApplication::UnicodeUTF8));
         label_ponyname->setText(QString());
         image_label->setText(QString());

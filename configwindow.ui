@@ -196,6 +196,7 @@
    </attribute>
    <addaction name="actionAdd_ponies"/>
    <addaction name="actionActive_ponies"/>
+   <addaction name="actionConfiguration"/>
   </widget>
   <action name="actionAdd_ponies">
    <property name="text">
@@ -208,6 +209,11 @@
   <action name="actionActive_ponies">
    <property name="text">
     <string>Active ponies</string>
+   </property>
+  </action>
+  <action name="actionConfiguration">
+   <property name="text">
+    <string>Configuration</string>
    </property>
   </action>
  </widget>

@@ -5,7 +5,7 @@
 #include "pony.h"
 
 Speak::Speak(Pony* parent, const std::string filepath, const std::vector<std::string> &options)
-    :parent(parent), path(filepath), music(nullptr)
+    :parent(parent), path(filepath)/*, music(nullptr)*/
 {
 
     name = options[1];
