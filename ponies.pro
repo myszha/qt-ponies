@@ -1,35 +1,34 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2011-12-13T09:50:14
-#
-#-------------------------------------------------
 
 QT       += core gui
 
 TARGET = ponies
+OBJECTS_DIR = bin
+MOC_DIR = src/moc
+UI_DIR = src/ui
+RCC_DIR = src/rcc
 TEMPLATE = app
 
 #CONFIG += static
 
 QMAKE_CXXFLAGS += -std=c++0x
 
-SOURCES += main.cpp \
-    pony.cpp \
-    behavior.cpp \
-    effect.cpp \
-    speak.cpp \ 
-    configwindow.cpp
+SOURCES += src/main.cpp \
+    src/pony.cpp \
+    src/behavior.cpp \
+    src/effect.cpp \
+    src/speak.cpp \ 
+    src/configwindow.cpp
 
 HEADERS  += \
-    pony.h \
-    behavior.h \
-    effect.h \
-    speak.h \    
-    configwindow.h \
-    csv_parser.h
+    src/pony.h \
+    src/behavior.h \
+    src/effect.h \
+    src/speak.h \    
+    src/configwindow.h \
+    src/csv_parser.h
 
 FORMS += \
-    configwindow.ui
+    src/configwindow.ui
 
 RESOURCES += \
     qt-ponies.qrc

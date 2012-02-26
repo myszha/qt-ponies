@@ -14,15 +14,14 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QCoreApplication::addLibraryPath(QCoreApplication::applicationDirPath());
-    QCoreApplication::setOrganizationName("Myshsoft");
+    QCoreApplication::setOrganizationName("qt-ponies");
     QCoreApplication::setApplicationName("qt-ponies");
 
     app.setQuitOnLastWindowClosed(false);
 
-//    QFile qss(":/styles/style.qss");
-        QFile qss("style.qss");
+//    QFile qss(":/styles/res/style.qss");
+    QFile qss("res/style.qss");
     qss.open(QFile::ReadOnly);
-    std::cout<<qss.size()<<std::endl;
     app.setStyleSheet( QString::fromUtf8(qss.readAll()) );
     qss.close();
 

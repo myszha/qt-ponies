@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/icons">
-        <file>tray_icon.png</file>
+        <file>res/tray_icon.png</file>
     </qresource>
     <qresource prefix="/styles">
-        <file>style.qss</file>
+        <file>res/style.qss</file>
     </qresource>
 </RCC>

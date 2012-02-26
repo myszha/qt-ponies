@@ -1,4 +1,3 @@
-//#include <QGraphicsEffect>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QString>

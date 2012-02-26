@@ -67,7 +67,6 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
     std::string lower(options[8]);
     for(auto &i: lower){ i = std::tolower(i); }
     movement_allowed = movement_map[lower];
-    std::cout << name <<": "<< lower << " / " << speed<< std::endl;
 
     if( options.size() > 8 ) {
         linked_behavior = options[9];
@@ -153,7 +152,17 @@ void Behavior::init()
     movement = Movement::None;
 
     animations[0] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_left ));
+    if(left_image_center.x() == 0 && left_image_center.y() == 0) {
+       animations[0]->start();
+       left_image_center = QPoint(animations[0]->currentImage().width()/2,animations[0]->currentImage().height()/2);
+       animations[0]->stop();
+    }
     animations[1] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_right));
+    if(right_image_center.x() == 0 && right_image_center.y() == 0) {
+       animations[1]->start();
+       right_image_center = QPoint(animations[1]->currentImage().width()/2,animations[1]->currentImage().height()/2);
+       animations[1]->start();
+    }
 
     if(!animations[0]->isValid())
         std::cerr << "ERROR: Pony: '"<< path <<"' Error opening left animation:'"<< animation_left << "' for behavior: '"<< name << "'."<<std::endl;

@@ -16,7 +16,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // Setup tray icon and menu
-    tray_icon.setIcon(QIcon(":/icons/tray_icon.png"));
+    tray_icon.setIcon(QIcon(":/icons/res/tray_icon.png"));
 
     tray_menu.addAction("Open configuration",this,SLOT(show()));
     tray_menu.addAction("Close application",QCoreApplication::instance(),SLOT(quit()));
@@ -25,6 +25,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     tray_icon.setContextMenu(&tray_menu);
     tray_icon.show();
 
+    // Setup the toolbar buttons
     action_group = new QActionGroup(ui->toolBar);
     action_addponies = new QAction("Add ponies", action_group);
     action_addponies->setCheckable(true);
@@ -92,10 +93,6 @@ ConfigWindow::~ConfigWindow()
     delete list_model;
     delete settings;
     delete action_group;
-    delete action_addponies;
-    delete action_activeponies;
-    delete action_configuration;
-
 }
 
 void ConfigWindow::remove_pony()
@@ -123,12 +120,14 @@ void ConfigWindow::remove_pony_all()
 
 void ConfigWindow::newpony_list_changed(QModelIndex item)
 {
+    // Update the UI with information about selected pony
     ui->image_label->setPixmap(item.data(Qt::DecorationRole).value<QIcon>().pixmap(100,100));
     ui->label_ponyname->setText(item.data().toString());
 }
 
 void ConfigWindow::add_pony()
 {
+    // Add pony and save the active pony list to configuration file
     ponies.emplace_back(std::make_shared<Pony>(ui->listView->currentIndex().data().toString().toStdString(), this));
     QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
 
@@ -142,6 +141,7 @@ void ConfigWindow::update_active_list()
 
 void ConfigWindow::toggle_window(QSystemTrayIcon::ActivationReason reason)
 {
+    // Toogle the configuration window's visibility
     if(reason == QSystemTrayIcon::DoubleClick) {
         if(this->isVisible() == true)
         {
@@ -154,6 +154,7 @@ void ConfigWindow::toggle_window(QSystemTrayIcon::ActivationReason reason)
 
 void ConfigWindow::save_settings()
 {
+    settings->clear(); // FIXME:: segfault
     settings->beginWriteArray("loaded-ponies");
     int i=0;
     for(const auto &pony : ponies) {
