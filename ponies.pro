@@ -30,3 +30,6 @@ HEADERS  += \
 
 FORMS += \
     configwindow.ui
+
+RESOURCES += \
+    qt-ponies.qrc

@@ -1,11 +1,11 @@
 #include <sstream>
 #include <iostream>
-\
+
 #include "speak.h"
 #include "pony.h"
 
 Speak::Speak(Pony* parent, const std::string filepath, const std::vector<std::string> &options)
-    :parent(parent), path(filepath)
+    :parent(parent), path(filepath), music(nullptr)
 {
 
     name = options[1];
@@ -27,4 +27,8 @@ Speak::Speak(Pony* parent, const std::string filepath, const std::vector<std::st
 void Speak::play()
 {
     //TODO: play the media file
+    /*if(music == nullptr)
+    music = Phonon::createPlayer(Phonon::MusicCategory,
+                             Phonon::MediaSource(QString::fromStdString("desktop-ponies/" + path + "/" + soundfile)));
+    music->play();*/
 }

@@ -1,7 +1,4 @@
 #include <QtGui/QApplication>
-#include <QTimer>
-
-#include <list>
 
 #include "configwindow.h"
 #include "pony.h"
@@ -15,10 +12,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     QCoreApplication::addLibraryPath(QCoreApplication::applicationDirPath());
-
-
-    QTimer timer;
-    timer.setInterval(30);
+    QCoreApplication::setApplicationName("qt-ponies");
 
     ConfigWindow config;
 
@@ -33,6 +27,7 @@ int main(int argc, char *argv[])
             "Rarity",
             "fluttershy",
             "Pinkie Pie",
+            "Big Celestia"
         }){
             try{
 //                config.ponies.emplace_back(i,&config);
@@ -44,10 +39,10 @@ int main(int argc, char *argv[])
 
 
     for(auto &i: config.ponies) {
-        QObject::connect(&timer, SIGNAL(timeout()), i.get(), SLOT(update()));
+        QObject::connect(&config.timer, SIGNAL(timeout()), i.get(), SLOT(update()));
     }
 
-    timer.start();
+    config.show();
 
     return a.exec();
 }

@@ -4,6 +4,7 @@
 #include <QtGui/QMovie>
 #include <QtGui/QLabel>
 #include <QMainWindow>
+#include <QMouseEvent>
 
 #include <string>
 #include <unordered_map>
@@ -37,11 +38,20 @@ public:
     std::unordered_map<std::string, Speak> speak_lines;
     std::vector<Speak*> random_speak_lines;
 
+    std::vector<Behavior*> sleep_behaviors;
+    std::vector<Behavior*> drag_behaviors;
+
 signals:
 
 public slots:
     void update();
-    void display_menu(const QPoint &);
+    void display_menu(const QPoint &);    
+    void toggle_sleep(bool is_asleep);
+
+protected:
+    void mouseMoveEvent(QMouseEvent* event);
+    void mousePressEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent* event);
 
 private:
     QLabel label;
@@ -53,6 +63,9 @@ private:
     std::mt19937 gen;
     float total_behavior_probability;
     ConfigWindow *config;
+    QMenu* menu;
+    bool dragging;
+    bool sleeping;
 
 };
 

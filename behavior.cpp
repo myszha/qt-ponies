@@ -162,7 +162,7 @@ void Behavior::init()
     if(!animations[1]->isValid())
         std::cerr << "ERROR: Pony: '"<< path <<"' Error opening right animation:'"<< animation_right << "' for behavior: '"<< name << "'."<<std::endl;
 
-    if(movement_allowed != Movement::None && movement_allowed != Movement::MouseOver && movement_allowed != Movement::Sleep){
+    if(movement_allowed != Movement::None && movement_allowed != Movement::MouseOver && movement_allowed != Movement::Sleep && movement_allowed != Movement::Dragged){
         std::vector<Behavior::Movement> modes;
 
         if(movement_allowed & Movement::Horizontal) modes.push_back(Movement::Horizontal);

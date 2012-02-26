@@ -4,6 +4,8 @@
 #include <QString>
 #include <QDateTime>
 #include <QMenu>
+#include <QCheckBox>
+#include <QWidgetAction>
 
 #include <iostream>
 #include <fstream>
@@ -17,7 +19,7 @@
 #include "configwindow.h"
 
 Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
-    QMainWindow(parent), label(this), gen(rd()), config(config)
+    QMainWindow(parent), label(this), gen(rd()), config(config), dragging(false), sleeping(false)
 {
     setAttribute(Qt::WA_TranslucentBackground);
     setWindowFlags(Qt::FramelessWindowHint);
@@ -80,6 +82,17 @@ Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
         throw std::exception();
     }
 
+    menu = new QMenu(this);
+    QAction *sleep_action = new QAction("Sleeping",menu);
+    sleep_action->setCheckable(true);
+    connect(sleep_action, SIGNAL(toggled(bool)), this, SLOT(toggle_sleep(bool)));
+
+    menu->addAction(QString::fromStdString(name))->setEnabled(false);
+    menu->addSeparator();
+    menu->addAction(sleep_action);
+    menu->addAction("Remove pony", config, SLOT(remove_pony()));
+    menu->addAction("Remove every pony", config, SLOT(remove_pony_all()));
+
     // Select behaviour that will can be choosen randomly
     for(auto &i: behaviors) {
         if(i.second.skip_normally == false) {
@@ -93,10 +106,24 @@ Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
         total_behavior_probability += i->probability;
     }
 
-    // Select speech line that will can be choosen randomly
+    // Select speech line that will be choosen randomly
     for(auto &i: speak_lines) {
         if(i.second.skip_normally == false) {
             random_speak_lines.push_back(&i.second);
+        }
+    }
+
+    // Select behaviors that will be used for sleeping
+    for(auto &i: behaviors) {
+        if(i.second.movement_allowed == Behavior::Movement::Sleep) {
+           sleep_behaviors.push_back(&i.second);
+        }
+    }
+
+    // Select behaviors that will be used for dragging
+    for(auto &i: behaviors) {
+        if(i.second.movement_allowed == Behavior::Movement::Dragged) {
+           drag_behaviors.push_back(&i.second);
         }
     }
 
@@ -115,13 +142,68 @@ std::shared_ptr<Pony> Pony::get_shared_ptr()
     return shared_from_this();
 }
 
+void Pony::mouseMoveEvent(QMouseEvent* event)
+{
+    if (dragging) {
+        x_center = event->globalPos().x();
+        y_center = event->globalPos().y();
+        QPoint new_pos(event->globalPos().x()-current_behavior->x_center,event->globalPos().y()-current_behavior->y_center);
+        move(new_pos);
+        event->accept();
+    }
+}
+
+void Pony::mousePressEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton) {
+        dragging = true;
+        if(drag_behaviors.size() > 0){
+            std::uniform_int_distribution<> dis(0, drag_behaviors.size()-1);
+            current_behavior->deinit();
+            current_behavior = drag_behaviors.at(dis(gen));
+            current_behavior->init();
+            update_animation(current_behavior->current_animation);
+        }
+        event->accept();
+    }
+}
+
+void Pony::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton) {
+        dragging = false;
+        if(sleeping == true) {
+            std::uniform_int_distribution<> dis(0, sleep_behaviors.size()-1);
+            current_behavior->deinit();
+            current_behavior = sleep_behaviors.at(dis(gen));
+            current_behavior->init();
+            update_animation(current_behavior->current_animation);
+        }else if(drag_behaviors.size() > 0){
+            change_behavior();
+        }
+        event->accept();
+    }
+}
+
+void Pony::toggle_sleep(bool is_asleep)
+{
+    sleeping = is_asleep;
+    if(sleeping == true) {
+        if(sleep_behaviors.size() > 0){
+            std::uniform_int_distribution<> dis(0, sleep_behaviors.size()-1);
+            current_behavior->deinit();
+            current_behavior = sleep_behaviors.at(dis(gen));
+            current_behavior->init();
+            update_animation(current_behavior->current_animation);
+        }
+    }else{
+        change_behavior();
+    }
+}
+
+
 void Pony::display_menu(const QPoint &pos)
 {
-    QMenu *menu = new QMenu(this);
-    menu->addAction(QString::fromStdString(name))->setEnabled(false);
-    menu->addSeparator();
-    menu->addAction("Remove pony", config, SLOT(remove_pony()));
-    menu->addAction("Remove every pony", config, SLOT(remove_pony_all()));
     menu->exec(mapToGlobal(pos));
 }
 
@@ -193,7 +275,7 @@ void Pony::change_behavior()
         current_speech_line = random_speak_lines[int_dis(gen)];
     }
 
-    text_label.setText(QString::fromStdString(current_speech_line->text));
+    text_label.setText(QString::fromUtf8(current_speech_line->text.c_str()));
     speech_started = behavior_started;
     text_label.adjustSize();
     text_label.move(x_center-text_label.width()/2, y() - text_label.height());
@@ -211,9 +293,11 @@ void Pony::update() {
         text_label.move(x_center-text_label.width()/2, y() - text_label.height());
     }
 
-    // Check behavior timeout
-    if(behavior_started+behavior_duration <= time){
-        change_behavior();
+    // Check behavior timeout and update if not dragging or asleep
+    if(!dragging && !sleeping) {
+        if(behavior_started+behavior_duration <= time){
+            change_behavior();
+        }
+        current_behavior->update();
     }
-    current_behavior->update();
 }

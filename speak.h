@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+//#include <Phonon/MediaObject>
+
 class Pony;
 
 class Speak
@@ -21,6 +23,7 @@ public:
 private:
     Pony* parent;
     std::string path;
+//    Phonon::MediaObject *music;
 };
 
 #endif // Speak_H
