@@ -1,6 +1,7 @@
 #include <QDir>
 
 #include <iostream>
+#include <algorithm>
 
 #include "configwindow.h"
 #include "ui_configwindow.h"
@@ -27,12 +28,12 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
 
     // Setup the toolbar buttons
     action_group = new QActionGroup(ui->toolBar);
-    action_addponies = new QAction("Add ponies", action_group);
+    action_addponies = new QAction(QIcon(":/icons/res/add_icon.png"), "Add ponies", action_group);
     action_addponies->setCheckable(true);
     action_addponies->setChecked(true);
-    action_activeponies = new QAction("Active ponies", action_group);
+    action_activeponies = new QAction(QIcon(":/icons/res/active_icon.png"), "Active ponies", action_group);
     action_activeponies->setCheckable(true);
-    action_configuration = new QAction("Configuration", action_group);
+    action_configuration = new QAction(QIcon(":/icons/res/settings.png"), "Configuration", action_group);
     action_configuration->setCheckable(true);
 
     signal_mapper->setMapping(action_addponies,0);
@@ -47,9 +48,12 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     connect(action_configuration, SIGNAL(triggered()), signal_mapper, SLOT(map()));
     ui->toolBar->addAction(action_configuration);
 
+    ui->toolBar->setIconSize(QSize(100,100));
+
     connect(signal_mapper, SIGNAL(mapped(int)), ui->stackedWidget, SLOT(setCurrentIndex(int)));
 
     list_model = new QStandardItemModel(this);
+    active_list_model = new QStandardItemModel(this);
 
     QDir dir("desktop-ponies");
     dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -68,8 +72,13 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     ui->listView->setModel(list_model);
     ui->listView->setAlternatingRowColors(true);
 
+    ui->active_list->setIconSize(QSize(100,100));
+    ui->active_list->setModel(active_list_model);
+    ui->active_list->setAlternatingRowColors(true);
+
     connect(ui->listView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(newpony_list_changed(QModelIndex)));
     connect(ui->addpony_button, SIGNAL(clicked()), this, SLOT(add_pony()));
+    connect(ui->removepony_button, SIGNAL(clicked()), this, SLOT(remove_pony_activelist()));
 
     // Start update timer
     timer.setInterval(30);
@@ -84,6 +93,9 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
         QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
     }
     settings->endArray();
+    list_model->sort(0);
+
+    update_active_list();
 }
 
 ConfigWindow::~ConfigWindow()
@@ -103,6 +115,7 @@ void ConfigWindow::remove_pony()
     ponies.remove(p->get_shared_ptr());
 
     save_settings();
+    update_active_list();
 }
 
 void ConfigWindow::remove_pony_all()
@@ -116,6 +129,29 @@ void ConfigWindow::remove_pony_all()
     });
 
     save_settings();
+    update_active_list();
+}
+
+void ConfigWindow::remove_pony_activelist()
+{
+    // Check if we have selected an item
+    if(ui->active_list->currentIndex().isValid() == false) return;
+
+    // Get the name from active list
+    std::string name = ui->active_list->currentIndex().data().toString().toStdString();
+
+    // Find first occurance of pony name
+    auto occurance = std::find_if(ponies.begin(), ponies.end(),
+                                                             [&name](const std::shared_ptr<Pony> &p)
+                                     {
+                                         return p->directory == name;
+                                     });
+    // If found, remove
+    if(occurance != ponies.end()) {
+        ponies.erase(occurance);
+        save_settings();
+        update_active_list();
+    }
 }
 
 void ConfigWindow::newpony_list_changed(QModelIndex item)
@@ -127,16 +163,25 @@ void ConfigWindow::newpony_list_changed(QModelIndex item)
 
 void ConfigWindow::add_pony()
 {
+    // Check if we have selected an item
+    if(ui->listView->currentIndex().isValid() == false) return;
+
     // Add pony and save the active pony list to configuration file
     ponies.emplace_back(std::make_shared<Pony>(ui->listView->currentIndex().data().toString().toStdString(), this));
     QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
 
     save_settings();
+    update_active_list();
 }
 
 void ConfigWindow::update_active_list()
 {
-    //todo
+    active_list_model->clear();
+    for(auto &i: ponies) {
+        QStandardItem *item = new QStandardItem(QIcon("desktop-ponies/" + QString::fromStdString(i->directory) +  "/icon.png"),QString::fromStdString(i->directory));
+        active_list_model->appendRow(item);
+    }
+    active_list_model->sort(0);
 }
 
 void ConfigWindow::toggle_window(QSystemTrayIcon::ActivationReason reason)
@@ -154,7 +199,7 @@ void ConfigWindow::toggle_window(QSystemTrayIcon::ActivationReason reason)
 
 void ConfigWindow::save_settings()
 {
-    settings->clear(); // FIXME:: segfault
+    settings->clear();
     settings->beginWriteArray("loaded-ponies");
     int i=0;
     for(const auto &pony : ponies) {

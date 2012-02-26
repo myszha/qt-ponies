@@ -33,6 +33,7 @@ public:
 
 public slots:
     void remove_pony();
+    void remove_pony_activelist();
     void remove_pony_all();
     void newpony_list_changed(QModelIndex item);
     void add_pony();
@@ -45,6 +46,7 @@ private:
     Ui::ConfigWindow *ui;
     QSignalMapper *signal_mapper;
     QStandardItemModel *list_model;
+    QStandardItemModel *active_list_model;
     QSystemTrayIcon tray_icon;
     QMenu tray_menu;
     QSettings *settings;

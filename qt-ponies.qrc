@@ -1,6 +1,9 @@
 <RCC>
     <qresource prefix="/icons">
         <file>res/tray_icon.png</file>
+        <file>res/add_icon.png</file>
+        <file>res/active_icon.png</file>
+        <file>res/settings.png</file>
     </qresource>
     <qresource prefix="/styles">
         <file>res/style.qss</file>

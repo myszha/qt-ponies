@@ -168,7 +168,32 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page_6"/>
+      <widget class="QWidget" name="page_6">
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <widget class="QListView" name="active_list"/>
+        </item>
+        <item row="0" column="1">
+         <widget class="QFrame" name="frame_2">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <widget class="QPushButton" name="removepony_button">
+             <property name="text">
+              <string>Remove pony</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>

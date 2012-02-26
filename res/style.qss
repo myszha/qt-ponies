@@ -14,7 +14,7 @@ QListView::item {
 }
 
 QToolButton {
-	height: 50px;
+	height: 80px;
 	width: 100px;
 	color: white;
 	font: bold;
