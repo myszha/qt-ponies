@@ -19,7 +19,7 @@
 #include "configwindow.h"
 
 Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
-    QMainWindow(parent), label(this), gen(rd()), config(config), dragging(false), sleeping(false)
+    QMainWindow(parent), gen(rd()), label(this), config(config), dragging(false), sleeping(false), mouseover(false)
 {
     setAttribute(Qt::WA_TranslucentBackground);
     setWindowFlags(Qt::FramelessWindowHint);
@@ -42,6 +42,7 @@ Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
     x_center = x()+25;
     y_center = y()+25;
 
+    directory = path;
 
     std::ifstream ifile;
     try {
@@ -51,6 +52,8 @@ Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
         std::cerr << e.what() << std::endl;
         throw std::exception();
     }
+
+    name = path;
 
     if( ifile.is_open() ) {
         std::string line;
@@ -127,6 +130,13 @@ Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
         }
     }
 
+    // Select behaviors that will be used for mouseover
+    for(auto &i: behaviors) {
+        if(i.second.movement_allowed == Behavior::Movement::MouseOver) {
+           mouseover_behaviors.push_back(&i.second);
+        }
+    }
+
     current_behavior = nullptr;
     change_behavior();
     this->show();
@@ -183,6 +193,34 @@ void Pony::mouseReleaseEvent(QMouseEvent* event)
         }
         event->accept();
     }
+}
+
+void Pony::enterEvent(QEvent* event)
+{
+    mouseover = true;
+    if(mouseover_behaviors.size() > 0) {
+        std::uniform_int_distribution<> int_dis(0, mouseover_behaviors.size()-1);
+        current_behavior->deinit();
+        current_behavior = mouseover_behaviors.at(int_dis(gen));
+        current_behavior->init();
+        update_animation(current_behavior->current_animation);
+    }
+    event->accept();
+}
+
+void Pony::leaveEvent(QEvent* event)
+{
+    mouseover = false;
+    if(sleeping == true) {
+        std::uniform_int_distribution<> dis(0, sleep_behaviors.size()-1);
+        current_behavior->deinit();
+        current_behavior = sleep_behaviors.at(dis(gen));
+        current_behavior->init();
+        update_animation(current_behavior->current_animation);
+    }else if(mouseover_behaviors.size() > 0){
+        change_behavior();
+    }
+    event->accept();
 }
 
 void Pony::toggle_sleep(bool is_asleep)
@@ -263,24 +301,26 @@ void Pony::change_behavior()
 
     // Select speech line to display
     // starting_line for current behavior or random
-    Speak* current_speech_line = nullptr;
-    if(current_behavior->starting_line != ""){
-        if( speak_lines.find(current_behavior->starting_line) == speak_lines.end()) {
-            std::cerr << "ERROR: Pony: '"<<name<<"' starting line:'"<< current_behavior->starting_line<< "' from: '"<< current_behavior->name << "' not present."<<std::endl;
+    if(speak_lines.size() > 0) {
+        Speak* current_speech_line = nullptr;
+        if(current_behavior->starting_line != ""){
+            if( speak_lines.find(current_behavior->starting_line) == speak_lines.end()) {
+                std::cerr << "ERROR: Pony: '"<<name<<"' starting line:'"<< current_behavior->starting_line<< "' from: '"<< current_behavior->name << "' not present."<<std::endl;
+            }else{
+                current_speech_line = &speak_lines.at(current_behavior->starting_line);
+            }
         }else{
-            current_speech_line = &speak_lines.at(current_behavior->starting_line);
+            std::uniform_int_distribution<> int_dis(0, random_speak_lines.size()-1);
+            current_speech_line = random_speak_lines[int_dis(gen)];
         }
-    }else{
-        std::uniform_int_distribution<> int_dis(0, random_speak_lines.size()-1);
-        current_speech_line = random_speak_lines[int_dis(gen)];
-    }
 
-    text_label.setText(QString::fromUtf8(current_speech_line->text.c_str()));
-    speech_started = behavior_started;
-    text_label.adjustSize();
-    text_label.move(x_center-text_label.width()/2, y() - text_label.height());
-    text_label.show();
-    current_speech_line->play();
+        text_label.setText(QString::fromUtf8(current_speech_line->text.c_str()));
+        speech_started = behavior_started;
+        text_label.adjustSize();
+        text_label.move(x_center-text_label.width()/2, y() - text_label.height());
+        text_label.show();
+        current_speech_line->play();
+    }
 }
 
 void Pony::update() {
@@ -294,7 +334,7 @@ void Pony::update() {
     }
 
     // Check behavior timeout and update if not dragging or asleep
-    if(!dragging && !sleeping) {
+    if(!dragging && !sleeping && !mouseover) {
         if(behavior_started+behavior_duration <= time){
             change_behavior();
         }

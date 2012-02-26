@@ -7,6 +7,9 @@
 #include <QTimer>
 #include <QSystemTrayIcon>
 #include <QMenu>
+#include <QSettings>
+#include <QAction>
+#include <QActionGroup>
 
 #include <memory>
 
@@ -34,13 +37,21 @@ public slots:
     void newpony_list_changed(QModelIndex item);
     void add_pony();
     void update_active_list();
+    void toggle_window(QSystemTrayIcon::ActivationReason reason);
 
 private:
+    void save_settings();
+
     Ui::ConfigWindow *ui;
     QSignalMapper *signal_mapper;
     QStandardItemModel *list_model;
     QSystemTrayIcon tray_icon;
     QMenu tray_menu;
+    QSettings *settings;
+    QActionGroup *action_group;
+    QAction *action_addponies;
+    QAction *action_activeponies;
+    QAction *action_configuration;
 
 };
 

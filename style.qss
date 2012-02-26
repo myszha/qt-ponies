@@ -1,0 +1,51 @@
+QPushButton#testing {
+	background-color: QLinearGradient( x1: 0, y1: 0, 
+					   x2: 0, y2: 1, 
+	stop: 0 #858585, 
+	stop: 0.4 #858585,
+	stop: 0.43 #777,
+	stop: 1 #777
+	);
+	color: white;
+}
+
+QListView::item {
+	height: 80px;
+}
+
+QToolButton {
+	height: 50px;
+	width: 100px;
+	color: white;
+	font: bold;
+	border: none;
+	padding: 0 10px 0 10px;
+}
+
+QToolButton:hover {
+	background-color: QLinearGradient( x1: 0, y1: 0, 
+					   x2: 1, y2: 0, 
+	stop: 0   #444, 
+	stop: 0.5 #666,
+	stop: 1   #777
+	);
+}
+
+QToolButton:checked {
+	background-color: QLinearGradient( x1: 0, y1: 0, 
+					   x2: 1, y2: 0, 
+	stop: 0 #999, 
+	stop: 1 #ddd
+	);
+	color: #222;
+}
+
+QToolBar {
+	padding:0;
+	margin:0;
+	background-color: QLinearGradient( x1: 0, y1: 0, 
+					   x2: 1, y2: 0, 
+	stop: 0 #333, 
+	stop: 1 #777
+	);
+}

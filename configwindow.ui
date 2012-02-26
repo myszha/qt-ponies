@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>592</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Qt Ponies</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -33,10 +33,19 @@
           <property name="alternatingRowColors">
            <bool>true</bool>
           </property>
+          <property name="selectionRectVisible">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item row="0" column="1" rowspan="3" colspan="3">
          <widget class="QFrame" name="frame">
+          <property name="minimumSize">
+           <size>
+            <width>250</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
@@ -88,7 +97,7 @@
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>20</height>
+               <height>80</height>
               </size>
              </property>
             </spacer>
@@ -116,7 +125,7 @@
               <enum>Qt::Vertical</enum>
              </property>
              <property name="sizeType">
-              <enum>QSizePolicy::Expanding</enum>
+              <enum>QSizePolicy::Fixed</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -164,18 +173,13 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>24</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
@@ -194,28 +198,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionAdd_ponies"/>
-   <addaction name="actionActive_ponies"/>
-   <addaction name="actionConfiguration"/>
   </widget>
-  <action name="actionAdd_ponies">
-   <property name="text">
-    <string>Add ponies</string>
-   </property>
-   <property name="toolTip">
-    <string>Add ponies</string>
-   </property>
-  </action>
-  <action name="actionActive_ponies">
-   <property name="text">
-    <string>Active ponies</string>
-   </property>
-  </action>
-  <action name="actionConfiguration">
-   <property name="text">
-    <string>Configuration</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>

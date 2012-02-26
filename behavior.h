@@ -36,7 +36,7 @@ public:
         Dragged			= 1 << 6
     };
 
-    uint32_t speed;
+    float speed;
     int width;
     int height;
     QMovie* current_animation;

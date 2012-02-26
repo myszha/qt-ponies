@@ -1,4 +1,6 @@
 #include <QtGui/QApplication>
+#include <QFile>
+#include <iostream>
 
 #include "configwindow.h"
 #include "pony.h"
@@ -10,39 +12,26 @@ void remove_pony()
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
     QCoreApplication::addLibraryPath(QCoreApplication::applicationDirPath());
+    QCoreApplication::setOrganizationName("Myshsoft");
     QCoreApplication::setApplicationName("qt-ponies");
+
+    app.setQuitOnLastWindowClosed(false);
+
+//    QFile qss(":/styles/style.qss");
+        QFile qss("style.qss");
+    qss.open(QFile::ReadOnly);
+    std::cout<<qss.size()<<std::endl;
+    app.setStyleSheet( QString::fromUtf8(qss.readAll()) );
+    qss.close();
+
 
     ConfigWindow config;
 
-    for(int i=0;i<1;i++){
-        for(auto &i: {
-            "Rainbow Dash",
-            "Rainbow Dash",
-            "Rainbow Dash",
-            "Derpy",
-            "Applejack",
-            "Twilight",
-            "Rarity",
-            "fluttershy",
-            "Pinkie Pie",
-            "Big Celestia"
-        }){
-            try{
-//                config.ponies.emplace_back(i,&config);
-                config.ponies.push_back(std::make_shared<Pony>(i,&config));
-            }catch (std::exception &e){
-            }
-        }
+    if(config.ponies.size() == 0) {
+        config.show();
     }
 
-
-    for(auto &i: config.ponies) {
-        QObject::connect(&config.timer, SIGNAL(timeout()), i.get(), SLOT(update()));
-    }
-
-    config.show();
-
-    return a.exec();
+    return app.exec();
 }

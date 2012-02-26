@@ -67,6 +67,7 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
     std::string lower(options[8]);
     for(auto &i: lower){ i = std::tolower(i); }
     movement_allowed = movement_map[lower];
+    std::cout << name <<": "<< lower << " / " << speed<< std::endl;
 
     if( options.size() > 8 ) {
         linked_behavior = options[9];
@@ -81,25 +82,30 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
         std::istringstream(options[14]) >> y_coordinate;
         follow_object = options[15];
 
-        // Extract lefft/right image centers
-        std::string tmp_field;
-        int x,y;
+        if( options.size() > 16 ) {
+            // Extract lefft/right image centers
+            std::string tmp_field;
+            int x,y;
 
-        std::istringstream iss(options[19]);
+            std::istringstream iss(options[19]);
 
-        std::getline(iss,tmp_field,',');
-        std::istringstream(tmp_field) >> x;
-        std::getline(iss,tmp_field,',');
-        std::istringstream(tmp_field) >> y;
-        right_image_center = QPoint(x,y);
+            std::getline(iss,tmp_field,',');
+            std::istringstream(tmp_field) >> x;
+            std::getline(iss,tmp_field,',');
+            std::istringstream(tmp_field) >> y;
+            right_image_center = QPoint(x,y);
 
-        std::istringstream iss2(options[20]);
+            std::istringstream iss2(options[20]);
 
-        std::getline(iss2,tmp_field,',');
-        std::istringstream(tmp_field) >> x;
-        std::getline(iss2,tmp_field,',');
-        std::istringstream(tmp_field) >> y;
-        left_image_center = QPoint(x,y);
+            std::getline(iss2,tmp_field,',');
+            std::istringstream(tmp_field) >> x;
+            std::getline(iss2,tmp_field,',');
+            std::istringstream(tmp_field) >> y;
+            left_image_center = QPoint(x,y);
+        }else{
+            right_image_center = QPoint(0,0);
+            left_image_center = QPoint(0,0);
+        }
 
     }
 
@@ -212,8 +218,8 @@ void Behavior::update()
     // No need to change position if we can't move
     if(movement == Movement::None) return;
 
-    int vel_x = direction_h * speed;
-    int vel_y = direction_v * speed;
+    float vel_x = direction_h * speed;
+    float vel_y = direction_v * speed;
 
     if(parent->x() <= 0) {
         current_animation->stop();
