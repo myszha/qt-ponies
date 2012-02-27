@@ -36,7 +36,7 @@
 #include "configwindow.h"
 
 Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
-    QMainWindow(parent), gen(QTime::currentTime().msec()), label(this), config(config), dragging(false), sleeping(false), mouseover(false)
+    QMainWindow(parent), gen(QDateTime::currentMSecsSinceEpoch()), label(this), config(config), dragging(false), sleeping(false), mouseover(false)
 {
     setAttribute(Qt::WA_TranslucentBackground);
     setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);

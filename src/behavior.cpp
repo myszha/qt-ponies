@@ -19,7 +19,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QWidget>
-#include <QTime>
+#include <QDateTime>
 
 #include <string>
 #include <iostream>
@@ -149,7 +149,7 @@ Behavior::~Behavior()
 
 void Behavior::choose_angle()
 {
-    std::mt19937 gen(QTime::currentTime().msec());
+    std::mt19937 gen(QDateTime::currentMSecsSinceEpoch());
 
     if(direction_v == Direction::Up){
         std::uniform_real_distribution<> dis(15, 50);
@@ -167,7 +167,7 @@ void Behavior::choose_angle()
 void Behavior::init()
 {
     movement = Movement::None;
-    std::mt19937 gen(QTime::currentTime().msec());
+    std::mt19937 gen(QDateTime::currentMSecsSinceEpoch());
 
     // Load animations and verify them
     animations[0] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_left ));
