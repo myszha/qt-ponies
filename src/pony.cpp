@@ -189,7 +189,6 @@ void Pony::mousePressEvent(QMouseEvent* event)
             current_behavior->deinit();
             current_behavior = drag_behaviors.at(dis(gen));
             current_behavior->init();
-            update_animation(current_behavior->current_animation);
         }
         event->accept();
     }
@@ -204,7 +203,6 @@ void Pony::mouseReleaseEvent(QMouseEvent* event)
             current_behavior->deinit();
             current_behavior = sleep_behaviors.at(dis(gen));
             current_behavior->init();
-            update_animation(current_behavior->current_animation);
         }else if(drag_behaviors.size() > 0){
             change_behavior();
         }
@@ -220,7 +218,6 @@ void Pony::enterEvent(QEvent* event)
         current_behavior->deinit();
         current_behavior = mouseover_behaviors.at(int_dis(gen));
         current_behavior->init();
-        update_animation(current_behavior->current_animation);
     }
     event->accept();
 }
@@ -233,7 +230,6 @@ void Pony::leaveEvent(QEvent* event)
         current_behavior->deinit();
         current_behavior = sleep_behaviors.at(dis(gen));
         current_behavior->init();
-        update_animation(current_behavior->current_animation);
     }else if(mouseover_behaviors.size() > 0){
         change_behavior();
     }
@@ -249,7 +245,6 @@ void Pony::toggle_sleep(bool is_asleep)
             current_behavior->deinit();
             current_behavior = sleep_behaviors.at(dis(gen));
             current_behavior->init();
-            update_animation(current_behavior->current_animation);
         }
     }else{
         change_behavior();
@@ -268,7 +263,6 @@ void Pony::update_animation(QMovie* animation)
     resize(animation->currentImage().size());
     label.resize(animation->currentImage().size());
     label.repaint();
-    // FIXME: sometimes an old or wrong frame is visible when changing animations
 }
 
 void Pony::change_behavior()
@@ -309,12 +303,10 @@ void Pony::change_behavior()
     }
 
 
-    //current_behavior->info();
     std::cout << "Pony: '"<<name<<"' behavior: '"<< current_behavior->name <<"' for " << behavior_duration << "msec" <<std::endl;
 
     behavior_started = QDateTime::currentMSecsSinceEpoch();
     current_behavior->init();
-    update_animation(current_behavior->current_animation);
 
     // Select speech line to display
     // starting_line for current behavior or random

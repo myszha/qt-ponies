@@ -183,19 +183,15 @@ void Behavior::init()
 
     // If we do not have the centers of images from configuration, then set them to width/2, height/2
     if(left_image_center.x() == 0 && left_image_center.y() == 0) {
-        // TODO: currentImage() is none when animation is not started
-        // maybe it can be done by setting the move frame to 1 by hand?
-        animations[0]->start();
+        animations[0]->jumpToFrame(0);
         left_image_center = QPoint(animations[0]->currentImage().width()/2,animations[0]->currentImage().height()/2);
-        animations[0]->stop();
     }
     if(right_image_center.x() == 0 && right_image_center.y() == 0) {
-        animations[1]->start();
+        animations[1]->jumpToFrame(0);
         right_image_center = QPoint(animations[1]->currentImage().width()/2,animations[1]->currentImage().height()/2);
-        animations[1]->start();
     }
 
-
+    // Randomly select movement type from allowed types for this behavior
     if(movement_allowed != Movement::None && movement_allowed != Movement::MouseOver && movement_allowed != Movement::Sleep && movement_allowed != Movement::Dragged){
         std::vector<Behavior::Movement> modes;
 
@@ -206,9 +202,11 @@ void Behavior::init()
         movement = modes[gen()%modes.size()];
     }
 
+    // Randomly select horizontal and vertical direction
     direction_h = gen()%2 == 0? Left : Right;
     direction_v = gen()%2 == 0? Up : Down;
 
+    // Set image center for current direction
     if(direction_h == Right) {
         x_center = right_image_center.x();
         y_center = right_image_center.y();
@@ -217,28 +215,33 @@ void Behavior::init()
         y_center = left_image_center.y();
     }
 
-
     if(movement == Movement::Diagonal) {
         choose_angle();
     }
-
-    // Move window due to change in image center
-    parent->move(parent->x_center-x_center,parent->y_center-y_center);
 
     current_animation = animations[direction_h<0?0:1];
     current_animation->start();
     width = current_animation->currentImage().size().width();
     height = current_animation->currentImage().size().height();
+
+    parent->update_animation(current_animation);
+
+    // Move window due to change in image center
+    parent->move(parent->x_center-x_center,parent->y_center-y_center);
 }
 
 void Behavior::deinit()
 {
-    current_animation->stop();
+    if(current_animation != nullptr) {
+        current_animation->stop();
+    }
+
     if(animations[0] != nullptr) delete animations[0];
     if(animations[1] != nullptr) delete animations[1];
 
     animations[0] = nullptr;
     animations[1] = nullptr;
+    current_animation = nullptr;
 }
 
 void Behavior::update()
