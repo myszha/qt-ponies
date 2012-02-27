@@ -14,6 +14,9 @@ A compiler supporting C++11 is required, as are Qt libraries.
 \# make  
 \# ./ponies
 
+Running under Windows
+-------
+A testing version of qt-ponies is avialable at [https://github.com/downloads/myszha/qt-ponies/qt-ponies-win32.zip](https://github.com/downloads/myszha/qt-ponies/qt-ponies-win32.zip).
 
 Running
 -------
