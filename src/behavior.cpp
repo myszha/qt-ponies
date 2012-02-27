@@ -169,18 +169,9 @@ void Behavior::init()
     movement = Movement::None;
     std::mt19937 gen(QTime::currentTime().msec());
 
+    // Load animations and verify them
     animations[0] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_left ));
-    if(left_image_center.x() == 0 && left_image_center.y() == 0) {
-       animations[0]->start();
-       left_image_center = QPoint(animations[0]->currentImage().width()/2,animations[0]->currentImage().height()/2);
-       animations[0]->stop();
-    }
     animations[1] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_right));
-    if(right_image_center.x() == 0 && right_image_center.y() == 0) {
-       animations[1]->start();
-       right_image_center = QPoint(animations[1]->currentImage().width()/2,animations[1]->currentImage().height()/2);
-       animations[1]->start();
-    }
 
     if(!animations[0]->isValid())
         std::cerr << "ERROR: Pony: '"<< path <<"' Error opening left animation:'"<< animation_left << "' for behavior: '"<< name << "'."<<std::endl;
@@ -190,10 +181,20 @@ void Behavior::init()
     animations[0]->setCacheMode(QMovie::CacheAll);
     animations[1]->setCacheMode(QMovie::CacheAll);
 
-    if(!animations[0]->isValid())
-        std::cerr << "ERROR: Pony: '"<< path <<"' Error opening left animation:'"<< animation_left << "' for behavior: '"<< name << "'."<<std::endl;
-    if(!animations[1]->isValid())
-        std::cerr << "ERROR: Pony: '"<< path <<"' Error opening right animation:'"<< animation_right << "' for behavior: '"<< name << "'."<<std::endl;
+    // If we do not have the centers of images from configuration, then set them to width/2, height/2
+    if(left_image_center.x() == 0 && left_image_center.y() == 0) {
+        // TODO: currentImage() is none when animation is not started
+        // maybe it can be done by setting the move frame to 1 by hand?
+        animations[0]->start();
+        left_image_center = QPoint(animations[0]->currentImage().width()/2,animations[0]->currentImage().height()/2);
+        animations[0]->stop();
+    }
+    if(right_image_center.x() == 0 && right_image_center.y() == 0) {
+        animations[1]->start();
+        right_image_center = QPoint(animations[1]->currentImage().width()/2,animations[1]->currentImage().height()/2);
+        animations[1]->start();
+    }
+
 
     if(movement_allowed != Movement::None && movement_allowed != Movement::MouseOver && movement_allowed != Movement::Sleep && movement_allowed != Movement::Dragged){
         std::vector<Behavior::Movement> modes;

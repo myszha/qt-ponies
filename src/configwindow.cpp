@@ -160,7 +160,7 @@ void ConfigWindow::remove_pony_activelist()
 
     // Find first occurance of pony name
     auto occurance = std::find_if(ponies.begin(), ponies.end(),
-                                                             [&name](const std::shared_ptr<Pony> &p)
+                                     [&name](const std::shared_ptr<Pony> &p)
                                      {
                                          return p->directory == name;
                                      });
