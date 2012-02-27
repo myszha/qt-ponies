@@ -1,7 +1,8 @@
 qt-ponies
 =========
 
-Qt-ponies (pronounced 'cute-ponies') is an implementation of desktop-ponies (http://www.desktopponies.com/) in Qt.
+Qt-ponies (pronounced 'cute-ponies') is an implementation of DesktopPonies (http://www.desktopponies.com/) in Qt.
+All pony data (images, behaviors, sounds) is taken from DesktopPonies, and is compatible with it.
 
 Inspired by qponies project by svenstaro (https://github.com/svenstaro/qponies).
 
