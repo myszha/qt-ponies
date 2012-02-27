@@ -19,6 +19,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QWidget>
+#include <QTime>
 
 #include <string>
 #include <iostream>
@@ -30,9 +31,6 @@
 
 #include "behavior.h"
 #include "pony.h"
-
-std::random_device rd;
-std::mt19937 gen(rd());
 
 Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<std::string> &options)
     : path(filepath), parent(parent)
@@ -136,7 +134,7 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
 
 }
 
-Behavior::Behavior(Behavior &&b) noexcept
+Behavior::Behavior(Behavior &&b)
 {
     *this = std::move(b);
     b.animations[0] = nullptr;
@@ -151,6 +149,7 @@ Behavior::~Behavior()
 
 void Behavior::choose_angle()
 {
+    std::mt19937 gen(QTime::currentTime().msec());
 
     if(direction_v == Direction::Up){
         std::uniform_real_distribution<> dis(15, 50);
@@ -168,6 +167,7 @@ void Behavior::choose_angle()
 void Behavior::init()
 {
     movement = Movement::None;
+    std::mt19937 gen(QTime::currentTime().msec());
 
     animations[0] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_left ));
     if(left_image_center.x() == 0 && left_image_center.y() == 0) {
@@ -202,11 +202,11 @@ void Behavior::init()
         if(movement_allowed & Movement::Vertical)   modes.push_back(Movement::Vertical);
         if(movement_allowed & Movement::Diagonal)   modes.push_back(Movement::Diagonal);
 
-        movement = modes[rd()%modes.size()];
+        movement = modes[gen()%modes.size()];
     }
 
-    direction_h = rd()%2 == 0? Left : Right;
-    direction_v = rd()%2 == 0? Up : Down;
+    direction_h = gen()%2 == 0? Left : Right;
+    direction_v = gen()%2 == 0? Up : Down;
 
     if(direction_h == Right) {
         x_center = right_image_center.x();

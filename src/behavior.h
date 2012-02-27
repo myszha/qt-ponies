@@ -30,7 +30,7 @@ class Behavior
 {
 public:
     Behavior(Pony* parent, const std::string filepath, const std::vector<std::string> &options);
-    Behavior(Behavior &&b) noexcept;
+    Behavior(Behavior &&b);
     ~Behavior();
 
     void init();

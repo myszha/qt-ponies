@@ -78,7 +78,6 @@ protected:
     void leaveEvent(QEvent* event);
 
 private:
-    std::random_device rd;
     std::mt19937 gen;
     QLabel label;
     QLabel text_label;
