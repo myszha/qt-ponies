@@ -55,9 +55,10 @@ Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
     text_label.setWindowFlags(Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint | Qt::ToolTip);
 #endif
 
-    move(QApplication::desktop()->width()/2,QApplication::desktop()->height()/2);
-    x_center = x()+25;
-    y_center = y()+25;
+    x_center = 50 + gen()%(QApplication::desktop()->width()-100);
+    y_center = 50 + gen()%(QApplication::desktop()->height()-100);
+
+    move(x_center, y_center);
 
     directory = path;
 
