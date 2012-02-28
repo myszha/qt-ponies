@@ -107,8 +107,12 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     int size = settings->beginReadArray("loaded-ponies");
     for(int i=0; i< size; i++) {
         settings->setArrayIndex(i);
-        ponies.emplace_back(std::make_shared<Pony>(settings->value("name").toString().toStdString(), this));
-        QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
+        try {
+            ponies.emplace_back(std::make_shared<Pony>(settings->value("name").toString().toStdString(), this));
+            QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
+        }catch (std::exception e) {
+            std::cerr << "ERROR: Could not load pony '" << settings->value("name").toString().toStdString() << "'." << std::endl;
+        }
     }
     settings->endArray();
     list_model->sort(0);
@@ -185,11 +189,15 @@ void ConfigWindow::add_pony()
     if(ui->listView->currentIndex().isValid() == false) return;
 
     // Add pony and save the active pony list to configuration file
-    ponies.emplace_back(std::make_shared<Pony>(ui->listView->currentIndex().data().toString().toStdString(), this));
-    QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
+    try {
+        ponies.emplace_back(std::make_shared<Pony>(ui->listView->currentIndex().data().toString().toStdString(), this));
+        QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
 
-    save_settings();
-    update_active_list();
+        save_settings();
+        update_active_list();
+    }catch (std::exception e) {
+        std::cerr << "ERROR: Could not load pony '" << settings->value("name").toString().toStdString() << "'." << std::endl;
+    }
 }
 
 void ConfigWindow::update_active_list()

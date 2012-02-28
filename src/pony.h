@@ -81,6 +81,7 @@ private:
     std::mt19937 gen;
     QLabel label;
     QLabel text_label;
+    std::string follow_object;
     int64_t behavior_started;
     int64_t behavior_duration;
     int64_t speech_started;

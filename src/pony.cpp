@@ -55,6 +55,7 @@ Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
     text_label.setWindowFlags(Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint | Qt::ToolTip);
 #endif
 
+    // Initially place the pony randomly on the screen, keeping a 50 pixel border
     x_center = 50 + gen()%(QApplication::desktop()->width()-100);
     y_center = 50 + gen()%(QApplication::desktop()->height()-100);
 
@@ -272,6 +273,8 @@ void Pony::change_behavior()
         current_behavior->deinit();
     }
 
+    follow_object = "";
+
     // Check if linked behavior is present
     if(current_behavior != nullptr && current_behavior->linked_behavior != "") {
         if( behaviors.find(current_behavior->linked_behavior) == behaviors.end()) {
@@ -294,6 +297,34 @@ void Pony::change_behavior()
 
     }
 
+    if(current_behavior->state == Behavior::State::Following || current_behavior->state == Behavior::State::MovingToPoint) {
+        if(current_behavior->state == Behavior::State::Following){
+            // Find follow_object (which is not empty, because we checked it while initializing)
+            auto found = std::find_if(config->ponies.begin(), config->ponies.end(),
+                                          [&current_behavior](const std::shared_ptr<Pony> &p) {
+                                              std::string lower(p->directory); // follow_object is the name in pony.ini or the directory?
+                                              for(auto &i: lower){ i = std::tolower(i); }
+                                              return lower == current_behavior->follow_object;
+                                          });
+            if(found != config->ponies.end()){
+                follow_object = (*found)->name;
+                // Destanation point = follow object position + x/y_coordinate offset
+                current_behavior->destanation_point = QPoint((*found)->x_center + current_behavior->x_coordinate, (*found)->y_center + current_behavior->y_coordinate);
+            }else{
+                // If we did not find the targeted pony in active pony list, then select another behavior
+                follow_object = "";
+                // FIXME: recursion loop if not enough available behaviors or linked behavior leading to follow behavior
+                change_behavior();
+                return;
+            }
+        }
+
+        if(current_behavior->state == Behavior::State::MovingToPoint) {
+            current_behavior->destanation_point = QPoint(((float)current_behavior->x_coordinate / 100.0f) * QApplication::desktop()->width(),
+                                                        ((float)current_behavior->y_coordinate / 100.0f) * QApplication::desktop()->height());
+        }
+    }
+
     int64_t dur_min = std::round(current_behavior->duration_min*1000);
     int64_t dur_max = std::round(current_behavior->duration_max*1000);
     if(dur_min == dur_max) {
@@ -311,6 +342,8 @@ void Pony::change_behavior()
 
     // Select speech line to display
     // starting_line for current behavior or random
+    // TODO: do not choose random line when following a linked behavior
+    //       use ending_line of previous behavior if current behavior does not have a starting line
     if(speak_lines.size() > 0) {
         Speak* current_speech_line = nullptr;
         if(current_behavior->starting_line != ""){
@@ -329,7 +362,8 @@ void Pony::change_behavior()
         text_label.adjustSize();
         text_label.move(x_center-text_label.width()/2, y() - text_label.height());
         text_label.show();
-        current_speech_line->play();
+        // TODO: sound; play only if enabled in configuration
+        // current_speech_line->play();
     }
 }
 
@@ -347,6 +381,20 @@ void Pony::update() {
     if(!dragging && !sleeping && !mouseover) {
         if(behavior_started+behavior_duration <= time){
             change_behavior();
+        }
+
+        // If we are following anypony, update their position
+        if(follow_object != "" && current_behavior->state == Behavior::State::Following){
+            auto found = std::find_if(config->ponies.begin(), config->ponies.end(),
+                                          [&follow_object](const std::shared_ptr<Pony> &p) {
+                                              return p->name == follow_object;
+                                          });
+            if(found != config->ponies.end()){
+                current_behavior->destanation_point = QPoint((*found)->x_center + current_behavior->x_coordinate, (*found)->y_center + current_behavior->y_coordinate);
+            }else{
+                // The pony we were following is no longer available
+                change_behavior();
+            }
         }
         current_behavior->update();
     }

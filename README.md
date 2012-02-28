@@ -44,8 +44,6 @@ correct.
 Not all ponies were tested.
 
 Effects, interactions and sounds are not currently supported.
-Pony behavior following/moving to a point on the screen is not currently
-supported.
 
 On Unix systems an X server supporting ARGB visuals and and a compositing 
 window manager are required for transparency of pony windows. Something like

@@ -54,16 +54,24 @@ public:
         Dragged			= 1 << 6
     };
 
+    enum class State {
+        Normal,
+        Following,
+        MovingToPoint
+    };
+
     float speed;
-    int width;
-    int height;
-    QMovie* current_animation;
-    uint8_t movement_allowed;
     int x_center;
     int y_center;
+    State state;
+    QMovie* current_animation;
+    int width;
+    int height;
+    uint8_t movement_allowed;
     float duration_min;
     float duration_max;
     float probability;
+    QPoint destanation_point;
     std::string path;
     std::string animation_left;
     std::string animation_right;
@@ -71,22 +79,34 @@ public:
     std::string starting_line;
     std::string ending_line;
     std::string name;
+    std::string follow_stopped_behavior;
+    std::string follow_moving_behavior;
     bool skip_normally;
-    uint32_t x_coordinate;
-    uint32_t y_coordinate;
+    int32_t x_coordinate;
+    int32_t y_coordinate;
     std::string follow_object;
 
     QPoint right_image_center;
     QPoint left_image_center;
 
+    // We do not need follow_stopped centers
+    QPoint follow_moving_right_image_center;
+    QPoint follow_moving_left_image_center;
+
 private:
     void choose_angle();
+    void change_direction(bool right, bool moving = true);
 
-    QMovie* animations[2];
+    QMovie* animations[4]; /* 0 - left  / follow_moving left
+                              1 - right / follow_moving right
+                              2 - follow_stopped left
+                              3 - follow_stopped right
+                           */
     Pony* parent;
     int direction_h;
     int direction_v;
     int movement;
+    bool moving;
     float angle;
 
     int desktop_width;

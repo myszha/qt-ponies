@@ -28,6 +28,7 @@
 #include <random>
 #include <cctype>
 #include <cmath>
+#include <algorithm>
 
 #include "behavior.h"
 #include "pony.h"
@@ -48,12 +49,12 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
         speaking_start = 10
         speaking_end = 11
         skip = 12 'Should we skip this behavior when considering ones to randomly choose (part of an interaction/chain?)
-        xcoord = 13  'used when following/moving to a point on the screen.
-        ycoord = 14
-        object_to_follow = 15
+        xcoord = 13  // if not following, then % position of screen
+        ycoord = 14  // pixel offset from center of following object
+        object_to_follow = 15 // pony or effect?
         auto_select_images = 16 // no idea what it is
-        follow_stopped_behavior = 17 // no idea what it is
-        follow_moving_behavior = 18 // no idea what it is
+        follow_stopped_behavior = 17 // behavior name when not moving; used when following other pony
+        follow_moving_behavior = 18 // behavior name when moving; used when following other pony
         right_image_center = 19
         left_image_center = 20
 */
@@ -72,6 +73,15 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
         {"dragged", Movement::Dragged}
     };
 
+    state = State::Normal;
+    moving = true;
+
+    current_animation = nullptr;
+    for(int i = 0; i < 4; i++) {
+        animations[i] = nullptr;
+    }
+
+    // Read behavior options
     name = options[1];
     std::istringstream(options[2]) >> probability;
     std::istringstream(options[3]) >> duration_max;
@@ -95,9 +105,19 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
 
         std::istringstream(options[13]) >> x_coordinate;
         std::istringstream(options[14]) >> y_coordinate;
+        if( x_coordinate != 0 && y_coordinate != 0) {
+            state = State::MovingToPoint;
+        }
+
         follow_object = options[15];
+        if(follow_object != "") {
+            state = State::Following;
+        }
 
         if( options.size() > 16 ) {
+            follow_stopped_behavior = options[17];
+            follow_moving_behavior = options[18];
+
             // Extract lefft/right image centers
             std::string tmp_field;
             int x,y;
@@ -124,10 +144,6 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
 
     }
 
-    current_animation = nullptr;
-    animations[0] = nullptr;
-    animations[1] = nullptr;
-
     QDesktopWidget *desktop = QApplication::desktop();
     desktop_width = desktop->width();
     desktop_height = desktop->height();
@@ -137,14 +153,19 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
 Behavior::Behavior(Behavior &&b)
 {
     *this = std::move(b);
-    b.animations[0] = nullptr;
-    b.animations[1] = nullptr;
+    for(int i = 0; i < 4; i++) {
+        b.animations[i] = nullptr;
+    }
 }
 
 Behavior::~Behavior()
 {
-    if(animations[0] != nullptr) delete animations[0];
-    if(animations[1] != nullptr) delete animations[1];
+    for(int i = 0; i < 4; i++) {
+        if(animations[i] != nullptr) {
+            delete animations[i];
+            animations[i] = nullptr;
+        }
+    }
 }
 
 void Behavior::choose_angle()
@@ -189,6 +210,56 @@ void Behavior::init()
     if(right_image_center.x() == 0 && right_image_center.y() == 0) {
         animations[1]->jumpToFrame(0);
         right_image_center = QPoint(animations[1]->currentImage().width()/2,animations[1]->currentImage().height()/2);
+    }
+
+    /* Animations:
+       0 - left  / follow_moving left
+       1 - right / follow_moving right
+       2 - follow_stopped left
+       3 - follow_stopped right
+    */
+
+    // If we are following or moving to point, load additional animations
+    if(state == State::Following || state == State::MovingToPoint){
+
+        // Find moving behavior and get left/right filenames from it
+        if(follow_moving_behavior == ""){
+            // If we do not have a moveing behavior, use standard left/right animations
+        }else if( parent->behaviors.find(follow_moving_behavior) == parent->behaviors.end()) {
+            std::cerr << "ERROR: Pony: '"<<parent->name<<"' follow moving behavior:'"<< follow_moving_behavior << "' from: '"<< name << "' not present."<<std::endl;
+        }else{
+            const Behavior &moving_behavior = parent->behaviors.at(follow_moving_behavior);
+            if(moving_behavior.animation_left == "") {
+                std::cerr << "ERROR: Pony: '"<<parent->name<<"' follow moving behavior:'"<< follow_moving_behavior << "' animation left from: '"<< name << "' not present."<<std::endl;
+            }else{
+                // We are not using the animations declared for this behavior, instead we use the ones specified in follow_moving_behavior
+                delete animations[0];
+                delete animations[1];
+                animations[0] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + moving_behavior.animation_left ));
+                animations[1] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + moving_behavior.animation_right ));
+
+                // Set centers of the moving animations
+                left_image_center = moving_behavior.left_image_center;
+                right_image_center = moving_behavior.right_image_center;
+            }
+        }
+
+
+        // Find stopped behavior and get left/right filenames from it
+        if(follow_stopped_behavior == ""){
+            animations[2] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_left ));
+            animations[3] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_right));
+        }else if( parent->behaviors.find(follow_stopped_behavior) == parent->behaviors.end()) {
+            std::cerr << "ERROR: Pony: '"<<parent->name<<"' follow stopped behavior:'"<< follow_stopped_behavior << "' from: '"<< name << "' not present."<<std::endl;
+        }else{
+            const Behavior &stopped_behavior = parent->behaviors.at(follow_stopped_behavior);
+            if(stopped_behavior.animation_left == "") {
+                std::cerr << "ERROR: Pony: '"<<parent->name<<"' follow stopped behavior:'"<< follow_moving_behavior << "' animation left from: '"<< name << "' not present."<<std::endl;
+            }else{
+                animations[2] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + stopped_behavior.animation_left ));
+                animations[3] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + stopped_behavior.animation_right ));
+            }
+        }
     }
 
     // Randomly select movement type from allowed types for this behavior
@@ -236,12 +307,44 @@ void Behavior::deinit()
         current_animation->stop();
     }
 
-    if(animations[0] != nullptr) delete animations[0];
-    if(animations[1] != nullptr) delete animations[1];
+    for(int i = 0; i < 4; i++) {
+        if(animations[i] != nullptr) {
+            delete animations[i];
+            animations[i] = nullptr;
+        }
+    }
 
-    animations[0] = nullptr;
-    animations[1] = nullptr;
     current_animation = nullptr;
+}
+
+void Behavior::change_direction(bool right, bool moving)
+{
+    current_animation->stop();
+
+    uint8_t animation = right;
+    if(state == State::Following || state == State::MovingToPoint){
+        if(moving){
+            animation = right; // animation 0 or 1 - follow moving behavior
+        }else{
+            animation = 2 + right; // animation 2 or 3 - follow stopped behavior
+        }
+    }
+
+    current_animation = animations[animation];
+    current_animation->start();
+    parent->update_animation(current_animation);
+    width = current_animation->currentImage().size().width();
+    height = current_animation->currentImage().size().height();
+    direction_h = right==true ? Direction::Right : Direction::Left;
+
+    if(right) {
+        x_center = right_image_center.x();
+        y_center = right_image_center.y();
+    }else{
+        x_center = left_image_center.x();
+        y_center = left_image_center.y();
+    }
+
 }
 
 void Behavior::update()
@@ -249,31 +352,78 @@ void Behavior::update()
     // No need to change position if we can't move
     if(movement == Movement::None) return;
 
+    // If we are moving to a destanation point, calculate direction and move there
+    if(state == State::Following  || state == State::MovingToPoint) {
+        // Check if we are close enough to destanation point
+        if((std::abs(destanation_point.x() - parent->x_center) < 1.5f) && (std::abs(destanation_point.y() - parent->y_center) < 1.5f)) {
+            moving = false;
+            change_direction(direction_h==Direction::Right,false);
+            return; // We arrived at destanation, don't move anymore
+
+            // TODO: if the centers for stopped and moving are not the same, then
+            //       maybe we must move the window to the center of follow_stopped_behavior?
+        }
+
+        if(destanation_point.x() == 0 && destanation_point.y() == 0){
+            std::cerr << "WARNING: " << parent->name << " behavior " << name << " is following, but has no target!" << std::endl;
+            return;
+        }
+
+
+        float dir_x = destanation_point.x() - parent->x_center;
+        float dir_y = destanation_point.y() - parent->y_center;
+
+        // Normalize direction vector
+        float vec_len = std::sqrt(dir_x*dir_x + dir_y*dir_y);
+        dir_x /= vec_len;
+        dir_y /= vec_len;
+
+        // Check if we are facing the right irection
+        if(dir_x < 0 && direction_h != Direction::Left) {
+            moving = true;
+            change_direction(false, true);
+        }else if(dir_x > 0 && direction_h != Direction::Right) {
+            moving = true;
+            change_direction(true, true);
+        }else if(moving == false) {
+            // We were stopped, but are moving now, update the animation
+            moving = true;
+            change_direction(direction_h==Direction::Right,true);
+        }
+
+        // Move only if we are within the screen boundaries
+        // Else we may go offscreen when two ponies are following each other
+        if((parent->x() >= 0) && (dir_x < 0)) {
+            parent->x_center += dir_x * speed;
+        }
+        if((parent->x() <= desktop_width - width) && (dir_x > 0)) {
+            parent->x_center += dir_x * speed;
+        }
+
+        if((parent->y() >= 0) && (dir_y < 0)){
+            parent->y_center += dir_y * speed;
+        }
+        if((parent->y() <= desktop_height - height) && (dir_y > 0)){
+            parent->y_center += dir_y * speed;
+        }
+
+        parent->move(parent->x_center-x_center,parent->y_center-y_center);
+
+        return;
+    }
+
+
+    // Normal movement
     float vel_x = direction_h * speed;
     float vel_y = direction_v * speed;
 
+    // If we are at the screen edge then reverse the direction of movement
     if(parent->x() <= 0) {
-        current_animation->stop();
-        current_animation = animations[1];
-        current_animation->start();
-        parent->update_animation(current_animation);
-        width = current_animation->currentImage().size().width();
-        height = current_animation->currentImage().size().height();
-        direction_h = Direction::Right;
-        x_center = right_image_center.x();
-        y_center = right_image_center.y();
+        change_direction(true);
         if(movement == Movement::Diagonal) choose_angle();
     }
     if(parent->x() >= desktop_width - width) {
-        current_animation->stop();
-        current_animation = animations[0];
-        current_animation->start();
-        parent->update_animation(current_animation);
-        width = current_animation->currentImage().size().width();
-        height = current_animation->currentImage().size().height();
-        direction_h = Direction::Left;
-        x_center = left_image_center.x();
-        y_center = left_image_center.y();
+        change_direction(false);
         if(movement == Movement::Diagonal) choose_angle();
     }
 
@@ -286,6 +436,7 @@ void Behavior::update()
         if(movement == Movement::Diagonal) choose_angle();
     }
 
+    // Update posiotion depending on movement type
     if(movement == Movement::Horizontal){
         parent->x_center += vel_x;
         parent->move(parent->x_center-x_center,parent->y_center-y_center);
