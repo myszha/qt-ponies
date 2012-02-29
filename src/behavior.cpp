@@ -73,7 +73,7 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
         {"dragged", Movement::Dragged}
     };
 
-    state = State::Normal;
+    type = State::Normal;
     moving = true;
 
     current_animation = nullptr;
@@ -106,12 +106,12 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
         std::istringstream(options[13]) >> x_coordinate;
         std::istringstream(options[14]) >> y_coordinate;
         if( x_coordinate != 0 && y_coordinate != 0) {
-            state = State::MovingToPoint;
+            type = State::MovingToPoint;
         }
 
         follow_object = options[15];
         if(follow_object != "") {
-            state = State::Following;
+            type = State::Following;
         }
 
         if( options.size() > 16 ) {
@@ -143,6 +143,8 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
         }
 
     }
+
+    state = type;
 
     QDesktopWidget *desktop = QApplication::desktop();
     desktop_width = desktop->width();

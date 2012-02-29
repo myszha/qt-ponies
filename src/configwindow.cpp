@@ -24,7 +24,10 @@
 #include "configwindow.h"
 #include "ui_configwindow.h"
 
-
+// TODO: configuration:
+//       always on top
+//       speech
+//       monitors (on witch to run, etc)
 
 ConfigWindow::ConfigWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -81,20 +84,24 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
         QDir pony_dir(dir);
         pony_dir.cd(i);
         if(pony_dir.exists("pony.ini")) {
-            QStandardItem *item = new QStandardItem(QIcon(pony_dir.absoluteFilePath("icon.png")),i);
-            list_model->appendRow(item);
+            QStandardItem *item_icon = new QStandardItem(QIcon(pony_dir.absoluteFilePath("icon.png")),"");
+            QStandardItem *item_text = new QStandardItem(i);
+
+            QList<QStandardItem*> row;
+            row << item_icon << item_text;
+            list_model->appendRow(row);
         }
     }
 
-    ui->listView->setIconSize(QSize(100,100));
-    ui->listView->setModel(list_model);
-    ui->listView->setAlternatingRowColors(true);
+    ui->available_list->setIconSize(QSize(100,100));
+    ui->available_list->setModel(list_model);
+    ui->available_list->setAlternatingRowColors(true);
 
     ui->active_list->setIconSize(QSize(100,100));
     ui->active_list->setModel(active_list_model);
     ui->active_list->setAlternatingRowColors(true);
 
-    connect(ui->listView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(newpony_list_changed(QModelIndex)));
+    connect(ui->available_list->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(newpony_list_changed(QModelIndex)));
     connect(ui->addpony_button, SIGNAL(clicked()), this, SLOT(add_pony()));
     connect(ui->removepony_button, SIGNAL(clicked()), this, SLOT(remove_pony_activelist()));
 
@@ -115,7 +122,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
         }
     }
     settings->endArray();
-    list_model->sort(0);
+    list_model->sort(1);
 
     update_active_list();
 }
@@ -156,58 +163,80 @@ void ConfigWindow::remove_pony_all()
 
 void ConfigWindow::remove_pony_activelist()
 {
-    // Check if we have selected an item
-    if(ui->active_list->currentIndex().isValid() == false) return;
 
-    // Get the name from active list
-    std::string name = ui->active_list->currentIndex().data().toString().toStdString();
+    // For each of the selected items
+    for(auto &i: ui->active_list->selectionModel()->selectedIndexes() ) {
+        if(i.column() == 0) {
+            // Ignore the first column(with the icon), we are only interested in the second column (with the name of the pony)
+            continue;
+        }
 
-    // Find first occurance of pony name
-    auto occurance = std::find_if(ponies.begin(), ponies.end(),
-                                     [&name](const std::shared_ptr<Pony> &p)
-                                     {
-                                         return p->directory == name;
-                                     });
-    // If found, remove
-    if(occurance != ponies.end()) {
-        ponies.erase(occurance);
-        save_settings();
-        update_active_list();
+        // Get the name from active list
+        std::string name = i.data().toString().toStdString();
+
+        // Find first occurance of pony name
+        auto occurance = std::find_if(ponies.begin(), ponies.end(),
+                                         [&name](const std::shared_ptr<Pony> &p)
+                                         {
+                                             return p->directory == name;
+                                         });
+        // If found, remove
+        if(occurance != ponies.end()) {
+            ponies.erase(occurance);
+        }
+
     }
+
+    save_settings();
+    update_active_list();
 }
 
 void ConfigWindow::newpony_list_changed(QModelIndex item)
 {
     // Update the UI with information about selected pony
-    ui->image_label->setPixmap(item.data(Qt::DecorationRole).value<QIcon>().pixmap(100,100));
-    ui->label_ponyname->setText(item.data().toString());
+    ui->image_label->setPixmap(item.sibling(item.row(),0).data(Qt::DecorationRole).value<QIcon>().pixmap(100,100));
+    ui->label_ponyname->setText(item.sibling(item.row(),1).data().toString());
 }
 
 void ConfigWindow::add_pony()
 {
-    // Check if we have selected an item
-    if(ui->listView->currentIndex().isValid() == false) return;
+    // For each of the selected items
+    for(auto &i: ui->available_list->selectionModel()->selectedIndexes() ) {
+        if(i.column() == 0) {
+            // Ignore the first column(with the icon), we are only interested in the second column (with the name of the pony)
+            continue;
+        }
 
-    // Add pony and save the active pony list to configuration file
-    try {
-        ponies.emplace_back(std::make_shared<Pony>(ui->listView->currentIndex().data().toString().toStdString(), this));
-        QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
+        // Get the name from active list
+        std::string name = i.data().toString().toStdString();
 
-        save_settings();
-        update_active_list();
-    }catch (std::exception e) {
-        std::cerr << "ERROR: Could not load pony '" << settings->value("name").toString().toStdString() << "'." << std::endl;
+        try {
+            // Try to initialize the new pony at the end of the active pony list and connect it to the update timer
+            ponies.emplace_back(std::make_shared<Pony>(i.data().toString().toStdString(), this));
+            QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
+
+        }catch (std::exception e) {
+            std::cerr << "ERROR: Could not load pony '" << settings->value("name").toString().toStdString() << "'." << std::endl;
+        }
+
     }
+
+    save_settings();
+    update_active_list();
 }
 
 void ConfigWindow::update_active_list()
 {
     active_list_model->clear();
     for(auto &i: ponies) {
-        QStandardItem *item = new QStandardItem(QIcon("desktop-ponies/" + QString::fromStdString(i->directory) +  "/icon.png"),QString::fromStdString(i->directory));
-        active_list_model->appendRow(item);
+        QStandardItem *item_icon = new QStandardItem(QIcon("desktop-ponies/" + QString::fromStdString(i->directory) +  "/icon.png"),"");
+        QStandardItem *item_text = new QStandardItem(QString::fromStdString(i->directory));
+
+        QList<QStandardItem*> row;
+        row << item_icon << item_text;
+        active_list_model->appendRow(row);
     }
-    active_list_model->sort(0);
+    active_list_model->sort(1);
 }
 
 void ConfigWindow::toggle_window(QSystemTrayIcon::ActivationReason reason)

@@ -64,6 +64,7 @@ public:
     int x_center;
     int y_center;
     State state;
+    State type;
     QMovie* current_animation;
     int width;
     int height;

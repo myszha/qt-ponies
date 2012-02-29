@@ -9,7 +9,7 @@ QPushButton#testing {
 	color: white;
 }
 
-QListView::item {
+QTreeView::item {
 	height: 80px;
 }
 

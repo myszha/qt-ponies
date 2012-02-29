@@ -78,6 +78,8 @@ protected:
     void leaveEvent(QEvent* event);
 
 private:
+    void change_behavior_to(const std::vector<Behavior*> &new_behavior_list);
+
     std::mt19937 gen;
     QLabel label;
     QLabel text_label;

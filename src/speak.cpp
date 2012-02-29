@@ -22,23 +22,30 @@
 #include "speak.h"
 #include "pony.h"
 
+// audio: http://developer.qt.nokia.com/doc/qt-4.7/qtmultimedia.html
+
 Speak::Speak(Pony* parent, const std::string filepath, const std::vector<std::string> &options)
     :parent(parent), path(filepath)/*, music(nullptr)*/
 {
 
-    name = options[1];
-    text = options[2];
+    if(options.size() == 2) { // Speak, "text"
+        text = options[1];
+        skip_normally = false;
+    }else{ // Speak, name, "text"
+        name = options[1];
+        text = options[2];
 
-    if(options.size()>3){
-        // TODO: parse all of the soundfiles names
-        // for now, we get only the first
-        if(options[3] != ""){
-            soundfile = std::move(std::string(options[3], 0, options[3].find(',')));
+        if(options.size()>3){ // Speak, name, "text", {"file.mp3", "file.ogg"}, skip_normally
+            // TODO: parse all of the soundfiles names
+            // for now, we get only the first
+            if(options[3] != "") {
+                soundfile = std::move(std::string(options[3], 0, options[3].find(',')));
+            }
+
+            std::string lower(options[4]);
+            for(auto &i: lower){ i = std::tolower(i); }
+            skip_normally = lower == "true"?true:false;
         }
-
-        std::string lower(options[4]);
-        for(auto &i: lower){ i = std::tolower(i); }
-        skip_normally = lower == "true"?true:false;
     }
 }
 

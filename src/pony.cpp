@@ -35,6 +35,11 @@
 #include "csv_parser.h"
 #include "configwindow.h"
 
+// TODO: Maybe a configuration option to change window shape?
+// connect to current_animation: update() signal and do:
+// setMask(current_behavior->current_animation->currentPixmap().mask());
+// or maybe there are better ways to do it
+
 Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
     QMainWindow(parent), gen(QDateTime::currentMSecsSinceEpoch()), label(this), config(config), dragging(false), sleeping(false), mouseover(false)
 {
@@ -186,12 +191,7 @@ void Pony::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton) {
         dragging = true;
-        if(drag_behaviors.size() > 0){
-            std::uniform_int_distribution<> dis(0, drag_behaviors.size()-1);
-            current_behavior->deinit();
-            current_behavior = drag_behaviors.at(dis(gen));
-            current_behavior->init();
-        }
+        change_behavior_to(drag_behaviors);
         event->accept();
     }
 }
@@ -200,11 +200,10 @@ void Pony::mouseReleaseEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton) {
         dragging = false;
-        if(sleeping == true) {
-            std::uniform_int_distribution<> dis(0, sleep_behaviors.size()-1);
-            current_behavior->deinit();
-            current_behavior = sleep_behaviors.at(dis(gen));
-            current_behavior->init();
+        if(mouseover == true){
+            change_behavior_to(mouseover_behaviors);
+        }else if(sleeping == true) {
+            change_behavior_to(sleep_behaviors);
         }else if(drag_behaviors.size() > 0){
             change_behavior();
         }
@@ -215,12 +214,8 @@ void Pony::mouseReleaseEvent(QMouseEvent* event)
 void Pony::enterEvent(QEvent* event)
 {
     mouseover = true;
-    if(mouseover_behaviors.size() > 0) {
-        std::uniform_int_distribution<> int_dis(0, mouseover_behaviors.size()-1);
-        current_behavior->deinit();
-        current_behavior = mouseover_behaviors.at(int_dis(gen));
-        current_behavior->init();
-    }
+    change_behavior_to(mouseover_behaviors);
+
     event->accept();
 }
 
@@ -228,10 +223,7 @@ void Pony::leaveEvent(QEvent* event)
 {
     mouseover = false;
     if(sleeping == true) {
-        std::uniform_int_distribution<> dis(0, sleep_behaviors.size()-1);
-        current_behavior->deinit();
-        current_behavior = sleep_behaviors.at(dis(gen));
-        current_behavior->init();
+        change_behavior_to(sleep_behaviors);
     }else if(mouseover_behaviors.size() > 0){
         change_behavior();
     }
@@ -242,12 +234,7 @@ void Pony::toggle_sleep(bool is_asleep)
 {
     sleeping = is_asleep;
     if(sleeping == true) {
-        if(sleep_behaviors.size() > 0){
-            std::uniform_int_distribution<> dis(0, sleep_behaviors.size()-1);
-            current_behavior->deinit();
-            current_behavior = sleep_behaviors.at(dis(gen));
-            current_behavior->init();
-        }
+        change_behavior_to(sleep_behaviors);
     }else{
         change_behavior();
     }
@@ -261,14 +248,32 @@ void Pony::display_menu(const QPoint &pos)
 
 void Pony::update_animation(QMovie* animation)
 {
+    // FIXME: sometimes animation gets stuck
+    // happens on mouse leave
+    // behaviors change?, but animation is stopped, even when bouncing off the edge
+    // it is updating, because it moves
+    // it seems the label does not change to the new animation maybe?
+
     label.setMovie(animation);
     resize(animation->currentImage().size());
     label.resize(animation->currentImage().size());
     label.repaint();
 }
 
+void Pony::change_behavior_to(const std::vector<Behavior*> &new_behavior)
+{
+    int size = new_behavior.size();
+    if(size > 0){
+            std::uniform_int_distribution<> dis(0, new_behavior.size()-1);
+            current_behavior->deinit();
+            current_behavior = new_behavior.at(dis(gen));
+            current_behavior->init();
+    }
+}
+
 void Pony::change_behavior()
 {
+    Behavior *old_behavior = current_behavior;
     if(current_behavior != nullptr) {
         current_behavior->deinit();
     }
@@ -297,8 +302,8 @@ void Pony::change_behavior()
 
     }
 
-    if(current_behavior->state == Behavior::State::Following || current_behavior->state == Behavior::State::MovingToPoint) {
-        if(current_behavior->state == Behavior::State::Following){
+    if(current_behavior->type == Behavior::State::Following || current_behavior->type == Behavior::State::MovingToPoint) {
+        if(current_behavior->type == Behavior::State::Following){
             // Find follow_object (which is not empty, because we checked it while initializing)
             auto found = std::find_if(config->ponies.begin(), config->ponies.end(),
                                           [&current_behavior](const std::shared_ptr<Pony> &p) {
@@ -309,17 +314,21 @@ void Pony::change_behavior()
             if(found != config->ponies.end()){
                 follow_object = (*found)->name;
                 // Destanation point = follow object position + x/y_coordinate offset
+                current_behavior->state = Behavior::State::Following;
                 current_behavior->destanation_point = QPoint((*found)->x_center + current_behavior->x_coordinate, (*found)->y_center + current_behavior->y_coordinate);
             }else{
-                // If we did not find the targeted pony in active pony list, then select another behavior
+                // If we did not find the targeted pony in active pony list, then set this behavior to normal for the time being
                 follow_object = "";
+                current_behavior->state = Behavior::State::Normal;
+
+                // If we did not find the targeted pony in active pony list, then select another behavior
                 // FIXME: recursion loop if not enough available behaviors or linked behavior leading to follow behavior
-                change_behavior();
-                return;
+                // change_behavior();
+                // return;
             }
         }
 
-        if(current_behavior->state == Behavior::State::MovingToPoint) {
+        if(current_behavior->type == Behavior::State::MovingToPoint) {
             current_behavior->destanation_point = QPoint(((float)current_behavior->x_coordinate / 100.0f) * QApplication::desktop()->width(),
                                                         ((float)current_behavior->y_coordinate / 100.0f) * QApplication::desktop()->height());
         }
@@ -340,30 +349,52 @@ void Pony::change_behavior()
     behavior_started = QDateTime::currentMSecsSinceEpoch();
     current_behavior->init();
 
-    // Select speech line to display
+    // Select speech line to display:
     // starting_line for current behavior or random
-    // TODO: do not choose random line when following a linked behavior
-    //       use ending_line of previous behavior if current behavior does not have a starting line
+    // Do not choose random line when following a linked behavior,
+    //    instead use the ending_line of the previous behavior if current
+    //    behavior does not have a starting line
+    // If ending_line is present, use that instead of choosing a new one
     if(speak_lines.size() > 0) {
         Speak* current_speech_line = nullptr;
+
         if(current_behavior->starting_line != ""){
+            // If we have a starting_line, use that
+
             if( speak_lines.find(current_behavior->starting_line) == speak_lines.end()) {
                 std::cerr << "ERROR: Pony: '"<<name<<"' starting line:'"<< current_behavior->starting_line<< "' from: '"<< current_behavior->name << "' not present."<<std::endl;
             }else{
                 current_speech_line = &speak_lines.at(current_behavior->starting_line);
             }
-        }else{
-            std::uniform_int_distribution<> int_dis(0, random_speak_lines.size()-1);
-            current_speech_line = random_speak_lines[int_dis(gen)];
+        }else if(old_behavior != nullptr && old_behavior->ending_line != "" && old_behavior->linked_behavior != current_behavior->name){
+            // If we do not have a starting line, and this is a linked behavior, use old behavior's ending line if present
+            // old_behavior == nullptr only if we didn't have any previous behaviors (i.e. at startup)
+
+            if( speak_lines.find(old_behavior->ending_line) == speak_lines.end()) {
+                std::cerr << "ERROR: Pony: '"<<name<<"' ending line:'"<< old_behavior->ending_line<< "' from: '"<< old_behavior->name << "' not present."<<std::endl;
+            }else{
+                current_speech_line = &speak_lines.at(old_behavior->ending_line);
+            }
+        }else if(old_behavior == nullptr || old_behavior->linked_behavior != current_behavior->name) {
+            // If we do not have a starting line and this is NOT a linked behavior, then choose one randomly
+            // old_behavior == nullptr only if we didn't have any previous behaviors (i.e. at startup)
+            if(random_speak_lines.size() > 0) {
+                std::uniform_int_distribution<> int_dis(0, random_speak_lines.size()-1);
+                current_speech_line = random_speak_lines[int_dis(gen)];
+            }
         }
 
-        text_label.setText(QString::fromUtf8(current_speech_line->text.c_str()));
-        speech_started = behavior_started;
-        text_label.adjustSize();
-        text_label.move(x_center-text_label.width()/2, y() - text_label.height());
-        text_label.show();
-        // TODO: sound; play only if enabled in configuration
-        // current_speech_line->play();
+        if(current_speech_line != nullptr) {
+            // Show text only if we found a suitable line
+
+            text_label.setText(QString::fromUtf8(current_speech_line->text.c_str()));
+            speech_started = behavior_started;
+            text_label.adjustSize();
+            text_label.move(x_center-text_label.width()/2, y() - text_label.height());
+            text_label.show();
+            // TODO: sound; play only if enabled in configuration
+            // current_speech_line->play();
+        }
     }
 }
 
@@ -371,10 +402,12 @@ void Pony::update() {
     int64_t time = QDateTime::currentMSecsSinceEpoch();
 
     // Check for speech timeout and move text with pony
-    if(speech_started+2000 <= time) {
-        text_label.hide();
-    }else{
-        text_label.move(x_center-text_label.width()/2, y() - text_label.height());
+    if(text_label.isVisible() == true) {
+        if(speech_started+2000 <= time) {
+            text_label.hide();
+        }else{
+            text_label.move(x_center-text_label.width()/2, y() - text_label.height());
+        }
     }
 
     // Check behavior timeout and update if not dragging or asleep
