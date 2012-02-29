@@ -21,7 +21,7 @@ Then build qt-ponies by invoking:
 
 Running under Windows
 -------
-A testing version of qt-ponies is avialable at [https://github.com/downloads/myszha/qt-ponies/qt-ponies-win32.zip](https://github.com/downloads/myszha/qt-ponies/qt-ponies-win32.zip).
+A testing version of qt-ponies is avialable at [https://github.com/downloads/myszha/qt-ponies/qt-ponies-v0.5-win32.zip](https://github.com/downloads/myszha/qt-ponies/qt-ponies-v0.5-win32.zip).
 
 Running
 -------
