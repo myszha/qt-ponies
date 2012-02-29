@@ -28,7 +28,9 @@
 //       always on top
 //       speech
 //       monitors (on witch to run, etc)
-
+//       debug messages
+//
+//	avoidance areas (vincity of the mouse cursor for example)
 ConfigWindow::ConfigWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ConfigWindow)

@@ -94,6 +94,10 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
     for(auto &i: lower){ i = std::tolower(i); }
     movement_allowed = movement_map[lower];
 
+    skip_normally = false;
+    x_coordinate = 0;
+    y_coordinate = 0;
+
     if( options.size() > 9 ) {
         linked_behavior = options[9];
         starting_line = options[10];

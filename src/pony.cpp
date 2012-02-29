@@ -109,6 +109,11 @@ Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
         throw std::exception();
     }
 
+    if(behaviors.size() == 0) {
+        std::cerr << "ERROR: Pony: '"<<name<<"' nas no defined behaviors."<<std::endl;
+        throw std::exception();
+    }
+
     menu = new QMenu(this);
     QAction *sleep_action = new QAction("Sleeping",menu);
     sleep_action->setCheckable(true);
@@ -126,6 +131,12 @@ Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
             random_behaviors.push_back(&i.second);
         }
     }
+
+    if(random_behaviors.size() == 0) {
+        std::cerr << "ERROR: Pony: '"<<name<<"' nas no defined behaviors that can be randomly selected."<<std::endl;
+        throw std::exception();
+    }
+
 
     std::sort(random_behaviors.begin(), random_behaviors.end(), [](const Behavior *val1, const Behavior *val2){ return val1->probability < val2->probability;} );
     total_behavior_probability = 0;
@@ -344,7 +355,7 @@ void Pony::change_behavior()
     }
 
 
-    std::cout << "Pony: '"<<name<<"' behavior: '"<< current_behavior->name <<"' for " << behavior_duration << "msec" <<std::endl;
+    //std::cout << "Pony: '"<<name<<"' behavior: '"<< current_behavior->name <<"' for " << behavior_duration << "msec" <<std::endl;
 
     behavior_started = QDateTime::currentMSecsSinceEpoch();
     current_behavior->init();
