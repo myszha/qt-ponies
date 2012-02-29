@@ -1,7 +1,7 @@
 
 QT       += core gui
 
-TARGET = ponies
+TARGET = qt-ponies
 OBJECTS_DIR = bin
 MOC_DIR = src/moc
 UI_DIR = src/ui

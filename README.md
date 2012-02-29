@@ -10,9 +10,14 @@ Compilation
 -----------
 A compiler supporting C++11 is required, as are Qt libraries.
 
-\# qmake  
-\# make  
-\# ./ponies
+Under Debian/Ubuntu you can install the dependencies by invoking:
+
+    \# sudo apt-get install build-essential libqtcore4 libqtgui4 libqt4-dev qt4-qmake
+
+Then build qt-ponies by invoking:
+
+    \# qmake  
+    \# make  
 
 Running under Windows
 -------
@@ -20,7 +25,7 @@ A testing version of qt-ponies is avialable at [https://github.com/downloads/mys
 
 Running
 -------
-Run 'ponies'. If you have not added any ponies, the configuration window
+Run 'qt-ponies'. If you have not added any ponies, the configuration window
 will be shown (as is the case at first startup). Configuration is saved
 in config.ini in the same directory as the executable.
 

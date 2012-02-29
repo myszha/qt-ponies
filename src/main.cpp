@@ -23,11 +23,6 @@
 #include "configwindow.h"
 #include "pony.h"
 
-void remove_pony()
-{
-
-}
-
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
