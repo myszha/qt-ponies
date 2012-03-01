@@ -61,8 +61,8 @@ Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
 #endif
 
     // Initially place the pony randomly on the screen, keeping a 50 pixel border
-    x_center = 50 + gen()%(QApplication::desktop()->width()-100);
-    y_center = 50 + gen()%(QApplication::desktop()->height()-100);
+    x_center = 50 + gen()%(QApplication::desktop()->availableGeometry(this).width()-100);
+    y_center = 50 + gen()%(QApplication::desktop()->availableGeometry(this).height()-100);
 
     move(x_center, y_center);
 
@@ -316,6 +316,7 @@ void Pony::change_behavior()
     if(current_behavior->type == Behavior::State::Following || current_behavior->type == Behavior::State::MovingToPoint) {
         if(current_behavior->type == Behavior::State::Following){
             // Find follow_object (which is not empty, because we checked it while initializing)
+            std::cout << "FOO '" << std::endl;
             auto found = std::find_if(config->ponies.begin(), config->ponies.end(),
                                           [&current_behavior](const std::shared_ptr<Pony> &p) {
                                               std::string lower(p->directory); // follow_object is the name in pony.ini or the directory?
@@ -340,8 +341,8 @@ void Pony::change_behavior()
         }
 
         if(current_behavior->type == Behavior::State::MovingToPoint) {
-            current_behavior->destanation_point = QPoint(((float)current_behavior->x_coordinate / 100.0f) * QApplication::desktop()->width(),
-                                                        ((float)current_behavior->y_coordinate / 100.0f) * QApplication::desktop()->height());
+            current_behavior->destanation_point = QPoint(((float)current_behavior->x_coordinate / 100.0f) * QApplication::desktop()->availableGeometry(this).width(),
+                                                        ((float)current_behavior->y_coordinate / 100.0f) * QApplication::desktop()->availableGeometry(this).height());
         }
     }
 

@@ -109,9 +109,6 @@ private:
     int movement;
     bool moving;
     float angle;
-
-    int desktop_width;
-    int desktop_height;
 };
 
 

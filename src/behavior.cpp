@@ -150,10 +150,6 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
 
     state = type;
 
-    QDesktopWidget *desktop = QApplication::desktop();
-    desktop_width = desktop->width();
-    desktop_height = desktop->height();
-
 }
 
 Behavior::Behavior(Behavior &&b)
@@ -384,6 +380,17 @@ void Behavior::update()
         dir_x /= vec_len;
         dir_y /= vec_len;
 
+        // TODO: avoidance areas:
+        // for each avoidance area:
+        //  check if we are inside
+        //   if yes, do not change direction, just go, we will leave it eventually
+        //  check if we are too close
+        //  abs(x - area.left) < min_dist // if we are too close, and we are
+        //                                // going in the direction of the area (left,right,up,down)
+        //                                // then flip direction
+        //   change_direction left, etc
+
+
         // Check if we are facing the right irection
         if(dir_x < 0 && direction_h != Direction::Left) {
             moving = true;
@@ -402,14 +409,14 @@ void Behavior::update()
         if((parent->x() >= 0) && (dir_x < 0)) {
             parent->x_center += dir_x * speed;
         }
-        if((parent->x() <= desktop_width - width) && (dir_x > 0)) {
+        if((parent->x() <= QApplication::desktop()->availableGeometry(parent).width() - width) && (dir_x > 0)) {
             parent->x_center += dir_x * speed;
         }
 
         if((parent->y() >= 0) && (dir_y < 0)){
             parent->y_center += dir_y * speed;
         }
-        if((parent->y() <= desktop_height - height) && (dir_y > 0)){
+        if((parent->y() <= QApplication::desktop()->availableGeometry(parent).height() - height) && (dir_y > 0)){
             parent->y_center += dir_y * speed;
         }
 
@@ -428,7 +435,7 @@ void Behavior::update()
         change_direction(true);
         if(movement == Movement::Diagonal) choose_angle();
     }
-    if(parent->x() >= desktop_width - width) {
+    if(parent->x() >= QApplication::desktop()->availableGeometry(parent).width() - width) {
         change_direction(false);
         if(movement == Movement::Diagonal) choose_angle();
     }
@@ -437,7 +444,7 @@ void Behavior::update()
         direction_v = Behavior::Direction::Down;
         if(movement == Movement::Diagonal) choose_angle();
     }
-    if(parent->y() >= desktop_height - height){
+    if(parent->y() >= QApplication::desktop()->availableGeometry(parent).height() - height){
         direction_v = Behavior::Direction::Up;
         if(movement == Movement::Diagonal) choose_angle();
     }
