@@ -23,6 +23,8 @@
 #include <QMenu>
 #include <QCheckBox>
 #include <QWidgetAction>
+#include <QFile>
+#include <QTextStream>
 
 #include <iostream>
 #include <fstream>
@@ -40,7 +42,7 @@
 // setMask(current_behavior->current_animation->currentPixmap().mask());
 // or maybe there are better ways to do it
 
-Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
+Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     QMainWindow(parent), gen(QDateTime::currentMSecsSinceEpoch()), label(this), config(config), dragging(false), sleeping(false), mouseover(false)
 {
     setAttribute(Qt::WA_TranslucentBackground);
@@ -68,25 +70,24 @@ Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
 
     directory = path;
 
-    std::ifstream ifile;
-    try {
-        ifile.open("desktop-ponies/" + path + "/pony.ini");
-    } catch (std::ifstream::failure e) {
+    QFile ifile("desktop-ponies/" + path + "/pony.ini");
+    if(!ifile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         std::cerr << "ERROR: Cannot open pony.ini for pony: '"<< path << "'" << std::endl;
-        std::cerr << e.what() << std::endl;
+        std::cerr << ifile.errorString() << std::endl;
         throw std::exception();
     }
 
     name = path;
 
-    if( ifile.is_open() ) {
-        std::string line;
+    if( ifile.isOpen() ) {
+        QString line;
+        QTextStream istr(&ifile);
 
-        while (!ifile.eof() ) {
-            std::getline(ifile, line);
+        while (!istr.atEnd() ) {
+            line = istr.readLine();
 
             if(line[0] != '\'') {
-                std::vector<std::string> csv_data;
+                std::vector<QString> csv_data;
                 csvline_populate(csv_data, line, ',');
 
                 if(csv_data[0] == "Name") {
@@ -119,7 +120,7 @@ Pony::Pony(const std::string path, ConfigWindow *config, QWidget *parent) :
     sleep_action->setCheckable(true);
     connect(sleep_action, SIGNAL(toggled(bool)), this, SLOT(toggle_sleep(bool)));
 
-    menu->addAction(QString::fromStdString(name))->setEnabled(false);
+    menu->addAction(name)->setEnabled(false);
     menu->addSeparator();
     menu->addAction(sleep_action);
     menu->addAction("Remove pony", config, SLOT(remove_pony()));
@@ -294,7 +295,7 @@ void Pony::change_behavior()
     // Check if linked behavior is present
     if(current_behavior != nullptr && current_behavior->linked_behavior != "") {
         if( behaviors.find(current_behavior->linked_behavior) == behaviors.end()) {
-            std::cerr << "ERROR: Pony: '"<<name<<"' linked behavior:'"<< current_behavior->linked_behavior << "' from: '"<< current_behavior->name << "' not present."<<std::endl;
+            std::cerr << "ERROR: Pony: '"<<name<<"' linked behavior:'"<< current_behavior->linked_behavior<< "' from: '"<< current_behavior->name << "' not present."<<std::endl;
         }else{
             current_behavior = &behaviors.at(current_behavior->linked_behavior);
         }
@@ -316,12 +317,9 @@ void Pony::change_behavior()
     if(current_behavior->type == Behavior::State::Following || current_behavior->type == Behavior::State::MovingToPoint) {
         if(current_behavior->type == Behavior::State::Following){
             // Find follow_object (which is not empty, because we checked it while initializing)
-            std::cout << "FOO '" << std::endl;
             auto found = std::find_if(config->ponies.begin(), config->ponies.end(),
                                           [&current_behavior](const std::shared_ptr<Pony> &p) {
-                                              std::string lower(p->directory); // follow_object is the name in pony.ini or the directory?
-                                              for(auto &i: lower){ i = std::tolower(i); }
-                                              return lower == current_behavior->follow_object;
+                                              return p->name.toLower() == current_behavior->follow_object.toLower();
                                           });
             if(found != config->ponies.end()){
                 follow_object = (*found)->name;
@@ -399,7 +397,7 @@ void Pony::change_behavior()
         if(current_speech_line != nullptr) {
             // Show text only if we found a suitable line
 
-            text_label.setText(QString::fromUtf8(current_speech_line->text.c_str()));
+            text_label.setText(current_speech_line->text);
             speech_started = behavior_started;
             text_label.adjustSize();
             text_label.move(x_center-text_label.width()/2, y() - text_label.height());

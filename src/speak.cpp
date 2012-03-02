@@ -24,7 +24,7 @@
 
 // audio: http://developer.qt.nokia.com/doc/qt-4.7/qtmultimedia.html
 
-Speak::Speak(Pony* parent, const std::string filepath, const std::vector<std::string> &options)
+Speak::Speak(Pony* parent, const QString filepath, const std::vector<QString> &options)
     :parent(parent), path(filepath)/*, music(nullptr)*/
 {
 
@@ -32,19 +32,17 @@ Speak::Speak(Pony* parent, const std::string filepath, const std::vector<std::st
         text = options[1];
         skip_normally = false;
     }else{ // Speak, name, "text"
-        name = options[1];
+        name = options[1].toLower();
         text = options[2];
 
         if(options.size()>3){ // Speak, name, "text", {"file.mp3", "file.ogg"}, skip_normally
             // TODO: parse all of the soundfiles names
             // for now, we get only the first
             if(options[3] != "") {
-                soundfile = std::move(std::string(options[3], 0, options[3].find(',')));
+                soundfile = options[3].section(',',0,0);
             }
 
-            std::string lower(options[4]);
-            for(auto &i: lower){ i = std::tolower(i); }
-            skip_normally = lower == "true"?true:false;
+            skip_normally = (options[4].compare("true", Qt::CaseInsensitive) == 0)?true:false;
         }
     }
 }

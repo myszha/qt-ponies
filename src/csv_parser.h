@@ -3,18 +3,19 @@
 
 #include <string>
 #include <vector>
+#include <QString>
 
-void csvline_populate(std::vector<std::string> &record, const std::string& line, char delimiter)
+void csvline_populate(std::vector<QString> &record, const QString& line, QChar delimiter)
 {
     int linepos=0;
     int inquotes=false;
     int inbrackets=false;
-    char c;
+    QChar c;
     int linemax=line.length();
-    std::string curstring;
+    QString curstring;
     record.clear();
-       
-    while(line[linepos]!=0 && linepos < linemax)
+
+    while(linepos < linemax && line[linepos]!=0)
     {
        
         c = line[linepos];

@@ -33,7 +33,7 @@
 #include "behavior.h"
 #include "pony.h"
 
-Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<std::string> &options)
+Behavior::Behavior(Pony* parent, const QString filepath, const std::vector<QString> &options)
     : path(filepath), parent(parent)
 {
 /*
@@ -82,65 +82,55 @@ Behavior::Behavior(Pony* parent, const std::string filepath, const std::vector<s
     }
 
     // Read behavior options
-    name = options[1];
-    std::istringstream(options[2]) >> probability;
-    std::istringstream(options[3]) >> duration_max;
-    std::istringstream(options[4]) >> duration_min;
-    std::istringstream(options[5]) >> speed;
+    name = options[1].toLower();
+    probability = options[2].toFloat();
+    duration_max = options[3].toFloat();
+    duration_min = options[4].toFloat();
+    speed = options[5].toFloat();
+
     animation_right = options[6];
     animation_left = options[7];
 
-    std::string lower(options[8]);
-    for(auto &i: lower){ i = std::tolower(i); }
-    movement_allowed = movement_map[lower];
+    movement_allowed = movement_map[options[8].toLower().toStdString()];
 
     skip_normally = false;
     x_coordinate = 0;
     y_coordinate = 0;
 
     if( options.size() > 9 ) {
-        linked_behavior = options[9];
-        starting_line = options[10];
-        ending_line = options[11];
+        linked_behavior = options[9].toLower();
+        starting_line = options[10].toLower();
+        ending_line = options[11].toLower();
 
-        std::string lower(options[12]);
-        for(auto &i: lower){ i = std::tolower(i); }
-        skip_normally = lower == "true"?true:false;
+        skip_normally = (options[12].compare("true",Qt::CaseInsensitive) == 0)?true:false;
 
-        std::istringstream(options[13]) >> x_coordinate;
-        std::istringstream(options[14]) >> y_coordinate;
+        x_coordinate = options[13].toInt();
+        y_coordinate = options[14].toInt();
         if( x_coordinate != 0 && y_coordinate != 0) {
             type = State::MovingToPoint;
         }
 
-        follow_object = options[15];
+        follow_object = options[15].toLower();
         if(follow_object != "") {
             type = State::Following;
         }
 
         if( options.size() > 16 ) {
-            follow_stopped_behavior = options[17];
-            follow_moving_behavior = options[18];
+            follow_stopped_behavior = options[17].toLower();
+            follow_moving_behavior = options[18].toLower();
 
             // Extract lefft/right image centers
             std::string tmp_field;
             int x,y;
 
-            std::istringstream iss(options[19]);
-
-            std::getline(iss,tmp_field,',');
-            std::istringstream(tmp_field) >> x;
-            std::getline(iss,tmp_field,',');
-            std::istringstream(tmp_field) >> y;
+            x = options[19].section(',',0,0).toInt();
+            y = options[19].section(',',1,1).toInt();
             right_image_center = QPoint(x,y);
 
-            std::istringstream iss2(options[20]);
-
-            std::getline(iss2,tmp_field,',');
-            std::istringstream(tmp_field) >> x;
-            std::getline(iss2,tmp_field,',');
-            std::istringstream(tmp_field) >> y;
+            x = options[20].section(',',0,0).toInt();
+            y = options[20].section(',',1,1).toInt();
             left_image_center = QPoint(x,y);
+
         }else{
             right_image_center = QPoint(0,0);
             left_image_center = QPoint(0,0);
@@ -193,8 +183,8 @@ void Behavior::init()
     std::mt19937 gen(QDateTime::currentMSecsSinceEpoch());
 
     // Load animations and verify them
-    animations[0] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_left ));
-    animations[1] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_right));
+    animations[0] = new QMovie("desktop-ponies/" + path + "/" + animation_left );
+    animations[1] = new QMovie("desktop-ponies/" + path + "/" + animation_right);
 
     if(!animations[0]->isValid())
         std::cerr << "ERROR: Pony: '"<< path <<"' Error opening left animation:'"<< animation_left << "' for behavior: '"<< name << "'."<<std::endl;
@@ -237,8 +227,8 @@ void Behavior::init()
                 // We are not using the animations declared for this behavior, instead we use the ones specified in follow_moving_behavior
                 delete animations[0];
                 delete animations[1];
-                animations[0] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + moving_behavior.animation_left ));
-                animations[1] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + moving_behavior.animation_right ));
+                animations[0] = new QMovie("desktop-ponies/" + path + "/" + moving_behavior.animation_left );
+                animations[1] = new QMovie("desktop-ponies/" + path + "/" + moving_behavior.animation_right );
 
                 // Set centers of the moving animations
                 left_image_center = moving_behavior.left_image_center;
@@ -249,8 +239,8 @@ void Behavior::init()
 
         // Find stopped behavior and get left/right filenames from it
         if(follow_stopped_behavior == ""){
-            animations[2] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_left ));
-            animations[3] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + animation_right));
+            animations[2] = new QMovie("desktop-ponies/" + path + "/" + animation_left );
+            animations[3] = new QMovie("desktop-ponies/" + path + "/" + animation_right);
         }else if( parent->behaviors.find(follow_stopped_behavior) == parent->behaviors.end()) {
             std::cerr << "ERROR: Pony: '"<<parent->name<<"' follow stopped behavior:'"<< follow_stopped_behavior << "' from: '"<< name << "' not present."<<std::endl;
         }else{
@@ -258,8 +248,8 @@ void Behavior::init()
             if(stopped_behavior.animation_left == "") {
                 std::cerr << "ERROR: Pony: '"<<parent->name<<"' follow stopped behavior:'"<< follow_moving_behavior << "' animation left from: '"<< name << "' not present."<<std::endl;
             }else{
-                animations[2] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + stopped_behavior.animation_left ));
-                animations[3] = new QMovie(QString::fromStdString("desktop-ponies/" + path + "/" + stopped_behavior.animation_right ));
+                animations[2] = new QMovie("desktop-ponies/" + path + "/" + stopped_behavior.animation_left );
+                animations[3] = new QMovie("desktop-ponies/" + path + "/" + stopped_behavior.animation_right );
             }
         }
     }
@@ -354,6 +344,8 @@ void Behavior::update()
     // No need to change position if we can't move
     if(movement == Movement::None) return;
 
+    QRect space = QApplication::desktop()->availableGeometry(parent);
+
     // If we are moving to a destanation point, calculate direction and move there
     if(state == State::Following  || state == State::MovingToPoint) {
         // Check if we are close enough to destanation point
@@ -406,17 +398,17 @@ void Behavior::update()
 
         // Move only if we are within the screen boundaries
         // Else we may go offscreen when two ponies are following each other
-        if((parent->x() >= 0) && (dir_x < 0)) {
+        if((parent->x() >= space.left()) && (dir_x < 0)) {
             parent->x_center += dir_x * speed;
         }
-        if((parent->x() <= QApplication::desktop()->availableGeometry(parent).width() - width) && (dir_x > 0)) {
+        if((parent->x() <= space.right() - width) && (dir_x > 0)) {
             parent->x_center += dir_x * speed;
         }
 
-        if((parent->y() >= 0) && (dir_y < 0)){
+        if((parent->y() >= space.top()) && (dir_y < 0)){
             parent->y_center += dir_y * speed;
         }
-        if((parent->y() <= QApplication::desktop()->availableGeometry(parent).height() - height) && (dir_y > 0)){
+        if((parent->y() <= space.bottom() - height) && (dir_y > 0)){
             parent->y_center += dir_y * speed;
         }
 
@@ -431,20 +423,21 @@ void Behavior::update()
     float vel_y = direction_v * speed;
 
     // If we are at the screen edge then reverse the direction of movement
-    if(parent->x() <= 0) {
+
+    if(parent->x() <= space.left()) {
         change_direction(true);
         if(movement == Movement::Diagonal) choose_angle();
     }
-    if(parent->x() >= QApplication::desktop()->availableGeometry(parent).width() - width) {
+    if(parent->x() >= space.right() - width) {
         change_direction(false);
         if(movement == Movement::Diagonal) choose_angle();
     }
 
-    if(parent->y() <= 0){
+    if(parent->y() <= space.top()){
         direction_v = Behavior::Direction::Down;
         if(movement == Movement::Diagonal) choose_angle();
     }
-    if(parent->y() >= QApplication::desktop()->availableGeometry(parent).height() - height){
+    if(parent->y() >= space.bottom() - height){
         direction_v = Behavior::Direction::Up;
         if(movement == Movement::Diagonal) choose_angle();
     }

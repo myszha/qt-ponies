@@ -31,6 +31,7 @@
 //       debug messages
 //
 //	avoidance areas (vincity of the mouse cursor for example)
+
 ConfigWindow::ConfigWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ConfigWindow)
@@ -117,10 +118,10 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     for(int i=0; i< size; i++) {
         settings->setArrayIndex(i);
         try {
-            ponies.emplace_back(std::make_shared<Pony>(settings->value("name").toString().toStdString(), this));
+            ponies.emplace_back(std::make_shared<Pony>(settings->value("name").toString(), this));
             QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
         }catch (std::exception e) {
-            std::cerr << "ERROR: Could not load pony '" << settings->value("name").toString().toStdString() << "'." << std::endl;
+            std::cerr << "ERROR: Could not load pony '" << settings->value("name").toString() << "'." << std::endl;
         }
     }
     settings->endArray();
@@ -154,7 +155,7 @@ void ConfigWindow::remove_pony_all()
     // Get a pointer to Pony from sender()
     QAction *q = qobject_cast<QAction*>(QObject::sender());
     Pony* p = static_cast<Pony*>(q->parent()->parent()); // QAction->QMenu->QMainWindow(Pony)
-    std::string pony_name(p->name); // We must copy the name, because it will be deleted
+    QString pony_name(p->name); // We must copy the name, because it will be deleted
     ponies.remove_if([&pony_name](const std::shared_ptr<Pony> &pony){
         return pony->name == pony_name;
     });
@@ -174,7 +175,7 @@ void ConfigWindow::remove_pony_activelist()
         }
 
         // Get the name from active list
-        std::string name = i.data().toString().toStdString();
+        QString name = i.data().toString();
 
         // Find first occurance of pony name
         auto occurance = std::find_if(ponies.begin(), ponies.end(),
@@ -210,15 +211,15 @@ void ConfigWindow::add_pony()
         }
 
         // Get the name from active list
-        std::string name = i.data().toString().toStdString();
+        QString name = i.data().toString();
 
         try {
             // Try to initialize the new pony at the end of the active pony list and connect it to the update timer
-            ponies.emplace_back(std::make_shared<Pony>(i.data().toString().toStdString(), this));
+            ponies.emplace_back(std::make_shared<Pony>(i.data().toString(), this));
             QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
 
         }catch (std::exception e) {
-            std::cerr << "ERROR: Could not load pony '" << settings->value("name").toString().toStdString() << "'." << std::endl;
+            std::cerr << "ERROR: Could not load pony '" << settings->value("name").toString() << "'." << std::endl;
         }
 
     }
@@ -231,8 +232,8 @@ void ConfigWindow::update_active_list()
 {
     active_list_model->clear();
     for(auto &i: ponies) {
-        QStandardItem *item_icon = new QStandardItem(QIcon("desktop-ponies/" + QString::fromStdString(i->directory) +  "/icon.png"),"");
-        QStandardItem *item_text = new QStandardItem(QString::fromStdString(i->directory));
+        QStandardItem *item_icon = new QStandardItem(QIcon("desktop-ponies/" + i->directory +  "/icon.png"),"");
+        QStandardItem *item_text = new QStandardItem(i->directory);
 
         QList<QStandardItem*> row;
         row << item_icon << item_text;
@@ -261,7 +262,7 @@ void ConfigWindow::save_settings()
     int i=0;
     for(const auto &pony : ponies) {
         settings->setArrayIndex(i);
-        settings->setValue("name", QString::fromStdString(pony->directory));
+        settings->setValue("name", pony->directory);
         i++;
     }
     settings->endArray();

@@ -23,6 +23,7 @@
 #include <QtGui/QLabel>
 #include <QMainWindow>
 #include <QMouseEvent>
+#include <QHash>
 
 #include <string>
 #include <unordered_map>
@@ -35,11 +36,23 @@
 
 class ConfigWindow;
 
+namespace std
+{
+        template <>
+        struct hash<QString>
+        {
+            size_t operator()(const QString& s) const
+            {
+                return qHash(s);
+            }
+        };
+}
+
 class Pony : public QMainWindow, public std::enable_shared_from_this<Pony>
 {
     Q_OBJECT
 public:
-    explicit Pony(const std::string path, ConfigWindow *config, QWidget *parent = 0);
+    explicit Pony(const QString path, ConfigWindow *config, QWidget *parent = 0);
     ~Pony();
 
     void change_behavior();
@@ -50,9 +63,9 @@ public:
     float y_center;
     Behavior* current_behavior;
     std::vector<Behavior*> random_behaviors;
-    std::unordered_map<std::string, Behavior> behaviors;
+    std::unordered_map<QString, Behavior> behaviors;
 
-    std::unordered_map<std::string, Speak> speak_lines;
+    std::unordered_map<QString, Speak> speak_lines;
     std::vector<Speak*> random_speak_lines;
 
     std::vector<Behavior*> sleep_behaviors;
@@ -60,8 +73,8 @@ public:
 
     std::vector<Behavior*> mouseover_behaviors;
 
-    std::string name;
-    std::string directory;
+    QString name;
+    QString directory;
 
 signals:
 
@@ -83,7 +96,7 @@ private:
     std::mt19937 gen;
     QLabel label;
     QLabel text_label;
-    std::string follow_object;
+    QString follow_object;
     int64_t behavior_started;
     int64_t behavior_duration;
     int64_t speech_started;
@@ -95,5 +108,9 @@ private:
     bool mouseover;
 
 };
+
+inline std::basic_ostream<char>& operator<<(std::basic_ostream<char>& os, const QString& str) {
+   return os << qPrintable(str);
+}
 
 #endif // PONY_H

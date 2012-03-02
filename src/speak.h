@@ -20,7 +20,7 @@
 #define SPEAK_H
 
 #include <vector>
-#include <string>
+#include <QString>
 
 //#include <Phonon/MediaObject>
 
@@ -29,18 +29,18 @@ class Pony;
 class Speak
 {
 public:
-    Speak(Pony* parent, const std::string filepath, const std::vector<std::string> &options);
+    Speak(Pony* parent, const QString filepath, const std::vector<QString> &options);
 
     void play();
 
-    std::string name;
-    std::string text;
-    std::string soundfile;
+    QString name;
+    QString text;
+    QString soundfile;
     bool skip_normally;
 
 private:
     Pony* parent;
-    std::string path;
+    QString path;
 //    Phonon::MediaObject *music;
 };
 

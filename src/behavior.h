@@ -22,14 +22,14 @@
 #include <QMovie>
 
 #include <cstdint>
-#include <string>
+#include <QString>
 
 class Pony;
 
 class Behavior
 {
 public:
-    Behavior(Pony* parent, const std::string filepath, const std::vector<std::string> &options);
+    Behavior(Pony* parent, const QString filepath, const std::vector<QString> &options);
     Behavior(Behavior &&b);
     ~Behavior();
 
@@ -73,19 +73,19 @@ public:
     float duration_max;
     float probability;
     QPoint destanation_point;
-    std::string path;
-    std::string animation_left;
-    std::string animation_right;
-    std::string linked_behavior;
-    std::string starting_line;
-    std::string ending_line;
-    std::string name;
-    std::string follow_stopped_behavior;
-    std::string follow_moving_behavior;
+    QString path;
+    QString animation_left;
+    QString animation_right;
+    QString linked_behavior;
+    QString starting_line;
+    QString ending_line;
+    QString name;
+    QString follow_stopped_behavior;
+    QString follow_moving_behavior;
     bool skip_normally;
     int32_t x_coordinate;
     int32_t y_coordinate;
-    std::string follow_object;
+    QString follow_object;
 
     QPoint right_image_center;
     QPoint left_image_center;
