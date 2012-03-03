@@ -29,6 +29,7 @@
 //       speech
 //       monitors (on witch to run, etc)
 //       debug messages
+//	 X11 normal window or bypass wm
 //
 //	avoidance areas (vincity of the mouse cursor for example)
 

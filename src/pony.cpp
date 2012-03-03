@@ -307,8 +307,6 @@ void Pony::change_behavior_to(const std::vector<Behavior*> &new_behavior)
 
 void Pony::change_behavior()
 {
-    x_pos = x();
-    y_pos = y();
     Behavior *old_behavior = current_behavior;
     if(current_behavior != nullptr) {
         current_behavior->deinit();
@@ -440,9 +438,7 @@ void Pony::update() {
         if(speech_started+2000 <= time) {
             text_label.hide();
         }else{
-            x_pos = x() + current_behavior->x_center;
-            y_pos = y() + current_behavior->y_center;
-            text_label.move(x_pos-text_label.width()/2, y() - text_label.height());
+            text_label.move(x() + current_behavior->x_center - text_label.width()/2, y() - text_label.height());
         }
     }
 

@@ -455,19 +455,18 @@ void Behavior::update()
     // Update posiotion depending on movement type
     if(movement == Movement::Horizontal){
         parent->x_pos += vel_x;
-        parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
     }
     if(movement == Movement::Vertical){
         parent->y_pos += vel_y;
-        parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
     }
     if(movement == Movement::Diagonal){
         vel_x = std::sqrt(speed*speed*2) * std::cos(angle);
         vel_y = -std::sqrt(speed*speed*2) * std::sin(angle);
         parent->x_pos += vel_x;
         parent->y_pos += vel_y;
-        parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
     }
+
+    parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
 
 }
 
