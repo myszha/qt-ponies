@@ -59,8 +59,8 @@ public:
     void update_animation(QMovie* movie);
     std::shared_ptr<Pony> get_shared_ptr();
 
-    float x_center;
-    float y_center;
+    float x_pos;
+    float y_pos;
     Behavior* current_behavior;
     std::vector<Behavior*> random_behaviors;
     std::unordered_map<QString, Behavior> behaviors;

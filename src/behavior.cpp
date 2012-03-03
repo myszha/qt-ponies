@@ -289,8 +289,12 @@ void Behavior::init()
 
     parent->update_animation(current_animation);
 
+    // Update pony position (so it won't jump when we change desktops or something else unexpected happens)
+    parent->x_pos = parent->x() + x_center;
+    parent->y_pos = parent->y() + y_center;
+
     // Move window due to change in image center
-    parent->move(parent->x_center-x_center,parent->y_center-y_center);
+    parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
 }
 
 void Behavior::deinit()
@@ -344,12 +348,18 @@ void Behavior::update()
     // No need to change position if we can't move
     if(movement == Movement::None) return;
 
-    QRect space = QApplication::desktop()->availableGeometry(parent);
+    // Update pony position (so it won't jump when we change desktops or something else unexpected happens)
+    // Under X11 the current desktop is (0,0)x(width,height). The desktop on the left is (-width,0)x(0,0),
+    // the desktop to the right is (width,0)x(width*2,height), etc
+    parent->x_pos = parent->x() + x_center;
+    parent->y_pos = parent->y() + y_center;
+
+    QRect screen = QApplication::desktop()->availableGeometry(parent);
 
     // If we are moving to a destanation point, calculate direction and move there
     if(state == State::Following  || state == State::MovingToPoint) {
         // Check if we are close enough to destanation point
-        if((std::abs(destanation_point.x() - parent->x_center) < 1.5f) && (std::abs(destanation_point.y() - parent->y_center) < 1.5f)) {
+        if((std::abs(destanation_point.x() - parent->x_pos) < 1.5f) && (std::abs(destanation_point.y() - parent->y_pos) < 1.5f)) {
             moving = false;
             change_direction(direction_h==Direction::Right,false);
             return; // We arrived at destanation, don't move anymore
@@ -364,8 +374,8 @@ void Behavior::update()
         }
 
 
-        float dir_x = destanation_point.x() - parent->x_center;
-        float dir_y = destanation_point.y() - parent->y_center;
+        float dir_x = destanation_point.x() - parent->x_pos;
+        float dir_y = destanation_point.y() - parent->y_pos;
 
         // Normalize direction vector
         float vec_len = std::sqrt(dir_x*dir_x + dir_y*dir_y);
@@ -398,65 +408,65 @@ void Behavior::update()
 
         // Move only if we are within the screen boundaries
         // Else we may go offscreen when two ponies are following each other
-        if((parent->x() >= space.left()) && (dir_x < 0)) {
-            parent->x_center += dir_x * speed;
+        if((parent->x() >= screen.left()) && (dir_x < 0)) {
+            parent->x_pos += dir_x * speed;
         }
-        if((parent->x() <= space.right() - width) && (dir_x > 0)) {
-            parent->x_center += dir_x * speed;
-        }
-
-        if((parent->y() >= space.top()) && (dir_y < 0)){
-            parent->y_center += dir_y * speed;
-        }
-        if((parent->y() <= space.bottom() - height) && (dir_y > 0)){
-            parent->y_center += dir_y * speed;
+        if((parent->x() <= screen.right() - width) && (dir_x > 0)) {
+            parent->x_pos += dir_x * speed;
         }
 
-        parent->move(parent->x_center-x_center,parent->y_center-y_center);
+        if((parent->y() >= screen.top()) && (dir_y < 0)){
+            parent->y_pos += dir_y * speed;
+        }
+        if((parent->y() <= screen.bottom() - height) && (dir_y > 0)){
+            parent->y_pos += dir_y * speed;
+        }
+
+        parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
 
         return;
     }
 
-
     // Normal movement
-    float vel_x = direction_h * speed;
-    float vel_y = direction_v * speed;
 
-    // If we are at the screen edge then reverse the direction of movement
-
-    if(parent->x() <= space.left()) {
+    // If we are at the screen edge or beyond then reverse the direction of movement if we are not already going in the right direction
+    if((parent->x() <= screen.left()) && (direction_h != Direction::Right)) {
         change_direction(true);
         if(movement == Movement::Diagonal) choose_angle();
     }
-    if(parent->x() >= space.right() - width) {
+    if((parent->x() >= screen.right() - width) && (direction_h != Direction::Left)) {
         change_direction(false);
         if(movement == Movement::Diagonal) choose_angle();
     }
 
-    if(parent->y() <= space.top()){
-        direction_v = Behavior::Direction::Down;
+    if((parent->y() <= screen.top()) && (direction_v != Direction::Down)){
+        direction_v = Direction::Down;
         if(movement == Movement::Diagonal) choose_angle();
     }
-    if(parent->y() >= space.bottom() - height){
-        direction_v = Behavior::Direction::Up;
+    if((parent->y() >= screen.bottom() - height) && (direction_v != Direction::Up)){
+        direction_v = Direction::Up;
         if(movement == Movement::Diagonal) choose_angle();
     }
 
+    // Calculate the velocity
+    float vel_x = direction_h * speed;
+    float vel_y = direction_v * speed;
+
     // Update posiotion depending on movement type
     if(movement == Movement::Horizontal){
-        parent->x_center += vel_x;
-        parent->move(parent->x_center-x_center,parent->y_center-y_center);
+        parent->x_pos += vel_x;
+        parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
     }
     if(movement == Movement::Vertical){
-        parent->y_center += vel_y;
-        parent->move(parent->x_center-x_center,parent->y_center-y_center);
+        parent->y_pos += vel_y;
+        parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
     }
     if(movement == Movement::Diagonal){
         vel_x = std::sqrt(speed*speed*2) * std::cos(angle);
         vel_y = -std::sqrt(speed*speed*2) * std::sin(angle);
-        parent->x_center += vel_x;
-        parent->y_center += vel_y;
-        parent->move(parent->x_center-x_center,parent->y_center-y_center);
+        parent->x_pos += vel_x;
+        parent->y_pos += vel_y;
+        parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
     }
 
 }

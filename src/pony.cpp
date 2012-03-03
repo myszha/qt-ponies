@@ -33,9 +33,18 @@
 
 #include <cmath>
 
-#include "pony.h"
 #include "csv_parser.h"
 #include "configwindow.h"
+#include "pony.h"
+
+#ifdef Q_WS_X11
+ #include <QX11Info>
+ #include <X11/Xatom.h>
+ #include <X11/Xlib.h> // Xlib #defines None as 0L, which conflicts with Behavior::Movement::None
+                       // This is why we include it after pony.h
+#endif
+
+
 
 // TODO: Maybe a configuration option to change window shape?
 // connect to current_animation: update() signal and do:
@@ -45,28 +54,41 @@
 Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     QMainWindow(parent), gen(QDateTime::currentMSecsSinceEpoch()), label(this), config(config), dragging(false), sleeping(false), mouseover(false)
 {
-    setAttribute(Qt::WA_TranslucentBackground);
-    setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
+    setAttribute(Qt::WA_TranslucentBackground, true);
+    setWindowFlags( Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint );
+
+    // TODO: always on top toggle, we have to preserve the skip taskbar/pager flags, so we have to do
+    //       it by using Xlib
 #ifdef Q_WS_X11
-    setWindowFlags(Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint);
+    // Qt on X11 does not support the skip taskbar/pager window flags, we have to set them ourselves
+    // We let Qt initialize the other window properties
+    Atom window_state = XInternAtom( QX11Info::display(), "_NET_WM_STATE", False );
+    Atom window_props[] = {
+        XInternAtom( QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False ),
+        XInternAtom( QX11Info::display(), "_NET_WM_STATE_SKIP_PAGER"  , False )
+    };
+    XChangeProperty( QX11Info::display(), window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 2 );
 #endif
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(display_menu(const QPoint &)));
 
+    // Setup speech label
     text_label.hide();
+    text_label.setAttribute(Qt::WA_ShowWithoutActivating);
+    text_label.setWindowFlags( Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint );
     text_label.setAlignment(Qt::AlignHCenter);
     text_label.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    text_label.setWindowFlags(Qt::FramelessWindowHint | Qt::ToolTip);
 #ifdef Q_WS_X11
-    text_label.setWindowFlags(Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint | Qt::ToolTip);
+    // Same as above
+    XChangeProperty( QX11Info::display(), text_label.window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 2 );
 #endif
 
     // Initially place the pony randomly on the screen, keeping a 50 pixel border
-    x_center = 50 + gen()%(QApplication::desktop()->availableGeometry(this).width()-100);
-    y_center = 50 + gen()%(QApplication::desktop()->availableGeometry(this).height()-100);
+    x_pos = 50 + gen()%(QApplication::desktop()->availableGeometry(this).width()-100);
+    y_pos = 50 + gen()%(QApplication::desktop()->availableGeometry(this).height()-100);
 
-    move(x_center, y_center);
+    move(x_pos, y_pos);
 
     directory = path;
 
@@ -191,8 +213,8 @@ std::shared_ptr<Pony> Pony::get_shared_ptr()
 void Pony::mouseMoveEvent(QMouseEvent* event)
 {
     if (dragging) {
-        x_center = event->globalPos().x();
-        y_center = event->globalPos().y();
+        x_pos = event->globalPos().x();
+        y_pos = event->globalPos().y();
         QPoint new_pos(event->globalPos().x()-current_behavior->x_center,event->globalPos().y()-current_behavior->y_center);
         move(new_pos);
         event->accept();
@@ -285,6 +307,8 @@ void Pony::change_behavior_to(const std::vector<Behavior*> &new_behavior)
 
 void Pony::change_behavior()
 {
+    x_pos = x();
+    y_pos = y();
     Behavior *old_behavior = current_behavior;
     if(current_behavior != nullptr) {
         current_behavior->deinit();
@@ -325,7 +349,7 @@ void Pony::change_behavior()
                 follow_object = (*found)->name;
                 // Destanation point = follow object position + x/y_coordinate offset
                 current_behavior->state = Behavior::State::Following;
-                current_behavior->destanation_point = QPoint((*found)->x_center + current_behavior->x_coordinate, (*found)->y_center + current_behavior->y_coordinate);
+                current_behavior->destanation_point = QPoint((*found)->x_pos + current_behavior->x_coordinate, (*found)->y_pos + current_behavior->y_coordinate);
             }else{
                 // If we did not find the targeted pony in active pony list, then set this behavior to normal for the time being
                 follow_object = "";
@@ -400,7 +424,7 @@ void Pony::change_behavior()
             text_label.setText(current_speech_line->text);
             speech_started = behavior_started;
             text_label.adjustSize();
-            text_label.move(x_center-text_label.width()/2, y() - text_label.height());
+            text_label.move(x_pos-text_label.width()/2, y() - text_label.height());
             text_label.show();
             // TODO: sound; play only if enabled in configuration
             // current_speech_line->play();
@@ -416,7 +440,9 @@ void Pony::update() {
         if(speech_started+2000 <= time) {
             text_label.hide();
         }else{
-            text_label.move(x_center-text_label.width()/2, y() - text_label.height());
+            x_pos = x() + current_behavior->x_center;
+            y_pos = y() + current_behavior->y_center;
+            text_label.move(x_pos-text_label.width()/2, y() - text_label.height());
         }
     }
 
@@ -433,7 +459,7 @@ void Pony::update() {
                                               return p->name == follow_object;
                                           });
             if(found != config->ponies.end()){
-                current_behavior->destanation_point = QPoint((*found)->x_center + current_behavior->x_coordinate, (*found)->y_center + current_behavior->y_coordinate);
+                current_behavior->destanation_point = QPoint((*found)->x_pos + current_behavior->x_coordinate, (*found)->y_pos + current_behavior->y_coordinate);
             }else{
                 // The pony we were following is no longer available
                 change_behavior();
