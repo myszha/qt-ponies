@@ -55,6 +55,7 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     QMainWindow(parent), gen(QDateTime::currentMSecsSinceEpoch()), label(this), config(config), dragging(false), sleeping(false), mouseover(false)
 {
     setAttribute(Qt::WA_TranslucentBackground, true);
+    setAttribute(Qt::WA_ShowWithoutActivating);
     setWindowFlags( Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint );
 
     // TODO: always on top toggle, we have to preserve the skip taskbar/pager flags, so we have to do
@@ -109,19 +110,19 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
             line = istr.readLine();
 
             if(line[0] != '\'') {
-                std::vector<QString> csv_data;
-                csvline_populate(csv_data, line, ',');
+                std::vector<QVariant> csv_data;
+                CSVParser::ParseLine(csv_data, line, ',');
 
                 if(csv_data[0] == "Name") {
-                    name = csv_data[1]; //Name,"name"
+                    name = csv_data[1].toString(); //Name,"name"
                 }
                 else if(csv_data[0] == "Behavior") {
                     Behavior b(this, path, csv_data);
                     behaviors.insert({b.name, std::move(b)});
                 }
                 else if(csv_data[0] == "Speak") {
-                    Speak s(this, path, csv_data);
-                    speak_lines.insert({s.name, std::move(s)});
+                    std::shared_ptr<Speak> s = std::make_shared<Speak>(this, path, csv_data);
+                    speak_lines.insert({s->name, std::move(s)});
                 }
             }
         }
@@ -169,8 +170,8 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
 
     // Select speech line that will be choosen randomly
     for(auto &i: speak_lines) {
-        if(i.second.skip_normally == false) {
-            random_speak_lines.push_back(&i.second);
+        if(i.second->skip_normally == false) {
+            random_speak_lines.push_back(i.second.get());
         }
     }
 
@@ -378,6 +379,11 @@ void Pony::change_behavior()
 
     //std::cout << "Pony: '"<<name<<"' behavior: '"<< current_behavior->name <<"' for " << behavior_duration << "msec" <<std::endl;
 
+    // Update pony position (so it won't jump when we change desktops or something else unexpected happens)
+    if(old_behavior != nullptr){
+        x_pos = x() + old_behavior->x_center;
+        y_pos = y() + old_behavior->y_center;
+    }
     behavior_started = QDateTime::currentMSecsSinceEpoch();
     current_behavior->init();
 
@@ -396,7 +402,7 @@ void Pony::change_behavior()
             if( speak_lines.find(current_behavior->starting_line) == speak_lines.end()) {
                 std::cerr << "ERROR: Pony: '"<<name<<"' starting line:'"<< current_behavior->starting_line<< "' from: '"<< current_behavior->name << "' not present."<<std::endl;
             }else{
-                current_speech_line = &speak_lines.at(current_behavior->starting_line);
+                current_speech_line = speak_lines.at(current_behavior->starting_line).get();
             }
         }else if(old_behavior != nullptr && old_behavior->ending_line != "" && old_behavior->linked_behavior != current_behavior->name){
             // If we do not have a starting line, and this is a linked behavior, use old behavior's ending line if present
@@ -405,7 +411,7 @@ void Pony::change_behavior()
             if( speak_lines.find(old_behavior->ending_line) == speak_lines.end()) {
                 std::cerr << "ERROR: Pony: '"<<name<<"' ending line:'"<< old_behavior->ending_line<< "' from: '"<< old_behavior->name << "' not present."<<std::endl;
             }else{
-                current_speech_line = &speak_lines.at(old_behavior->ending_line);
+                current_speech_line = speak_lines.at(old_behavior->ending_line).get();
             }
         }else if(old_behavior == nullptr || old_behavior->linked_behavior != current_behavior->name) {
             // If we do not have a starting line and this is NOT a linked behavior, then choose one randomly
@@ -425,7 +431,7 @@ void Pony::change_behavior()
             text_label.move(x_pos-text_label.width()/2, y() - text_label.height());
             text_label.show();
             // TODO: sound; play only if enabled in configuration
-            // current_speech_line->play();
+            current_speech_line->play();
         }
     }
 }

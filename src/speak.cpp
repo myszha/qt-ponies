@@ -19,39 +19,89 @@
 #include <sstream>
 #include <iostream>
 
+#ifdef USE_PHONON
+ #include <Phonon/MediaObject>
+ #include <Phonon/AudioOutput>
+#endif
+
 #include "speak.h"
 #include "pony.h"
 
-// audio: http://developer.qt.nokia.com/doc/qt-4.7/qtmultimedia.html
+// These are the variable types for Behavior configuration
+const CSVParser::ParseTypes Speak::OptionTypes = {
+    {                     "type", QVariant::Type::String },
+    {                     "name", QVariant::Type::String },
+    {                     "text", QVariant::Type::String },
+    {                    "files", QVariant::Type::String },
+    {            "skip_normally", QVariant::Type::Bool }
+};
 
-Speak::Speak(Pony* parent, const QString filepath, const std::vector<QString> &options)
-    :parent(parent), path(filepath)/*, music(nullptr)*/
+Speak::Speak(Pony* parent, const QString filepath, const std::vector<QVariant> &options)
+    :QObject(parent), parent(parent), path(filepath), audioOutput(nullptr), mediaObject(nullptr)
 {
 
     if(options.size() == 2) { // Speak, "text"
-        text = options[1];
+        text = options[1].toString();
         skip_normally = false;
     }else{ // Speak, name, "text"
-        name = options[1].toLower();
-        text = options[2];
+        name = options[1].toString().toLower();
+        text = options[2].toString();
 
         if(options.size()>3){ // Speak, name, "text", {"file.mp3", "file.ogg"}, skip_normally
-            // TODO: parse all of the soundfiles names
-            // for now, we get only the first
             if(options[3] != "") {
-                soundfile = options[3].section(',',0,0);
+                soundfiles = qVariantValue<QList<QVariant>>(options[3]);
             }
 
-            skip_normally = (options[4].compare("true", Qt::CaseInsensitive) == 0)?true:false;
+//            skip_normally = (options[4].toString().compare("true", Qt::CaseInsensitive) == 0)?true:false;
+            skip_normally = options[4].toBool();
         }
     }
 }
 
+Speak::~Speak()
+{
+#ifdef USE_PHONON
+    if(mediaObject != nullptr) {
+        mediaObject->stop();
+        delete mediaObject;
+    }
+
+    if(audioOutput != nullptr) delete audioOutput;
+#endif
+}
+
 void Speak::play()
 {
-    //TODO: play the media file
-    /*if(music == nullptr)
-    music = Phonon::createPlayer(Phonon::MusicCategory,
-                             Phonon::MediaSource(QString::fromStdString("desktop-ponies/" + path + "/" + soundfile)));
-    music->play();*/
+#ifdef USE_PHONON
+    if(soundfiles.size() == 0) return;
+
+    if(audioOutput == nullptr) {
+        audioOutput = new Phonon::AudioOutput(Phonon::MusicCategory, this);
+    }
+    if(mediaObject == nullptr) {
+        mediaObject = new Phonon::MediaObject(this);
+    }
+
+    mediaObject->setCurrentSource("desktop-ponies/" + path + "/" + soundfiles[0].toString());
+    connect(mediaObject, SIGNAL(finished()), this, SLOT(stop()));
+
+    Phonon::createPath(mediaObject, audioOutput);
+
+    mediaObject->play();
+#endif
+}
+
+void Speak::stop()
+{
+#ifdef USE_PHONON
+    if(mediaObject != nullptr) {
+        mediaObject->stop();
+        delete mediaObject;
+        mediaObject = nullptr;
+    }
+    if(audioOutput != nullptr) {
+        delete audioOutput;
+        mediaObject = nullptr;
+    }
+#endif
 }

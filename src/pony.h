@@ -65,7 +65,7 @@ public:
     std::vector<Behavior*> random_behaviors;
     std::unordered_map<QString, Behavior> behaviors;
 
-    std::unordered_map<QString, Speak> speak_lines;
+    std::unordered_map<QString, std::shared_ptr<Speak>> speak_lines;
     std::vector<Speak*> random_speak_lines;
 
     std::vector<Behavior*> sleep_behaviors;

@@ -19,29 +19,47 @@
 #ifndef SPEAK_H
 #define SPEAK_H
 
-#include <vector>
 #include <QString>
+#include <QObject>
+#include <QList>
 
-//#include <Phonon/MediaObject>
+#include <vector>
+#include <memory>
+
+#include "csv_parser.h"
 
 class Pony;
 
-class Speak
+namespace Phonon {
+    class AudioOutput;
+    class MediaObject;
+}
+
+class Speak : public QObject
 {
+    Q_OBJECT
 public:
-    Speak(Pony* parent, const QString filepath, const std::vector<QString> &options);
+    Speak(Pony* parent, const QString filepath, const std::vector<QVariant> &options);
+    ~Speak();
 
     void play();
 
+    static const CSVParser::ParseTypes OptionTypes;
+
     QString name;
     QString text;
-    QString soundfile;
+    QList<QVariant> soundfiles;
     bool skip_normally;
+
+public slots:
+    void stop();
 
 private:
     Pony* parent;
     QString path;
-//    Phonon::MediaObject *music;
+
+    Phonon::AudioOutput *audioOutput;
+    Phonon::MediaObject *mediaObject;
 };
 
 #endif // Speak_H

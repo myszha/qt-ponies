@@ -49,3 +49,13 @@ QToolBar {
 	stop: 1 #777
 	);
 }
+
+QCheckBox::indicator {
+	subcontrol-position: center center;
+}
+
+
+QTabWidget  QLabel{
+	margin-top: 5px;
+	margin-bottom: 5px;
+}

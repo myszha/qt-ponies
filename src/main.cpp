@@ -20,11 +20,19 @@
 #include <QFile>
 #include <iostream>
 
+#include "csv_parser.h"
+#include "behavior.h"
+#include "effect.h"
+#include "speak.h"
+
 #include "configwindow.h"
 #include "pony.h"
 
 int main(int argc, char *argv[])
 {
+    CSVParser::AddParseTypes("Behavior", Behavior::OptionTypes);
+    CSVParser::AddParseTypes("Speak", Speak::OptionTypes);
+
     QApplication app(argc, argv);
     QCoreApplication::addLibraryPath(QCoreApplication::applicationDirPath());
     QCoreApplication::setOrganizationName("qt-ponies");

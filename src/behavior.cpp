@@ -33,32 +33,57 @@
 #include "behavior.h"
 #include "pony.h"
 
-Behavior::Behavior(Pony* parent, const QString filepath, const std::vector<QString> &options)
-    : path(filepath), parent(parent)
-{
+// These are the variable types for Behavior configuration
+const CSVParser::ParseTypes Behavior::OptionTypes = {
+   {                     "type", QVariant::Type::String },
+   {                     "name", QVariant::Type::String },
+   {              "probability", QVariant::Type::Double },
+   {             "max_duration", QVariant::Type::Double },
+   {             "min_duration", QVariant::Type::Double },
+   {                    "speed", QVariant::Type::Double },
+   {         "right_image_path", QVariant::Type::String },
+   {          "left_image_path", QVariant::Type::String },
+   {            "movement_type", QVariant::Type::String },
+   {          "linked_behavior", QVariant::Type::String },
+   {           "speaking_start", QVariant::Type::String },
+   {             "speaking_end", QVariant::Type::String },
+   {                     "skip", QVariant::Type::Bool   },
+   {                   "xcoord", QVariant::Type::Int    },
+   {                   "ycoord", QVariant::Type::Int    },
+   {         "object_to_follow", QVariant::Type::String },
+   {       "auto_select_images", QVariant::Type::Bool   },
+   {  "follow_stopped_behavior", QVariant::Type::String },
+   {   "follow_moving_behavior", QVariant::Type::String },
+   {       "right_image_center", QVariant::Type::Point  },
+   {        "left_image_center", QVariant::Type::Point  },
+};
 /*
-        name = 1
-        probability = 2
-        max_duration = 3
-        min_duration = 4
-        speed = 5 'specified in pixels per tick of the timer
-        right_image_path = 6
-        left_image_path = 7
-        movement_type = 8
-        linked_behavior = 9
-        speaking_start = 10
-        speaking_end = 11
-        skip = 12 'Should we skip this behavior when considering ones to randomly choose (part of an interaction/chain?)
-        xcoord = 13  // if not following, then % position of screen
-        ycoord = 14  // pixel offset from center of following object
-        object_to_follow = 15 // pony or effect?
-        auto_select_images = 16 // no idea what it is
-        follow_stopped_behavior = 17 // behavior name when not moving; used when following other pony
-        follow_moving_behavior = 18 // behavior name when moving; used when following other pony
-        right_image_center = 19
-        left_image_center = 20
+  line_type = 0
+  name = 1
+  probability = 2
+  max_duration = 3
+  min_duration = 4
+  speed = 5 'specified in pixels per tick of the timer
+  right_image_path = 6
+  left_image_path = 7
+  movement_type = 8
+  linked_behavior = 9
+  speaking_start = 10
+  speaking_end = 11
+  skip = 12 'Should we skip this behavior when considering ones to randomly choose (part of an interaction/chain?)
+  xcoord = 13  // if not following, then % position of screen
+  ycoord = 14  // pixel offset from center of following object
+  object_to_follow = 15 // pony or effect?
+  auto_select_images = 16 // no idea what it is
+  follow_stopped_behavior = 17 // behavior name when not moving; used when following other pony
+  follow_moving_behavior = 18 // behavior name when moving; used when following other pony
+  right_image_center = 19
+  left_image_center = 20
 */
 
+Behavior::Behavior(Pony* parent, const QString filepath, const std::vector<QVariant> &options)
+    : path(filepath), parent(parent)
+{
     static std::unordered_map<std::string, Movement> movement_map = {
         {"none", Movement::None},
         {"horizontal_only", Movement::Horizontal},
@@ -82,27 +107,27 @@ Behavior::Behavior(Pony* parent, const QString filepath, const std::vector<QStri
     }
 
     // Read behavior options
-    name = options[1].toLower();
+    name = options[1].toString().toLower();
     probability = options[2].toFloat();
     duration_max = options[3].toFloat();
     duration_min = options[4].toFloat();
-    speed = options[5].toFloat();
+    speed = options[5].toString().toFloat();
 
-    animation_right = options[6];
-    animation_left = options[7];
+    animation_right = options[6].toString();
+    animation_left = options[7].toString();
 
-    movement_allowed = movement_map[options[8].toLower().toStdString()];
+    movement_allowed = movement_map[options[8].toString().toLower().toStdString()];
 
     skip_normally = false;
     x_coordinate = 0;
     y_coordinate = 0;
 
     if( options.size() > 9 ) {
-        linked_behavior = options[9].toLower();
-        starting_line = options[10].toLower();
-        ending_line = options[11].toLower();
+        linked_behavior = options[9].toString().toLower();
+        starting_line = options[10].toString().toLower();
+        ending_line = options[11].toString().toLower();
 
-        skip_normally = (options[12].compare("true",Qt::CaseInsensitive) == 0)?true:false;
+        skip_normally = (options[12].toString().compare("true",Qt::CaseInsensitive) == 0)?true:false;
 
         x_coordinate = options[13].toInt();
         y_coordinate = options[14].toInt();
@@ -110,27 +135,18 @@ Behavior::Behavior(Pony* parent, const QString filepath, const std::vector<QStri
             type = State::MovingToPoint;
         }
 
-        follow_object = options[15].toLower();
+        follow_object = options[15].toString().toLower();
         if(follow_object != "") {
             type = State::Following;
         }
 
         if( options.size() > 16 ) {
-            follow_stopped_behavior = options[17].toLower();
-            follow_moving_behavior = options[18].toLower();
+            follow_stopped_behavior = options[17].toString().toLower();
+            follow_moving_behavior = options[18].toString().toLower();
 
-            // Extract lefft/right image centers
-            std::string tmp_field;
-            int x,y;
-
-            x = options[19].section(',',0,0).toInt();
-            y = options[19].section(',',1,1).toInt();
-            right_image_center = QPoint(x,y);
-
-            x = options[20].section(',',0,0).toInt();
-            y = options[20].section(',',1,1).toInt();
-            left_image_center = QPoint(x,y);
-
+            // Extract left/right image centers
+            right_image_center = options[19].toPoint();
+            left_image_center = options[20].toPoint();
         }else{
             right_image_center = QPoint(0,0);
             left_image_center = QPoint(0,0);
@@ -288,10 +304,6 @@ void Behavior::init()
     height = current_animation->currentImage().size().height();
 
     parent->update_animation(current_animation);
-
-    // Update pony position (so it won't jump when we change desktops or something else unexpected happens)
-    parent->x_pos = parent->x() + x_center;
-    parent->y_pos = parent->y() + y_center;
 
     // Move window due to change in image center
     parent->move(parent->x_pos-x_center,parent->y_pos-y_center);

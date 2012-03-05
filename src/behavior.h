@@ -23,13 +23,16 @@
 
 #include <cstdint>
 #include <QString>
+#include <QVariant>
+
+#include "csv_parser.h"
 
 class Pony;
 
 class Behavior
 {
 public:
-    Behavior(Pony* parent, const QString filepath, const std::vector<QString> &options);
+    Behavior(Pony* parent, const QString filepath, const std::vector<QVariant> &options);
     Behavior(Behavior &&b);
     ~Behavior();
 
@@ -59,6 +62,8 @@ public:
         Following,
         MovingToPoint
     };
+
+    static const CSVParser::ParseTypes OptionTypes;
 
     float speed;
     int x_center;
