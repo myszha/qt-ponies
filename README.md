@@ -60,7 +60,7 @@ Screenshots of the configuration window
 
 * Add pony screen
  
-![](http://i.imgur.com/7fpXG.png)
+![](http://i.imgur.com/cObuc.png)
 
 
 * Active ponies screen
