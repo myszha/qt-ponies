@@ -38,7 +38,6 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     signal_mapper = new QSignalMapper();
 
     ui->setupUi(this);
-
 #ifndef Q_WS_X11
     // Do not show X11 specific options on other platforms
     ui->label_bypass_wm->setVisible(false);
@@ -88,10 +87,15 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
 
     // Get names of all the pony directories
+    QList<QChar> letters;
     for(auto &i: dir.entryList()) {
         QDir pony_dir(dir);
         pony_dir.cd(i);
         if(pony_dir.exists("pony.ini")) {
+            if(!letters.contains(i[0])) {
+                letters.push_back(i[0]);
+            }
+
             QStandardItem *item_icon = new QStandardItem(QIcon(pony_dir.absoluteFilePath("icon.png")),"");
             QStandardItem *item_text = new QStandardItem(i);
 
@@ -100,6 +104,9 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
             list_model->appendRow(row);
         }
     }
+    ui->tabbar->setShape(QTabBar::RoundedWest);
+    for(QChar &i: letters) ui->tabbar->addTab(i);
+    connect(ui->tabbar, SIGNAL(currentChanged(int)), this, SLOT(lettertab_changed(int)));
 
     ui->available_list->setIconSize(QSize(100,100));
     ui->available_list->setModel(list_model);
@@ -245,6 +252,16 @@ void ConfigWindow::update_active_list()
         active_list_model->appendRow(row);
     }
     active_list_model->sort(1);
+}
+
+void ConfigWindow::lettertab_changed(int index)
+{
+    // Find items starting with the letter which is currently selected in the tab bar
+    QList<QStandardItem *> found = list_model->findItems(ui->tabbar->tabText(index),Qt::MatchStartsWith, 1);
+    if(!found.isEmpty()) { // It should always find something
+        // Scroll active list to the first found item
+        ui->available_list->scrollTo(found[0]->index(), QAbstractItemView::PositionAtTop);
+    }
 }
 
 void ConfigWindow::toggle_window(QSystemTrayIcon::ActivationReason reason)

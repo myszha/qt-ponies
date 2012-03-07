@@ -66,6 +66,7 @@ private slots:
     void toggle_window(QSystemTrayIcon::ActivationReason reason);
     void save_settings();
     void load_settings();
+    void lettertab_changed(int index);
 
 private:
     Ui::ConfigWindow *ui;

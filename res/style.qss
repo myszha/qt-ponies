@@ -13,7 +13,7 @@ QTreeView::item {
 	height: 80px;
 }
 
-QToolButton {
+QToolBar QToolButton {
 	height: 80px;
 	width: 100px;
 	color: white;
@@ -22,7 +22,7 @@ QToolButton {
 	padding: 0 10px 0 10px;
 }
 
-QToolButton:hover {
+QToolBar QToolButton:hover {
 	background-color: QLinearGradient( x1: 0, y1: 0, 
 					   x2: 1, y2: 0, 
 	stop: 0   #444, 
@@ -31,7 +31,7 @@ QToolButton:hover {
 	);
 }
 
-QToolButton:checked {
+QToolBar QToolButton:checked {
 	background-color: QLinearGradient( x1: 0, y1: 0, 
 					   x2: 1, y2: 0, 
 	stop: 0 #999, 
