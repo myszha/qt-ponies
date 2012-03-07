@@ -8,11 +8,11 @@ Inspired by qponies project by svenstaro (https://github.com/svenstaro/qponies).
 
 Compilation
 -----------
-A compiler supporting C++11 is required, as are Qt libraries.
+A compiler supporting C++11 is required, as are Qt libraries (and X11 developement libraries on X11 sytems).
 
 Under Debian/Ubuntu you can install the dependencies by invoking:
 
-    \# sudo apt-get install build-essential libqtcore4 libqtgui4 libqt4-dev qt4-qmake
+    \# sudo apt-get install build-essential libx11-dev libqtcore4 libqtgui4 libqt4-dev qt4-qmake
 
 Then build qt-ponies by invoking:
 
