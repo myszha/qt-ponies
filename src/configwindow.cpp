@@ -25,13 +25,11 @@
 #include "ui_configwindow.h"
 
 // TODO: configuration:
-//       always on top
-//       speech
 //       monitors (on witch to run, etc)
 //       debug messages
-//	 X11 normal window or bypass wm
 //
 //	avoidance areas (vincity of the mouse cursor for example)
+//FIXME: speech enabled toggle toggles sound group visibility
 
 ConfigWindow::ConfigWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -40,6 +38,12 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     signal_mapper = new QSignalMapper();
 
     ui->setupUi(this);
+
+#ifndef Q_WS_X11
+    // Do not show X11 specific options on other platforms
+    ui->label_bypass_wm->setVisible(false);
+    ui->x11_bypass_wm->setVisible(false);
+#endif
 
     // Setup tray icon and menu
     tray_icon.setIcon(QIcon(":/icons/res/tray_icon.png"));
@@ -106,26 +110,27 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     ui->active_list->setAlternatingRowColors(true);
 
     connect(ui->available_list->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(newpony_list_changed(QModelIndex)));
-    connect(ui->addpony_button, SIGNAL(clicked()), this, SLOT(add_pony()));
-    connect(ui->removepony_button, SIGNAL(clicked()), this, SLOT(remove_pony_activelist()));
 
     // Start update timer
     timer.setInterval(30);
     timer.start();
 
     // Load settings
-    settings = new QSettings("config.ini",QSettings::IniFormat);
-    int size = settings->beginReadArray("loaded-ponies");
+
+    load_settings();
+
+    QSettings settings("config.ini",QSettings::IniFormat);
+    int size = settings.beginReadArray("loaded-ponies");
     for(int i=0; i< size; i++) {
-        settings->setArrayIndex(i);
+        settings.setArrayIndex(i);
         try {
-            ponies.emplace_back(std::make_shared<Pony>(settings->value("name").toString(), this));
+            ponies.emplace_back(std::make_shared<Pony>(settings.value("name").toString(), this));
             QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
         }catch (std::exception e) {
-            std::cerr << "ERROR: Could not load pony '" << settings->value("name").toString() << "'." << std::endl;
+            std::cerr << "ERROR: Could not load pony '" << settings.value("name").toString() << "'." << std::endl;
         }
     }
-    settings->endArray();
+    settings.endArray();
     list_model->sort(1);
 
     update_active_list();
@@ -136,7 +141,6 @@ ConfigWindow::~ConfigWindow()
     delete ui;
     delete signal_mapper;
     delete list_model;
-    delete settings;
     delete action_group;
 }
 
@@ -220,7 +224,7 @@ void ConfigWindow::add_pony()
             QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
 
         }catch (std::exception e) {
-            std::cerr << "ERROR: Could not load pony '" << settings->value("name").toString() << "'." << std::endl;
+            std::cerr << "ERROR: Could not load pony '" << name << "'." << std::endl;
         }
 
     }
@@ -256,15 +260,86 @@ void ConfigWindow::toggle_window(QSystemTrayIcon::ActivationReason reason)
     }
 }
 
+void ConfigWindow::load_settings()
+{
+    QSettings settings("config.ini",QSettings::IniFormat);
+
+    // General settings
+    settings.beginGroup("general");
+
+    ui->alwaysontop->setChecked(settings.value("always-on-top", true).toBool());
+    ui->x11_bypass_wm->setChecked(settings.value("bypass-wm", false).toBool());
+
+    settings.endGroup();
+
+    // Speech settings
+    settings.beginGroup("speech");
+
+    ui->speechenabled->setChecked(settings.value("enabled", true).toBool());
+    ui->textdelay->setValue(settings.value("duration", 2000).toInt());
+
+    settings.endGroup();
+
+    // Sound settings
+    settings.beginGroup("sound");
+
+    ui->playsounds->setChecked(settings.value("enabled", true).toBool());
+
+    settings.endGroup();
+
+    // We do not load ponies here because we might use this function
+    // to discard user made changes if user did not apply them
+}
+
 void ConfigWindow::save_settings()
 {
-    settings->clear();
-    settings->beginWriteArray("loaded-ponies");
+    QSettings settings("config.ini",QSettings::IniFormat);
+
+    // Check if we have to update the pony windows with new always-on-top/bypass-wm value
+    bool change_ontop = (settings.value("general/always-on-top", true).toBool() != ui->alwaysontop->isChecked());
+    bool change_bypass_wm = (settings.value("general/bypass-wm", true).toBool() != ui->x11_bypass_wm->isChecked());
+
+    // Write the program settings
+    settings.clear();
+
+    // General settings
+    settings.beginGroup("general");
+
+    settings.setValue("always-on-top", ui->alwaysontop->isChecked());
+    settings.setValue("bypass-wm", ui->x11_bypass_wm->isChecked());
+
+    settings.endGroup();
+
+    // Speech settings
+    settings.beginGroup("speech");
+
+    settings.setValue("enabled", ui->speechenabled->isChecked());
+    settings.setValue("duration", ui->textdelay->value());
+
+    settings.endGroup();
+
+    // Sound settings
+    settings.beginGroup("sound");
+
+    settings.setValue("enabled", ui->playsounds->isChecked());
+
+    settings.endGroup();
+
+    // Write the active ponies list
+    settings.beginWriteArray("loaded-ponies");
     int i=0;
     for(const auto &pony : ponies) {
-        settings->setArrayIndex(i);
-        settings->setValue("name", pony->directory);
+        if(change_ontop) {
+            pony->set_on_top(ui->alwaysontop->isChecked());
+        }
+        if(change_bypass_wm) {
+            pony->set_bypass_wm(ui->x11_bypass_wm->isChecked());
+        }
+        settings.setArrayIndex(i);
+        settings.setValue("name", pony->directory);
         i++;
     }
-    settings->endArray();
+    settings.endArray();
+    // Make sure we write our changes to disk
+    settings.sync();
 }

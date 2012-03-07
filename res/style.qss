@@ -51,7 +51,7 @@ QToolBar {
 }
 
 QCheckBox::indicator {
-	subcontrol-position: center center;
+	subcontrol-position: right center;
 }
 
 

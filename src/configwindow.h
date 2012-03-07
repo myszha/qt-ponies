@@ -30,6 +30,7 @@
 #include <QActionGroup>
 
 #include <memory>
+#include <iostream>
 
 #include "pony.h"
 
@@ -49,25 +50,30 @@ public:
     std::list<std::shared_ptr<Pony>> ponies;
     QTimer timer;
 
+    template <typename T>
+    T getSetting(const QString& name) { return QSettings ("config.ini",QSettings::IniFormat).value(name).value<T>(); }
+
+
 public slots:
     void remove_pony();
-    void remove_pony_activelist();
     void remove_pony_all();
+
+private slots:
+    void remove_pony_activelist();
     void newpony_list_changed(QModelIndex item);
     void add_pony();
     void update_active_list();
     void toggle_window(QSystemTrayIcon::ActivationReason reason);
+    void save_settings();
+    void load_settings();
 
 private:
-    void save_settings();
-
     Ui::ConfigWindow *ui;
     QSignalMapper *signal_mapper;
     QStandardItemModel *list_model;
     QStandardItemModel *active_list_model;
     QSystemTrayIcon tray_icon;
     QMenu tray_menu;
-    QSettings *settings;
     QActionGroup *action_group;
     QAction *action_addponies;
     QAction *action_activeponies;

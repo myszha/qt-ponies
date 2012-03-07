@@ -230,10 +230,10 @@
       </widget>
       <widget class="QWidget" name="configpage">
        <layout class="QGridLayout" name="gridLayout_6">
-        <item row="0" column="0">
+        <item row="0" column="0" colspan="3">
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
@@ -249,7 +249,7 @@
                </sizepolicy>
               </property>
               <property name="layoutDirection">
-               <enum>Qt::RightToLeft</enum>
+               <enum>Qt::LeftToRight</enum>
               </property>
               <property name="text">
                <string/>
@@ -262,7 +262,7 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="0" colspan="2">
+            <item row="3" column="0" colspan="2">
              <spacer name="verticalSpacer_4">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -282,6 +282,20 @@
               </property>
               <property name="buddy">
                <cstring>alwaysontop</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_bypass_wm">
+              <property name="text">
+               <string>Bypass X11 window manager</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QCheckBox" name="x11_bypass_wm">
+              <property name="text">
+               <string/>
               </property>
              </widget>
             </item>
@@ -359,7 +373,7 @@
             <item row="0" column="1">
              <widget class="QCheckBox" name="speechenabled">
               <property name="layoutDirection">
-               <enum>Qt::RightToLeft</enum>
+               <enum>Qt::LeftToRight</enum>
               </property>
               <property name="text">
                <string/>
@@ -382,7 +396,7 @@
             <item row="2" column="1">
              <widget class="QCheckBox" name="playsounds">
               <property name="layoutDirection">
-               <enum>Qt::RightToLeft</enum>
+               <enum>Qt::LeftToRight</enum>
               </property>
               <property name="text">
                <string/>
@@ -398,6 +412,33 @@
             </item>
            </layout>
           </widget>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="acceptsettings">
+          <property name="text">
+           <string>Accept</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="resetsettings">
+          <property name="text">
+           <string>Reset</string>
+          </property>
          </widget>
         </item>
        </layout>
@@ -434,5 +475,145 @@
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>speechenabled</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>textdelay</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>764</x>
+     <y>55</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>740</x>
+     <y>74</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>speechenabled</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>playsounds</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>762</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>767</x>
+     <y>105</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>speechenabled</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>719</x>
+     <y>58</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>710</x>
+     <y>127</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addpony_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ConfigWindow</receiver>
+   <slot>add_pony()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>557</x>
+     <y>515</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>782</x>
+     <y>583</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removepony_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ConfigWindow</receiver>
+   <slot>remove_pony_activelist()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>524</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>716</x>
+     <y>583</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>resetsettings</sender>
+   <signal>clicked()</signal>
+   <receiver>ConfigWindow</receiver>
+   <slot>load_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>663</x>
+     <y>563</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>588</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>acceptsettings</sender>
+   <signal>clicked()</signal>
+   <receiver>ConfigWindow</receiver>
+   <slot>save_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>757</x>
+     <y>560</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>794</x>
+     <y>570</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>playsounds</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>683</x>
+     <y>105</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>648</x>
+     <y>130</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>save_settings()</slot>
+  <slot>remove_pony()</slot>
+  <slot>remove_pony_all()</slot>
+  <slot>remove_pony_activelist()</slot>
+  <slot>newpony_list_changed(QModelIndex)</slot>
+  <slot>add_pony()</slot>
+  <slot>update_active_list()</slot>
+  <slot>toggle_window(QSystemTrayIcon::ActivationReason)</slot>
+  <slot>load_settings()</slot>
+ </slots>
 </ui>

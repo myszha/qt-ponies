@@ -36,6 +36,7 @@ const CSVParser::ParseTypes Speak::OptionTypes = {
     {            "skip_normally", QVariant::Type::Bool }
 };
 
+//TODO: move player to Pony and pass a pointer on play() to it
 Speak::Speak(Pony* parent, const QString filepath, const std::vector<QVariant> &options)
     :QObject(parent), parent(parent), path(filepath), audioOutput(nullptr), mediaObject(nullptr)
 {
@@ -52,7 +53,6 @@ Speak::Speak(Pony* parent, const QString filepath, const std::vector<QVariant> &
                 soundfiles = qVariantValue<QList<QVariant>>(options[3]);
             }
 
-//            skip_normally = (options[4].toString().compare("true", Qt::CaseInsensitive) == 0)?true:false;
             skip_normally = options[4].toBool();
         }
     }

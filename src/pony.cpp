@@ -44,8 +44,6 @@
                        // This is why we include it after pony.h
 #endif
 
-
-
 // TODO: Maybe a configuration option to change window shape?
 // connect to current_animation: update() signal and do:
 // setMask(current_behavior->current_animation->currentPixmap().mask());
@@ -56,18 +54,34 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
 {
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_ShowWithoutActivating);
-    setWindowFlags( Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint );
+
+    Qt::WindowFlags windowflags = Qt::FramelessWindowHint | Qt::Tool;
+    always_on_top = config->getSetting<bool>("general/always-on-top");
+    if(always_on_top) {
+        windowflags |= Qt::WindowStaysOnTopHint;
+    }
+
+#ifdef Q_WS_X11
+    if(config->getSetting<bool>("general/bypass-wm")) {
+        // Bypass the window manager, we do not need any other flags
+        windowflags = Qt::X11BypassWindowManagerHint;
+    }
+#endif
+
+    setWindowFlags( windowflags );
 
     // TODO: always on top toggle, we have to preserve the skip taskbar/pager flags, so we have to do
     //       it by using Xlib
 #ifdef Q_WS_X11
     // Qt on X11 does not support the skip taskbar/pager window flags, we have to set them ourselves
-    // We let Qt initialize the other window properties
+    // We let Qt initialize the other window properties, which aren't deleted when we replace them with ours
+    // (they probably are appended on show())
     Atom window_state = XInternAtom( QX11Info::display(), "_NET_WM_STATE", False );
     Atom window_props[] = {
         XInternAtom( QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False ),
         XInternAtom( QX11Info::display(), "_NET_WM_STATE_SKIP_PAGER"  , False )
     };
+
     XChangeProperty( QX11Info::display(), window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 2 );
 #endif
 
@@ -77,7 +91,7 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     // Setup speech label
     text_label.hide();
     text_label.setAttribute(Qt::WA_ShowWithoutActivating);
-    text_label.setWindowFlags( Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint );
+    text_label.setWindowFlags(windowflags);
     text_label.setAlignment(Qt::AlignHCenter);
     text_label.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 #ifdef Q_WS_X11
@@ -205,6 +219,59 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
 Pony::~Pony()
 {
 }
+
+void Pony::set_bypass_wm(bool bypass)
+{
+    std::cout << "bypass: " << int(bypass) << std::endl;
+    Qt::WindowFlags windowflags = windowFlags();
+
+    if(bypass == true) {
+        windowflags |= Qt::X11BypassWindowManagerHint;
+    }else{
+        windowflags ^= Qt::X11BypassWindowManagerHint;
+    }
+
+    setWindowFlags( windowflags );
+    text_label.setWindowFlags(windowflags);
+    set_on_top(always_on_top);
+}
+
+void Pony::set_on_top(bool top)
+{
+    std::cout << "top: " << int(top) << std::endl;
+    always_on_top = top;
+    Qt::WindowFlags windowflags = windowFlags();
+    if(top == true){
+        windowflags |= Qt::WindowStaysOnTopHint; // Enable always on top
+    }else{
+        windowflags ^= Qt::WindowStaysOnTopHint; // Disable always on top
+    }
+
+    setWindowFlags(windowflags);
+    text_label.setWindowFlags(windowflags);
+#ifdef Q_WS_X11
+        Atom window_state = XInternAtom( QX11Info::display(), "_NET_WM_STATE", False );
+        Atom window_props[] = {
+            XInternAtom( QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False ),
+            XInternAtom( QX11Info::display(), "_NET_WM_STATE_SKIP_PAGER"  , False ),
+            XInternAtom( QX11Info::display(), "_NET_WM_STATE_ABOVE", False )
+        };
+        if(top == true){
+            // Set the state to always on top, skip taskbar and pager
+            XChangeProperty( QX11Info::display(), window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 3 );
+            XChangeProperty( QX11Info::display(), text_label.window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 3 );
+        }else{
+            // Only set skip pager/taskbar
+            XChangeProperty( QX11Info::display(), window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 2 );
+            XChangeProperty( QX11Info::display(), text_label.window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 2 );
+        }
+#endif
+    this->show(); // Refresh the window so the changes apply
+    if(text_label.isVisible()){
+        text_label.show();
+    }
+}
+
 
 std::shared_ptr<Pony> Pony::get_shared_ptr()
 {
@@ -393,7 +460,7 @@ void Pony::change_behavior()
     //    instead use the ending_line of the previous behavior if current
     //    behavior does not have a starting line
     // If ending_line is present, use that instead of choosing a new one
-    if(speak_lines.size() > 0) {
+    if(speak_lines.size() > 0 && config->getSetting<bool>("speech/enabled")) {
         Speak* current_speech_line = nullptr;
 
         if(current_behavior->starting_line != ""){
@@ -430,8 +497,9 @@ void Pony::change_behavior()
             text_label.adjustSize();
             text_label.move(x_pos-text_label.width()/2, y() - text_label.height());
             text_label.show();
-            // TODO: sound; play only if enabled in configuration
-            current_speech_line->play();
+            if(config->getSetting<bool>("sound/enabled")) {
+                current_speech_line->play();
+            }
         }
     }
 }
@@ -441,7 +509,7 @@ void Pony::update() {
 
     // Check for speech timeout and move text with pony
     if(text_label.isVisible() == true) {
-        if(speech_started+2000 <= time) {
+        if(speech_started + config->getSetting<int>("speech/duration") <= time) {
             text_label.hide();
         }else{
             text_label.move(x() + current_behavior->x_center - text_label.width()/2, y() - text_label.height());

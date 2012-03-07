@@ -57,6 +57,8 @@ public:
 
     void change_behavior();
     void update_animation(QMovie* movie);
+    void set_on_top(bool top);
+    void set_bypass_wm(bool bypass);
     std::shared_ptr<Pony> get_shared_ptr();
 
     float x_pos;
@@ -75,8 +77,6 @@ public:
 
     QString name;
     QString directory;
-
-signals:
 
 public slots:
     void update();
@@ -106,6 +106,7 @@ private:
     bool dragging;
     bool sleeping;
     bool mouseover;
+    bool always_on_top;
 
 };
 
