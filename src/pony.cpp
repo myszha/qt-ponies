@@ -49,6 +49,8 @@
 // setMask(current_behavior->current_animation->currentPixmap().mask());
 // or maybe there are better ways to do it
 
+// FIXME: when ponies are not on top, they (all at once) flicker to top sometimes (on text show?)
+
 Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     QMainWindow(parent), gen(QDateTime::currentMSecsSinceEpoch()), label(this), config(config), dragging(false), sleeping(false), mouseover(false)
 {
@@ -222,7 +224,6 @@ Pony::~Pony()
 
 void Pony::set_bypass_wm(bool bypass)
 {
-    std::cout << "bypass: " << int(bypass) << std::endl;
     Qt::WindowFlags windowflags = windowFlags();
 
     if(bypass == true) {
@@ -238,7 +239,6 @@ void Pony::set_bypass_wm(bool bypass)
 
 void Pony::set_on_top(bool top)
 {
-    std::cout << "top: " << int(top) << std::endl;
     always_on_top = top;
     Qt::WindowFlags windowflags = windowFlags();
     if(top == true){
