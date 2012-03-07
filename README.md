@@ -12,12 +12,12 @@ A compiler supporting C++11 is required, as are Qt libraries (and X11 developeme
 
 Under Debian/Ubuntu you can install the dependencies by invoking:
 
-    \# sudo apt-get install build-essential libx11-dev libqtcore4 libqtgui4 libqt4-dev qt4-qmake
+    # sudo apt-get install build-essential libx11-dev libqtcore4 libqtgui4 libqt4-dev qt4-qmake
 
 Then build qt-ponies by invoking:
 
-    \# qmake  
-    \# make  
+    # qmake  
+    # make  
 
 Running under Windows
 -------
