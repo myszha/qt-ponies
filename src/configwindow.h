@@ -86,6 +86,8 @@ private slots:
     void change_ponydata_directory();
 
 private:
+    void reload_available_ponies();
+
     Ui::ConfigWindow *ui;
     QSignalMapper *signal_mapper;
     QStandardItemModel *list_model;

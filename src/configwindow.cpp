@@ -94,33 +94,12 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     active_list_model = new QStandardItemModel(this);
 
     load_settings();
-    QSettings settings;
 
-    QDir dir(getSetting<QString>("general/pony-directory", settings) );
-    dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
-
-    // Get names of all the pony directories
-    QList<QChar> letters;
-    for(auto &i: dir.entryList()) {
-        QDir pony_dir(dir);
-        pony_dir.cd(i);
-        if(pony_dir.exists("pony.ini")) {
-            // Get the letters for TabBar for quick navigation of the available pony list
-            if(!letters.contains(i[0])) {
-                // Add the first letter of the name if we do not have it already
-                letters.push_back(i[0]);
-            }
-
-            QStandardItem *item_icon = new QStandardItem(QIcon(pony_dir.absoluteFilePath("icon.png")),"");
-            QStandardItem *item_text = new QStandardItem(i);
-
-            QList<QStandardItem*> row;
-            row << item_icon << item_text;
-            list_model->appendRow(row);
-        }
-    }
     ui->tabbar->setShape(QTabBar::RoundedWest);
-    for(QChar &i: letters) ui->tabbar->addTab(i);
+
+    // Load available ponies into the list
+    reload_available_ponies();
+
     connect(ui->tabbar, SIGNAL(currentChanged(int)), this, SLOT(lettertab_changed(int)));
 
     ui->available_list->setIconSize(QSize(100,100));
@@ -138,6 +117,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     timer.start();
 
     // Load every pony specified in configuration
+    QSettings settings;
     int size = settings.beginReadArray("loaded-ponies");
     for(int i=0; i< size; i++) {
         settings.setArrayIndex(i);
@@ -215,6 +195,44 @@ void ConfigWindow::remove_pony_activelist()
 
     save_settings();
     update_active_list();
+}
+
+void ConfigWindow::reload_available_ponies()
+{
+    QSettings settings;
+
+    list_model->clear();
+    int count = ui->tabbar->count();
+    for(int i = 0; i < count; i++) {
+        ui->tabbar->removeTab(0);
+    }
+
+    QDir dir(getSetting<QString>("general/pony-directory", settings) );
+    dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    // Get names of all the pony directories
+    QList<QChar> letters;
+    for(auto &i: dir.entryList()) {
+        QDir pony_dir(dir);
+        pony_dir.cd(i);
+        if(pony_dir.exists("pony.ini")) {
+            // Get the letters for TabBar for quick navigation of the available pony list
+            if(!letters.contains(i[0])) {
+                // Add the first letter of the name if we do not have it already
+                letters.push_back(i[0]);
+            }
+
+            QStandardItem *item_icon = new QStandardItem(QIcon(pony_dir.absoluteFilePath("icon.png")),"");
+            QStandardItem *item_text = new QStandardItem(i);
+
+            QList<QStandardItem*> row;
+            row << item_icon << item_text;
+            list_model->appendRow(row);
+        }
+    }
+    for(QChar &i: letters) ui->tabbar->addTab(i);
+
+
 }
 
 void ConfigWindow::newpony_list_changed(QModelIndex item)
@@ -323,8 +341,9 @@ void ConfigWindow::save_settings()
     QSettings settings;
 
     // Check if we have to update the pony windows with new always-on-top/bypass-wm value
-    bool change_ontop = (settings.value("general/always-on-top", true).toBool() != ui->alwaysontop->isChecked());
-    bool change_bypass_wm = (settings.value("general/bypass-wm", true).toBool() != ui->x11_bypass_wm->isChecked());
+    bool change_ontop = (getSetting<bool>("general/always-on-top", settings) != ui->alwaysontop->isChecked());
+    bool change_bypass_wm = (getSetting<bool>("general/bypass-wm", settings) != ui->x11_bypass_wm->isChecked());
+    bool reload_ponies = (getSetting<QString>("general/pony-directory", settings) != ui->ponydata_directory->text());
 
     // Write the program settings
     settings.clear();
@@ -368,6 +387,11 @@ void ConfigWindow::save_settings()
         i++;
     }
     settings.endArray();
+
+    if(reload_ponies) {
+        reload_available_ponies();
+    }
+
     // Make sure we write our changes to disk
     settings.sync();
 }
