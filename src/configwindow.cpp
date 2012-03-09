@@ -92,7 +92,9 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
         QDir pony_dir(dir);
         pony_dir.cd(i);
         if(pony_dir.exists("pony.ini")) {
+            // Get the letters for TabBar for quick navigation of the available pony list
             if(!letters.contains(i[0])) {
+                // Add the first letter of the name if we do not have it already
                 letters.push_back(i[0]);
             }
 
@@ -122,10 +124,9 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     timer.setInterval(30);
     timer.start();
 
-    // Load settings
-
     load_settings();
 
+    // Load every pony specified in configuration
     QSettings settings("config.ini",QSettings::IniFormat);
     int size = settings.beginReadArray("loaded-ponies");
     for(int i=0; i< size; i++) {
