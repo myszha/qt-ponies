@@ -17,6 +17,7 @@
  */
 
 #include <QDir>
+#include <QFileDialog>
 
 #include <iostream>
 #include <algorithm>
@@ -30,6 +31,15 @@
 //
 //	avoidance areas (vincity of the mouse cursor for example)
 //FIXME: speech enabled toggle toggles sound group visibility
+
+const std::unordered_map<QString, const QVariant> ConfigWindow::config_defaults = {
+    {"general/always-on-top",   true                },
+    {"general/bypass-wm",       false               },
+    {"general/pony-directory",  "./desktop-ponies"  },
+    {"speech/enabled",          true                },
+    {"speech/duration",         2000                },
+    {"sound/enabled",           false               }
+};
 
 ConfigWindow::ConfigWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -83,7 +93,10 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     list_model = new QStandardItemModel(this);
     active_list_model = new QStandardItemModel(this);
 
-    QDir dir("desktop-ponies");
+    load_settings();
+    QSettings settings;
+
+    QDir dir(getSetting<QString>("general/pony-directory", settings) );
     dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
 
     // Get names of all the pony directories
@@ -124,10 +137,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     timer.setInterval(30);
     timer.start();
 
-    load_settings();
-
     // Load every pony specified in configuration
-    QSettings settings("config.ini",QSettings::IniFormat);
     int size = settings.beginReadArray("loaded-ponies");
     for(int i=0; i< size; i++) {
         settings.setArrayIndex(i);
@@ -245,7 +255,7 @@ void ConfigWindow::update_active_list()
 {
     active_list_model->clear();
     for(auto &i: ponies) {
-        QStandardItem *item_icon = new QStandardItem(QIcon("desktop-ponies/" + i->directory +  "/icon.png"),"");
+        QStandardItem *item_icon = new QStandardItem(QIcon(ConfigWindow::getSetting<QString>("general/pony-directory") + "/" + i->directory +  "/icon.png"),"");
         QStandardItem *item_text = new QStandardItem(i->directory);
 
         QList<QStandardItem*> row;
@@ -278,32 +288,31 @@ void ConfigWindow::toggle_window(QSystemTrayIcon::ActivationReason reason)
     }
 }
 
+void ConfigWindow::change_ponydata_directory()
+{
+    QString new_dir = QFileDialog::getExistingDirectory(this, tr("Select pony data directory"), getSetting<QString>("general/pony-directory"),
+                                                        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
+
+    if(new_dir != "") {
+        ui->ponydata_directory->setText(new_dir);
+    }
+}
+
 void ConfigWindow::load_settings()
 {
-    QSettings settings("config.ini",QSettings::IniFormat);
+    QSettings settings;
 
     // General settings
-    settings.beginGroup("general");
-
-    ui->alwaysontop->setChecked(settings.value("always-on-top", true).toBool());
-    ui->x11_bypass_wm->setChecked(settings.value("bypass-wm", false).toBool());
-
-    settings.endGroup();
+    ui->alwaysontop->setChecked(    getSetting<bool>    ("general/always-on-top",settings));
+    ui->x11_bypass_wm->setChecked(  getSetting<bool>    ("general/bypass-wm",settings));
+    ui->ponydata_directory->setText(getSetting<QString> ("general/pony-directory",settings));
 
     // Speech settings
-    settings.beginGroup("speech");
-
-    ui->speechenabled->setChecked(settings.value("enabled", true).toBool());
-    ui->textdelay->setValue(settings.value("duration", 2000).toInt());
-
-    settings.endGroup();
+    ui->speechenabled->setChecked(  getSetting<bool>    ("speech/enabled",settings));
+    ui->textdelay->setValue(        getSetting<int>     ("speech/duration",settings));
 
     // Sound settings
-    settings.beginGroup("sound");
-
-    ui->playsounds->setChecked(settings.value("enabled", true).toBool());
-
-    settings.endGroup();
+    ui->playsounds->setChecked(     getSetting<bool>    ("sound/enabled",settings));
 
     // We do not load ponies here because we might use this function
     // to discard user made changes if user did not apply them
@@ -311,7 +320,7 @@ void ConfigWindow::load_settings()
 
 void ConfigWindow::save_settings()
 {
-    QSettings settings("config.ini",QSettings::IniFormat);
+    QSettings settings;
 
     // Check if we have to update the pony windows with new always-on-top/bypass-wm value
     bool change_ontop = (settings.value("general/always-on-top", true).toBool() != ui->alwaysontop->isChecked());
@@ -325,6 +334,7 @@ void ConfigWindow::save_settings()
 
     settings.setValue("always-on-top", ui->alwaysontop->isChecked());
     settings.setValue("bypass-wm", ui->x11_bypass_wm->isChecked());
+    settings.setValue("pony-directory", ui->ponydata_directory->text());
 
     settings.endGroup();
 

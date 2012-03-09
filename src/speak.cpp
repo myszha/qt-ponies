@@ -24,6 +24,7 @@
  #include <Phonon/AudioOutput>
 #endif
 
+#include "configwindow.h"
 #include "speak.h"
 #include "pony.h"
 
@@ -82,7 +83,7 @@ void Speak::play()
         mediaObject = new Phonon::MediaObject(this);
     }
 
-    mediaObject->setCurrentSource("desktop-ponies/" + path + "/" + soundfiles[0].toString());
+    mediaObject->setCurrentSource(ConfigWindow::getSetting<QString>("general/pony-directory") + "/" + path + "/" + soundfiles[0].toString());
     connect(mediaObject, SIGNAL(finished()), this, SLOT(stop()));
 
     Phonon::createPath(mediaObject, audioOutput);

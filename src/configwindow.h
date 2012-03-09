@@ -31,6 +31,7 @@
 
 #include <memory>
 #include <iostream>
+#include <unordered_map>
 
 #include "pony.h"
 
@@ -50,8 +51,23 @@ public:
     std::list<std::shared_ptr<Pony>> ponies;
     QTimer timer;
 
+    static const std::unordered_map<QString, const QVariant> config_defaults;
+
     template <typename T>
-    T getSetting(const QString& name) { return QSettings ("config.ini",QSettings::IniFormat).value(name).value<T>(); }
+    static T getSetting(const QString& name, const QSettings &settings = QSettings()) {
+        QString key(name);
+        if(settings.group() != "") {
+            // We currently are in a group - append the group name to the key
+            key = settings.group() + "/" + name;
+        }
+        if(config_defaults.find(key) != config_defaults.end()){
+            // There is a default for that option in config_defaults, use it
+            return settings.value(name, config_defaults.at(key)).value<T>();
+        }else{
+            // No default, use empty QVariant
+            return settings.value(name).value<T>();
+        }
+    }
 
 
 public slots:
@@ -67,6 +83,7 @@ private slots:
     void save_settings();
     void load_settings();
     void lettertab_changed(int index);
+    void change_ponydata_directory();
 
 private:
     Ui::ConfigWindow *ui;

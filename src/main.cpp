@@ -18,6 +18,7 @@
 
 #include <QtGui/QApplication>
 #include <QFile>
+#include <QSettings>
 #include <iostream>
 
 #include "csv_parser.h"
@@ -39,9 +40,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("qt-ponies");
 
     app.setQuitOnLastWindowClosed(false);
+    QSettings::setDefaultFormat(QSettings::IniFormat);
 
-//    QFile qss(":/styles/res/style.qss");
-    QFile qss("res/style.qss");
+    QFile qss(":/styles/res/style.qss");
     qss.open(QFile::ReadOnly);
     app.setStyleSheet( QString::fromUtf8(qss.readAll()) );
     qss.close();

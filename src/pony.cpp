@@ -109,7 +109,7 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
 
     directory = path;
 
-    QFile ifile("desktop-ponies/" + path + "/pony.ini");
+    QFile ifile(ConfigWindow::getSetting<QString>("general/pony-directory") + "/" + path + "/pony.ini");
     if(!ifile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         std::cerr << "ERROR: Cannot open pony.ini for pony: '"<< path << "'" << std::endl;
         std::cerr << ifile.errorString() << std::endl;

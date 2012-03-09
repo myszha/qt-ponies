@@ -65,7 +65,7 @@ static QVariant convert_type(std::pair<std::string, QVariant::Type> type, QStrin
         }
         default: {
             std::cerr << "ERROR: unknown type " << type.second << " while parsing value '" << value.toStdString() << "' for variable "<< type.first <<"."<< std::endl;
-            return QVariant(value); // we cannot get here
+            return QVariant(value);
         }
     }
 }
