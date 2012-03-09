@@ -16,6 +16,8 @@ Under Debian/Ubuntu you can install the dependencies by invoking:
 
 Then build qt-ponies by invoking:
 
+    # git clone https://github.com/myszha/qt-ponies/
+    # cd qt-ponies
     # qmake  
     # make  
 
@@ -46,13 +48,23 @@ Due to case-sensitivity of filenames under Unix, all 'pony.ini' files
 must be lower case. The case of .gif files in pony.ini must also be 
 correct.
 
-Not all ponies were tested.
-
 Effects, interactions and sounds are not currently supported.
 
 On Unix systems an X server supporting ARGB visuals and and a compositing 
 window manager are required for transparency of pony windows. Something like
 Compiz, Unity, Gnome Shell, KWin and most newer window managers support it.
+
+**Configuration**
+
+The configuration file is kept in:
+
+On Unix:
+
+    $HOME/.config/qt-ponies/qt-ponies.ini
+
+On Windows:
+
+    %APPDATA%\qt-ponies\qt-ponies.ini
 
 
 Screenshots of the configuration window
