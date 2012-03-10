@@ -8,7 +8,7 @@ Inspired by qponies project by svenstaro (https://github.com/svenstaro/qponies).
 
 Compilation
 -----------
-A compiler supporting C++11 is required, as are Qt libraries (and X11 developement libraries on X11 sytems).
+A compiler supporting C++11 (g++ >= 4.6) is required, as are Qt (version >= 4.7) libraries (and X11 developement libraries on X11 sytems).
 
 Under Debian/Ubuntu you can install the dependencies by invoking:
 
