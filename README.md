@@ -21,8 +21,10 @@ Then build qt-ponies by invoking:
     # qmake  
     # make  
 
-**Or** you can use a precompiled amd64 Debian/Ubuntu package (made by Schiwi), available here: 
-[https://github.com/downloads/myszha/qt-ponies/qt-ponies_amd64.deb](https://github.com/downloads/myszha/qt-ponies/qt-ponies_amd64.deb).
+**Or** you can use a precompiled Debian/Ubuntu package (made by Schiwi), available here:
+
+* amd64: [https://github.com/downloads/myszha/qt-ponies/qt-ponies_0.5_amd64.deb](https://github.com/downloads/myszha/qt-ponies/qt-ponies_0.5_amd64.deb)
+* i386: [https://github.com/downloads/myszha/qt-ponies/qt-ponies_0.5_i386.deb](https://github.com/downloads/myszha/qt-ponies/qt-ponies_0.5_i386.deb)
 
 Running under Windows
 -------
