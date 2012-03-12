@@ -30,13 +30,26 @@
 #include <QActionGroup>
 
 #include <memory>
+#include <vector>
 #include <iostream>
 #include <unordered_map>
 
 #include "pony.h"
+#include "interaction.h"
 
 namespace Ui {
     class ConfigWindow;
+}
+
+namespace std {
+    template <>
+    struct hash<pair<QString, QString> >
+    {
+        size_t operator()(const pair<QString, QString> &p) const
+        {
+            return qHash(QPair<QString, QString>(p.first, p.second));
+        }
+    };
 }
 
 class ConfigWindow : public QMainWindow
@@ -49,7 +62,8 @@ public:
 
 
     std::list<std::shared_ptr<Pony>> ponies;
-    QTimer timer;
+    QTimer update_timer;
+    QTimer interaction_timer;
 
     static const std::unordered_map<QString, const QVariant> config_defaults;
 
@@ -84,9 +98,15 @@ private slots:
     void load_settings();
     void lettertab_changed(int index);
     void change_ponydata_directory();
+    void update_interactions();
 
 private:
     void reload_available_ponies();
+    void update_distances();
+
+    std::vector<Interaction> interactions;
+
+    std::unordered_map<std::pair<QString, QString>, float> distances;
 
     Ui::ConfigWindow *ui;
     QSignalMapper *signal_mapper;

@@ -18,9 +18,14 @@
 
 #include <QDir>
 #include <QFileDialog>
+#include <QDateTime>
+#include <QFile>
+#include <QTextStream>
 
 #include <iostream>
 #include <algorithm>
+#include <cmath>
+#include <set>
 
 #include "configwindow.h"
 #include "ui_configwindow.h"
@@ -32,13 +37,14 @@
 //	avoidance areas (vincity of the mouse cursor for example)
 //FIXME: speech enabled toggle toggles sound group visibility
 
-const std::unordered_map<QString, const QVariant> ConfigWindow::config_defaults = {
-    {"general/always-on-top",   true                },
-    {"general/bypass-wm",       false               },
-    {"general/pony-directory",  "./desktop-ponies"  },
-    {"speech/enabled",          true                },
-    {"speech/duration",         2000                },
-    {"sound/enabled",           false               }
+const std::unordered_map<QString, const QVariant> ConfigWindow::config_defaults {
+    {"general/always-on-top",        true                },
+    {"general/bypass-wm",            false               },
+    {"general/pony-directory",       "./desktop-ponies"  },
+    {"general/interactions-enabled", true                },
+    {"speech/enabled",               true                },
+    {"speech/duration",              2000                },
+    {"sound/enabled",                false               }
 };
 
 ConfigWindow::ConfigWindow(QWidget *parent) :
@@ -113,8 +119,13 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     connect(ui->available_list->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(newpony_list_changed(QModelIndex)));
 
     // Start update timer
-    timer.setInterval(30);
-    timer.start();
+    update_timer.setInterval(30);
+    update_timer.start();
+
+    interaction_timer.setInterval(500);
+    interaction_timer.start();
+
+    QObject::connect(&interaction_timer, SIGNAL(timeout()), this, SLOT(update_interactions()));
 
     // Load every pony specified in configuration
     QSettings settings;
@@ -123,7 +134,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
         settings.setArrayIndex(i);
         try {
             ponies.emplace_back(std::make_shared<Pony>(settings.value("name").toString(), this));
-            QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
+            QObject::connect(&update_timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
         }catch (std::exception e) {
             std::cerr << "ERROR: Could not load pony '" << settings.value("name").toString() << "'." << std::endl;
         }
@@ -132,6 +143,38 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     list_model->sort(1);
 
     update_active_list();
+
+    // Load interactions
+    QFile ifile(getSetting<QString>("general/pony-directory") + "/interactions.ini");
+    if(!ifile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cerr << "ERROR: Cannot open interactions.ini" << std::endl;
+        std::cerr << ifile.errorString() << std::endl;
+    }
+
+    if( ifile.isOpen() ) {
+        QString line;
+        QTextStream istr(&ifile);
+
+        while (!istr.atEnd() ) {
+            line = istr.readLine();
+
+            if(line[0] != '\'' && !line.isEmpty()) {
+                std::vector<QVariant> csv_data;
+                CSVParser::ParseLine(csv_data, line, ',', Interaction::OptionTypes);
+                try {
+                    interactions.emplace_back(csv_data);
+                }catch (std::exception e) {
+                    std::cerr << "ERROR: Could not load interaction." << std::endl;
+                }
+
+            }
+        }
+
+        ifile.close();
+    }else{
+        std::cerr << "ERROR: Cannot read interactions.ini" << std::endl;
+    }
+
 }
 
 ConfigWindow::~ConfigWindow()
@@ -257,7 +300,7 @@ void ConfigWindow::add_pony()
         try {
             // Try to initialize the new pony at the end of the active pony list and connect it to the update timer
             ponies.emplace_back(std::make_shared<Pony>(i.data().toString(), this));
-            QObject::connect(&timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
+            QObject::connect(&update_timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
 
         }catch (std::exception e) {
             std::cerr << "ERROR: Could not load pony '" << name << "'." << std::endl;
@@ -394,4 +437,93 @@ void ConfigWindow::save_settings()
 
     // Make sure we write our changes to disk
     settings.sync();
+}
+
+void ConfigWindow::update_distances()
+{
+    distances.clear();
+    for(const std::shared_ptr<Pony> &p1: ponies) {
+        QPoint c1(p1->x_pos + p1->current_behavior->x_center, p1->y_pos + p1->current_behavior->y_center);
+        for(const std::shared_ptr<Pony> &p2: ponies) {
+            if(p1 == p2) continue;
+
+            QPoint c2(p2->x_pos + p2->current_behavior->x_center, p2->y_pos + p2->current_behavior->y_center);
+
+            float dist = std::sqrt(std::pow(c2.x() - c1.x(), 2) + std::pow(c2.y() - c1.y(), 2));
+
+            distances.insert({{p1->name, p2->name}, dist});
+        }
+    }
+}
+
+void ConfigWindow::update_interactions()
+{
+    if(!getSetting<bool>("general/interactions-enabled")) return;
+
+    update_distances();
+
+    // For each interaction
+    for(auto &i: interactions){
+        // check probability
+
+        // For each pony that starts this interaction
+        std::list<std::shared_ptr<Pony>>::iterator p;
+        for(auto &p: ponies) {
+            if(p->name != i.pony) continue;
+            if(p->in_interaction) continue;
+            if(p->next_interaction_time > QDateTime::currentMSecsSinceEpoch()) continue;
+
+            // Here be dragons
+            // A std::set of std::shared_ptr<Pony> with custom comparision function (p1->name < p2->name)
+            // We use a set because its elements are unique, so when we add many ponies with the same name,
+            //  only one will be stored
+            // It is equivalent to:
+            //  typedef std::function<bool(const std::shared_ptr<Pony> &p1, const std::shared_ptr<Pony> &p2) Comp;
+            //  std::set<std::shared_ptr<Pony>, Comp>> interaction_targets
+            // where interaction_targets are initialised with th comparision lambda function
+            std::set<std::shared_ptr<Pony>, std::function<bool(const std::shared_ptr<Pony> &p1, const std::shared_ptr<Pony> &p2)>> interaction_targets
+                                                   ( [](const std::shared_ptr<Pony> &p1, const std::shared_ptr<Pony> &p2) -> bool {return p1->name < p2->name;});
+
+            bool break_noponies = true;
+
+            // For each target of that interaction
+            for(const QVariant &p_target: i.targets) {
+
+                // For each found target
+                for(auto &pp: ponies) {
+                    if(pp == p) continue; // Do not interact with self
+                    if(pp->name != p_target.toString()) continue;
+
+                    if(distances.at(std::make_pair(p->name, p_target.toString())) > i.distance){
+                        continue; // The pony is too far, check the rest
+                    }else if(pp->in_interaction){
+                        continue; // The pony is already in an interaction
+                    }else{
+                        break_noponies = false; // We found one/all suitable ponies, we can do the interaction
+                        interaction_targets.insert(pp);
+                    }
+                }
+
+                if(interaction_targets.empty()) {
+                    // We didn't find anypony to interact with
+                    break;
+                }else if((i.random == false) && (interaction_targets.size() != static_cast<uint32_t>(i.targets.size()))){ // We cast to uint32_t because std::set is uint but QList is int
+                    // We didn't find every required pony, so we abort
+                    break_noponies = true;
+                    break;
+                    }
+                }
+
+            if(break_noponies) {
+                continue; // We found no suitable ponies to do the interaction with, check the next initiating pony
+            }
+
+            // DO THE INTERACTION
+            std::cout << p->name << " with:" << std::endl;
+            for(auto &a: interaction_targets) {
+                std::cout << " " << a->name << std::endl;
+            }
+
+        }
+    }
 }

@@ -156,7 +156,8 @@ void CSVParser::ParseLine(std::vector<QVariant> &record, const QString& line, QC
             }
 
             // we now know our linetype
-            if(line_type.isEmpty() && (parse_types.find(curstring.toLower()) != parse_types.end())){
+            // only take the first argument as type
+            if(type_pos == 0 && line_type.isEmpty() && (parse_types.find(curstring.toLower()) != parse_types.end())){
                 line_type = curstring.toLower();
                 types_size = parse_types.at(line_type).size();
             }
@@ -186,6 +187,118 @@ void CSVParser::ParseLine(std::vector<QVariant> &record, const QString& line, QC
     }
     if(!line_type.isEmpty() && types_size > type_pos) {
         record.push_back(convert_type(parse_types.at(line_type)[type_pos],curstring));
+    }else{
+        record.push_back(curstring);
+    }
+
+    return;
+}
+
+void CSVParser::ParseLine(std::vector<QVariant> &record, const QString& line, QChar delimiter, const ParseTypes &types)
+{
+    int linepos=0;
+    int inquotes=false;
+    int inbrackets=false;
+    QChar c;
+    int linemax=line.length();
+    QString curstring;
+    QList<QVariant> temp_list;
+    int types_size = types.size();
+    int type_pos = 0;
+    record.clear();
+
+    while(linepos < linemax)
+    {
+        c = line[linepos];
+
+        if (!inquotes && curstring.length()==0 && c=='"')
+        {
+            //beginquotechar
+            inquotes=true;
+        }
+        else if (!inquotes && curstring.length()==0 && c=='{')
+        {
+            //beginlistchar
+            inbrackets = true;
+        }
+        else if (!inquotes && inbrackets && c==delimiter)
+        {
+            // end of field in list
+            if(types_size > type_pos) {
+                temp_list.push_back(convert_type(types[type_pos],curstring));
+            }else{
+                temp_list.push_back(curstring);
+            }
+            curstring="";
+
+        }
+        else if (inquotes && c=='"')
+        {
+            //quotechar
+            if ( (linepos+1 <linemax) && (line[linepos+1]=='"') )
+            {
+                //encountered 2 double quotes in a row (resolves to 1 double quote)
+                curstring.push_back(c);
+                linepos++;
+            }
+            else
+            {
+                //endquotechar
+                inquotes=false;
+            }
+        }
+        else if (!inquotes && inbrackets && c=='}')
+        {
+            // end of list
+            inbrackets = false;
+
+            if(types_size > type_pos) {
+                temp_list.push_back(convert_type(types[type_pos],curstring));
+            }else{
+                temp_list.push_back(curstring);
+            }
+            // next type
+            type_pos++;
+
+            curstring = "";
+            record.push_back(temp_list);
+            temp_list.clear();
+            linepos++; // skip the delimiter that follows '}'
+        }
+        else if (!inquotes && !inbrackets && c==delimiter)
+        {
+            //end of field
+            if(types_size > type_pos) {
+                record.push_back(convert_type(types[type_pos],curstring));
+            }else{
+                record.push_back(curstring);
+            }
+
+            type_pos++;
+            curstring="";
+        }
+        else if (!inquotes && /*(c=='\r' || c=='\n')*/ linepos+1 == linemax)
+        {
+            // end of line
+            curstring.push_back(c);
+
+            if(types_size > type_pos) {
+                record.push_back(convert_type(types[type_pos],curstring));
+            }else{
+                record.push_back(curstring);
+            }
+
+            type_pos++;
+            return;
+        }
+        else
+        {
+            curstring.push_back(c);
+        }
+        linepos++;
+    }
+    if(types_size > type_pos) {
+        record.push_back(convert_type(types[type_pos],curstring));
     }else{
         record.push_back(curstring);
     }

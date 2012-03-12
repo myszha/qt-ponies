@@ -24,7 +24,8 @@ SOURCES += src/main.cpp \
     src/effect.cpp \
     src/speak.cpp \ 
     src/configwindow.cpp \
-    src/csv_parser.cpp
+    src/csv_parser.cpp \
+    src/interaction.cpp
 
 HEADERS  += \
     src/pony.h \
@@ -32,7 +33,8 @@ HEADERS  += \
     src/effect.h \
     src/speak.h \    
     src/configwindow.h \
-    src/csv_parser.h
+    src/csv_parser.h \
+    src/interaction.h
 
 FORMS += \
     src/configwindow.ui

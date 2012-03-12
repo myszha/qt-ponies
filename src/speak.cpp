@@ -29,11 +29,11 @@
 #include "pony.h"
 
 // These are the variable types for Behavior configuration
-const CSVParser::ParseTypes Speak::OptionTypes = {
+const CSVParser::ParseTypes Speak::OptionTypes {
     {                     "type", QVariant::Type::String },
     {                     "name", QVariant::Type::String },
     {                     "text", QVariant::Type::String },
-    {                    "files", QVariant::Type::String },
+    {                  "{files}", QVariant::Type::String },
     {            "skip_normally", QVariant::Type::Bool }
 };
 

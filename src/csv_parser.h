@@ -11,7 +11,8 @@ class CSVParser {
 public:
     typedef std::vector<std::pair<std::string, QVariant::Type>> ParseTypes;
     static void ParseLine(std::vector<QVariant> &record, const QString& line, QChar delimiter);
-    static void AddParseTypes(const QString& key, const std::vector<std::pair<std::string, QVariant::Type>> & types);
+    static void ParseLine(std::vector<QVariant> &record, const QString& line, QChar delimiter, const ParseTypes &types);
+    static void AddParseTypes(const QString& key, const ParseTypes & types);
 
 private:
     CSVParser();

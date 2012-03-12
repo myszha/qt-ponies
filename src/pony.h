@@ -56,6 +56,7 @@ public:
     ~Pony();
 
     void change_behavior();
+    void change_behavior_to(const QString &new_behavior);
     void update_animation(QMovie* movie);
     void set_on_top(bool top);
     void set_bypass_wm(bool bypass);
@@ -78,6 +79,9 @@ public:
     QString name;
     QString directory;
 
+    int64_t next_interaction_time;
+    bool in_interaction;
+
 public slots:
     void update();
     void display_menu(const QPoint &);    
@@ -92,10 +96,12 @@ protected:
 
 private:
     void change_behavior_to(const std::vector<Behavior*> &new_behavior_list);
+    void setup_current_behavior();
 
     std::mt19937 gen;
     QLabel label;
     QLabel text_label;
+    Behavior *old_behavior;
     QString follow_object;
     int64_t behavior_started;
     int64_t behavior_duration;

@@ -52,7 +52,7 @@
 // FIXME: when ponies are not on top, they (all at once) flicker to top sometimes (on text show?)
 
 Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
-    QMainWindow(parent), gen(QDateTime::currentMSecsSinceEpoch()), label(this), config(config), dragging(false), sleeping(false), mouseover(false)
+    QMainWindow(parent), next_interaction_time(0), in_interaction(false), gen(QDateTime::currentMSecsSinceEpoch()), label(this), config(config), dragging(false), sleeping(false), mouseover(false)
 {
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_ShowWithoutActivating);
@@ -125,7 +125,7 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
         while (!istr.atEnd() ) {
             line = istr.readLine();
 
-            if(line[0] != '\'') {
+            if(line[0] != '\'' && !line.isEmpty()) {
                 std::vector<QVariant> csv_data;
                 CSVParser::ParseLine(csv_data, line, ',');
 
@@ -362,6 +362,27 @@ void Pony::update_animation(QMovie* animation)
     label.repaint();
 }
 
+// Change behavior to the specified one
+void Pony::change_behavior_to(const QString &new_behavior)
+{
+    if(behaviors.find(new_behavior) == behaviors.end()) {
+        std::cerr << "ERROR: Pony: '"<<name<<"' behavior:'"<< new_behavior << "' does not exist."<<std::endl;
+        return;
+    }
+
+    old_behavior = current_behavior;
+
+    if(current_behavior != nullptr) {
+        current_behavior->deinit();
+    }
+
+    current_behavior = &behaviors.at(new_behavior);
+
+    setup_current_behavior();
+}
+
+// Change behavior to one randomly selected from supplied list
+// Used for changing to dragged/mouseover/sleeping
 void Pony::change_behavior_to(const std::vector<Behavior*> &new_behavior)
 {
     int size = new_behavior.size();
@@ -373,9 +394,11 @@ void Pony::change_behavior_to(const std::vector<Behavior*> &new_behavior)
     }
 }
 
+// Randomly change behavior or follow linked one
 void Pony::change_behavior()
 {
-    Behavior *old_behavior = current_behavior;
+    old_behavior = current_behavior;
+
     if(current_behavior != nullptr) {
         current_behavior->deinit();
     }
@@ -404,6 +427,13 @@ void Pony::change_behavior()
 
     }
 
+    setup_current_behavior();
+
+}
+
+// Initialize current behavior
+void Pony::setup_current_behavior()
+{
     if(current_behavior->type == Behavior::State::Following || current_behavior->type == Behavior::State::MovingToPoint) {
         if(current_behavior->type == Behavior::State::Following){
             // Find follow_object (which is not empty, because we checked it while initializing)
