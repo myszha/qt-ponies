@@ -22,7 +22,7 @@ public:
     float probability;
     int distance;
     QList<QVariant> targets;
-    bool random;
+    bool select_every_taget;
     QList<QVariant> behaviors;
     int reactivation_delay;
 };

@@ -52,7 +52,7 @@
 // FIXME: when ponies are not on top, they (all at once) flicker to top sometimes (on text show?)
 
 Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
-    QMainWindow(parent), next_interaction_time(0), in_interaction(false), gen(QDateTime::currentMSecsSinceEpoch()), label(this), config(config), dragging(false), sleeping(false), mouseover(false)
+    QMainWindow(parent), sleeping(false), in_interaction(false), current_interaction_delay(0), gen(QDateTime::currentMSecsSinceEpoch()), label(this), config(config), dragging(false), mouseover(false)
 {
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_ShowWithoutActivating);
@@ -387,6 +387,9 @@ void Pony::change_behavior_to(const std::vector<Behavior*> &new_behavior)
 {
     int size = new_behavior.size();
     if(size > 0){
+            in_interaction = false; // We finished the interaction if there was one
+            interaction_delays[current_interaction] = QDateTime::currentMSecsSinceEpoch() + current_interaction_delay;
+
             std::uniform_int_distribution<> dis(0, new_behavior.size()-1);
             current_behavior->deinit();
             current_behavior = new_behavior.at(dis(gen));
@@ -414,6 +417,10 @@ void Pony::change_behavior()
         }
     }else{
         // If linked behavior not present, select random behavior using roulette-wheel selection
+
+        in_interaction = false; // We finished the interaction if there was one
+        interaction_delays[current_interaction] = QDateTime::currentMSecsSinceEpoch() + current_interaction_delay;
+
         float total = 0;
         std::uniform_real_distribution<> dis(0, total_behavior_probability);
         float rnd = dis(gen);
@@ -474,7 +481,9 @@ void Pony::setup_current_behavior()
     }
 
 
-    //std::cout << "Pony: '"<<name<<"' behavior: '"<< current_behavior->name <<"' for " << behavior_duration << "msec" <<std::endl;
+    if(config->getSetting<bool>("general/debug")) {
+        std::cout << "Pony: '"<<name<<"' behavior: '"<< current_behavior->name <<"' for " << behavior_duration << "msec" <<std::endl;
+    }
 
     // Update pony position (so it won't jump when we change desktops or something else unexpected happens)
     if(old_behavior != nullptr){
@@ -500,7 +509,7 @@ void Pony::setup_current_behavior()
                 std::cerr << "ERROR: Pony: '"<<name<<"' starting line:'"<< current_behavior->starting_line<< "' from: '"<< current_behavior->name << "' not present."<<std::endl;
             }else{
                 current_speech_line = speak_lines.at(current_behavior->starting_line).get();
-            }
+            }            
         }else if(old_behavior != nullptr && old_behavior->ending_line != "" && old_behavior->linked_behavior != current_behavior->name){
             // If we do not have a starting line, and this is a linked behavior, use old behavior's ending line if present
             // old_behavior == nullptr only if we didn't have any previous behaviors (i.e. at startup)
@@ -510,10 +519,16 @@ void Pony::setup_current_behavior()
             }else{
                 current_speech_line = speak_lines.at(old_behavior->ending_line).get();
             }
+        }else if(current_behavior->ending_line != "" || in_interaction || current_behavior->state != Behavior::State::Following){
+            // Don not choose a random line if we have an ending one, or we are in an interaction, or we are following
+            return;
         }else if(old_behavior == nullptr || old_behavior->linked_behavior != current_behavior->name) {
             // If we do not have a starting line and this is NOT a linked behavior, then choose one randomly
             // old_behavior == nullptr only if we didn't have any previous behaviors (i.e. at startup)
-            if(random_speak_lines.size() > 0) {
+
+            std::uniform_real_distribution<> real_dis(0, 100);
+            // Speak only with the specified probability
+            if((random_speak_lines.size()) > 0 && (real_dis(gen) <= config->getSetting<float>("speech/probability"))) {
                 std::uniform_int_distribution<> int_dis(0, random_speak_lines.size()-1);
                 current_speech_line = random_speak_lines[int_dis(gen)];
             }

@@ -36,13 +36,19 @@ Interaction::Interaction(const std::vector<QVariant> &options)
     }
 
     name = options[0].toString().toLower();
-    pony = options[1].toString();
+    pony = options[1].toString().toLower();
     probability = options[2].toFloat();
     distance = options[3].toFloat();
     targets = qVariantValue<QList<QVariant>>(options[4]);
-    random = options[5].toBool();
+    for(auto &i: targets){
+        i = i.toString().toLower();
+    }
+    select_every_taget = options[5].toBool();
     behaviors = qVariantValue<QList<QVariant>>(options[6]);
-    reactivation_delay = options[7].toBool();
+    for(auto &i: behaviors){
+        i = i.toString().toLower();
+    }
+    reactivation_delay = options[7].toInt() * 1000; // We use time in msec
 }
 
 const QString Interaction::select_behavior()

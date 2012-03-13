@@ -25,7 +25,6 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
-#include <set>
 
 #include "configwindow.h"
 #include "ui_configwindow.h"
@@ -42,7 +41,9 @@ const std::unordered_map<QString, const QVariant> ConfigWindow::config_defaults 
     {"general/bypass-wm",            false               },
     {"general/pony-directory",       "./desktop-ponies"  },
     {"general/interactions-enabled", true                },
+    {"general/debug",                false               },
     {"speech/enabled",               true                },
+    {"speech/probability",           50                  },
     {"speech/duration",              2000                },
     {"sound/enabled",                false               }
 };
@@ -364,13 +365,17 @@ void ConfigWindow::load_settings()
     QSettings settings;
 
     // General settings
-    ui->alwaysontop->setChecked(    getSetting<bool>    ("general/always-on-top",settings));
-    ui->x11_bypass_wm->setChecked(  getSetting<bool>    ("general/bypass-wm",settings));
-    ui->ponydata_directory->setText(getSetting<QString> ("general/pony-directory",settings));
+    ui->alwaysontop->setChecked(         getSetting<bool>    ("general/always-on-top",settings));
+    ui->x11_bypass_wm->setChecked(       getSetting<bool>    ("general/bypass-wm",settings));
+    ui->ponydata_directory->setText(     getSetting<QString> ("general/pony-directory",settings));
+    ui->interactions_enabled->setChecked(getSetting<bool>    ("general/interactions-enabled", settings));
+    ui->debug_enabled->setChecked(       getSetting<bool>    ("general/debug", settings));
+
 
     // Speech settings
     ui->speechenabled->setChecked(  getSetting<bool>    ("speech/enabled",settings));
     ui->textdelay->setValue(        getSetting<int>     ("speech/duration",settings));
+    ui->speechprobability->setValue(getSetting<int>     ("speech/probability",settings));
 
     // Sound settings
     ui->playsounds->setChecked(     getSetting<bool>    ("sound/enabled",settings));
@@ -397,6 +402,8 @@ void ConfigWindow::save_settings()
     settings.setValue("always-on-top", ui->alwaysontop->isChecked());
     settings.setValue("bypass-wm", ui->x11_bypass_wm->isChecked());
     settings.setValue("pony-directory", ui->ponydata_directory->text());
+    settings.setValue("interactions-enabled", ui->interactions_enabled->isChecked());
+    settings.setValue("debug", ui->debug_enabled->isChecked());
 
     settings.endGroup();
 
@@ -405,6 +412,7 @@ void ConfigWindow::save_settings()
 
     settings.setValue("enabled", ui->speechenabled->isChecked());
     settings.setValue("duration", ui->textdelay->value());
+    settings.setValue("probability", ui->speechprobability->value());
 
     settings.endGroup();
 
@@ -451,7 +459,7 @@ void ConfigWindow::update_distances()
 
             float dist = std::sqrt(std::pow(c2.x() - c1.x(), 2) + std::pow(c2.y() - c1.y(), 2));
 
-            distances.insert({{p1->name, p2->name}, dist});
+            distances.insert({{p1->name.toLower(), p2->name.toLower()}, dist});
         }
     }
 }
@@ -462,29 +470,23 @@ void ConfigWindow::update_interactions()
 
     update_distances();
 
+    std::mt19937 gen(QDateTime::currentMSecsSinceEpoch());
+    std::uniform_real_distribution<> real_dis(0, 1);
+
+
     // For each interaction
     for(auto &i: interactions){
         // check probability
 
         // For each pony that starts this interaction
-        std::list<std::shared_ptr<Pony>>::iterator p;
         for(auto &p: ponies) {
-            if(p->name != i.pony) continue;
+            if(p->name.toLower() != i.pony) continue;
             if(p->in_interaction) continue;
-            if(p->next_interaction_time > QDateTime::currentMSecsSinceEpoch()) continue;
+            if((p->interaction_delays.find(i.name) != p->interaction_delays.end()) && // Check if there is an active delay for this interaction in this pony
+                    (p->interaction_delays.at(i.name) > QDateTime::currentMSecsSinceEpoch())) continue;
 
-            // Here be dragons
-            // A std::set of std::shared_ptr<Pony> with custom comparision function (p1->name < p2->name)
-            // We use a set because its elements are unique, so when we add many ponies with the same name,
-            //  only one will be stored
-            // It is equivalent to:
-            //  typedef std::function<bool(const std::shared_ptr<Pony> &p1, const std::shared_ptr<Pony> &p2) Comp;
-            //  std::set<std::shared_ptr<Pony>, Comp>> interaction_targets
-            // where interaction_targets are initialised with th comparision lambda function
-            std::set<std::shared_ptr<Pony>, std::function<bool(const std::shared_ptr<Pony> &p1, const std::shared_ptr<Pony> &p2)>> interaction_targets
-                                                   ( [](const std::shared_ptr<Pony> &p1, const std::shared_ptr<Pony> &p2) -> bool {return p1->name < p2->name;});
-
-            bool break_noponies = true;
+            // TODO: add it to interaction instance, and when cancelling, cancel interaction for every pony in interaction
+            std::vector<std::shared_ptr<Pony>> interaction_targets;
 
             // For each target of that interaction
             for(const QVariant &p_target: i.targets) {
@@ -492,38 +494,62 @@ void ConfigWindow::update_interactions()
                 // For each found target
                 for(auto &pp: ponies) {
                     if(pp == p) continue; // Do not interact with self
-                    if(pp->name != p_target.toString()) continue;
+                    if(pp->name.toLower() != p_target.toString()) continue;
 
-                    if(distances.at(std::make_pair(p->name, p_target.toString())) > i.distance){
-                        continue; // The pony is too far, check the rest
-                    }else if(pp->in_interaction){
+                    if(pp->in_interaction){
                         continue; // The pony is already in an interaction
+                    }else if(pp->sleeping){
+                        continue; // Sleeping ponies do not interact
+                    }else if(distances.at(std::make_pair(p->name.toLower(), p_target.toString())) > i.distance){
+                            continue; // The pony is too far, check the rest
+                    }else if((pp->interaction_delays.find(i.name) != pp->interaction_delays.end()) && // Check if there is an active delay for this interaction in this pony
+                                         (pp->interaction_delays.at(i.name) > QDateTime::currentMSecsSinceEpoch())) {
+                        continue; // The pony has an active delay for this interaction
                     }else{
-                        break_noponies = false; // We found one/all suitable ponies, we can do the interaction
-                        interaction_targets.insert(pp);
+                        // We found a suitable pony, we can do the interaction
+                        if(real_dis(gen) <= i.probability) {
+                            // Only interact with specified probability
+                            interaction_targets.push_back(pp);
+                        }
                     }
                 }
+            }
 
-                if(interaction_targets.empty()) {
-                    // We didn't find anypony to interact with
-                    break;
-                }else if((i.random == false) && (interaction_targets.size() != static_cast<uint32_t>(i.targets.size()))){ // We cast to uint32_t because std::set is uint but QList is int
-                    // We didn't find every required pony, so we abort
-                    break_noponies = true;
-                    break;
+            if(interaction_targets.empty()) {
+                // We didn't find anypony to interact with, check the next initiating pony for this interaction
+                continue;
+            }
+
+            QString selected_behavior = i.select_behavior();
+
+            p->current_interaction = i.name;
+            p->current_interaction_delay = i.reactivation_delay;
+            p->in_interaction = true;
+            p->change_behavior_to(selected_behavior);
+
+            if(i.select_every_taget == false) { // Select random pony to interact with
+                std::uniform_int_distribution<> dis(0, interaction_targets.size()-1);
+                uint32_t rnd = dis(gen);
+
+                interaction_targets[rnd]->current_interaction = i.name;
+                interaction_targets[rnd]->current_interaction_delay = i.reactivation_delay;
+                interaction_targets[rnd]->in_interaction = true;
+                interaction_targets[rnd]->change_behavior_to(selected_behavior);
+                if(getSetting<bool>("general/debug")) {
+                    std::cout << p->name << " interacting with " << interaction_targets[rnd]->name << " using " << selected_behavior << " for interaction " << i.name << std::endl;
+                }
+            }else{
+                // Interact with all suitable ponies
+                for(auto &t: interaction_targets) {
+                    t->current_interaction = i.name;
+                    t->current_interaction_delay = i.reactivation_delay;
+                    t->in_interaction = true;
+                    t->change_behavior_to(selected_behavior);
+                    if(getSetting<bool>("general/debug")) {
+                        std::cout << p->name << " interacting with " << t->name << " using " << selected_behavior << " for interaction " << i.name << std::endl;
                     }
                 }
-
-            if(break_noponies) {
-                continue; // We found no suitable ponies to do the interaction with, check the next initiating pony
             }
-
-            // DO THE INTERACTION
-            std::cout << p->name << " with:" << std::endl;
-            for(auto &a: interaction_targets) {
-                std::cout << " " << a->name << std::endl;
-            }
-
         }
     }
 }

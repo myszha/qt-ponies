@@ -79,8 +79,12 @@ public:
     QString name;
     QString directory;
 
-    int64_t next_interaction_time;
+    bool sleeping;
+
     bool in_interaction;
+    std::unordered_map<QString, int64_t> interaction_delays;
+    QString current_interaction;
+    int current_interaction_delay;
 
 public slots:
     void update();
@@ -110,7 +114,6 @@ private:
     ConfigWindow *config;
     QMenu* menu;
     bool dragging;
-    bool sleeping;
     bool mouseover;
     bool always_on_top;
 

@@ -47,6 +47,7 @@ namespace std {
     {
         size_t operator()(const pair<QString, QString> &p) const
         {
+            // Maybe change it so it gives the same hash for <p1,p2> and <p2,p1>
             return qHash(QPair<QString, QString>(p.first, p.second));
         }
     };
