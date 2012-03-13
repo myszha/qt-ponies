@@ -33,8 +33,7 @@ A testing version of qt-ponies is avialable at [https://github.com/downloads/mys
 Running
 -------
 Run 'qt-ponies'. If you have not added any ponies, the configuration window
-will be shown (as is the case at first startup). Configuration is saved
-in config.ini in the same directory as the executable.
+will be shown (as is the case at first startup). 
 
 To open the configuration window, you can double-click on the system tray 
 icon or right-click it and choose 'Open configuration'. You can also close
@@ -53,7 +52,7 @@ Due to case-sensitivity of filenames under Unix, all 'pony.ini' files
 must be lower case. The case of .gif files in pony.ini must also be 
 correct.
 
-Effects, interactions and sounds are not currently supported.
+Effects and sounds are not currently supported.
 
 On Unix systems an X server supporting ARGB visuals and and a compositing 
 window manager are required for transparency of pony windows. Something like
