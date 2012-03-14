@@ -519,7 +519,7 @@ void Pony::setup_current_behavior()
             }else{
                 current_speech_line = speak_lines.at(old_behavior->ending_line).get();
             }
-        }else if(current_behavior->ending_line != "" || in_interaction || current_behavior->state != Behavior::State::Following){
+        }else if(!current_behavior->ending_line.isEmpty() || in_interaction || current_behavior->state == Behavior::State::Following){
             // Don not choose a random line if we have an ending one, or we are in an interaction, or we are following
             return;
         }else if(old_behavior == nullptr || old_behavior->linked_behavior != current_behavior->name) {
