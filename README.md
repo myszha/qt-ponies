@@ -6,6 +6,24 @@ All pony data (images, behaviors, sounds) is taken from DesktopPonies, and is co
 
 Inspired by qponies project by svenstaro (https://github.com/svenstaro/qponies).
 
+Running
+-------
+Compile the program or download a precompiled binary from [https://github.com/myszha/qt-ponies/downloads](https://github.com/myszha/qt-ponies/downloads).
+
+Run 'qt-ponies'. If you have not added any ponies, the configuration window
+will be shown (as is the case at first startup).
+
+To open the configuration window, you can double-click on the system tray 
+icon or right-click it and choose 'Open configuration'. You can also close
+the appliacation from this menu.
+
+Right clicking on a pony brings up its context menu, where you can put that
+pony to sleep, remove it, or remove all instances of that pony.
+
+Running under Windows
+-------
+A precompiled binary of qt-ponies is avialable in the downloads section.
+
 Compilation
 -----------
 A compiler supporting C++11 (g++ >= 4.6) is required, as are Qt (version >= 4.7) libraries (and X11 developement libraries on X11 sytems).
@@ -21,27 +39,7 @@ Then build qt-ponies by invoking:
     # qmake  
     # make  
 
-**Or** you can use a precompiled Debian/Ubuntu package (made by Schiwi), available here:
-
-* amd64: [https://github.com/downloads/myszha/qt-ponies/qt-ponies_0.5_amd64.deb](https://github.com/downloads/myszha/qt-ponies/qt-ponies_0.5_amd64.deb)
-* i386: [https://github.com/downloads/myszha/qt-ponies/qt-ponies_0.5_i386.deb](https://github.com/downloads/myszha/qt-ponies/qt-ponies_0.5_i386.deb)
-
-Running under Windows
--------
-A testing version of qt-ponies is avialable at [https://github.com/downloads/myszha/qt-ponies/qt-ponies-v0.5-win32.zip](https://github.com/downloads/myszha/qt-ponies/qt-ponies-v0.5-win32.zip).
-
-Running
--------
-Run 'qt-ponies'. If you have not added any ponies, the configuration window
-will be shown (as is the case at first startup). 
-
-To open the configuration window, you can double-click on the system tray 
-icon or right-click it and choose 'Open configuration'. You can also close
-the appliacation from this menu.
-
-Right clicking on a pony brings up its context menu, where you can put that
-pony to sleep, remove it, or remove all instances of that pony.
-
+**Or** you can use a precompiled Debian/Ubuntu package for i386 and amd64 (made by Schiwi), available in downloads.
 
 Other information
 -----------------
