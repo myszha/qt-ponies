@@ -15,7 +15,7 @@ QTreeView::item {
 
 QToolBar QToolButton {
 	height: 80px;
-	width: 100px;
+	width: 110px;
 	color: white;
 	font: bold;
 	border: none;
