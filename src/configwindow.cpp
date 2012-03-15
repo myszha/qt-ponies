@@ -64,8 +64,8 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     // Setup tray icon and menu
     tray_icon.setIcon(QIcon(":/icons/res/tray_icon.png"));
 
-    tray_menu.addAction("Open configuration",this,SLOT(show()));
-    tray_menu.addAction("Close application",QCoreApplication::instance(),SLOT(quit()));
+    tray_menu.addAction(trUtf8("Open configuration"),this,SLOT(show()));
+    tray_menu.addAction(trUtf8("Close application"),QCoreApplication::instance(),SLOT(quit()));
 
     connect(&tray_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(toggle_window(QSystemTrayIcon::ActivationReason)));
     tray_icon.setContextMenu(&tray_menu);
@@ -73,12 +73,12 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
 
     // Setup the toolbar buttons
     action_group = new QActionGroup(ui->toolBar);
-    action_addponies = new QAction(QIcon(":/icons/res/add_icon.png"), "Add ponies", action_group);
+    action_addponies = new QAction(QIcon(":/icons/res/add_icon.png"), trUtf8("Add ponies"), action_group);
     action_addponies->setCheckable(true);
     action_addponies->setChecked(true);
-    action_activeponies = new QAction(QIcon(":/icons/res/active_icon.png"), "Active ponies", action_group);
+    action_activeponies = new QAction(QIcon(":/icons/res/active_icon.png"), trUtf8("Active ponies"), action_group);
     action_activeponies->setCheckable(true);
-    action_configuration = new QAction(QIcon(":/icons/res/settings.png"), "Configuration", action_group);
+    action_configuration = new QAction(QIcon(":/icons/res/settings.png"), trUtf8("Configuration"), action_group);
     action_configuration->setCheckable(true);
 
     signal_mapper->setMapping(action_addponies,0);
@@ -352,7 +352,7 @@ void ConfigWindow::toggle_window(QSystemTrayIcon::ActivationReason reason)
 
 void ConfigWindow::change_ponydata_directory()
 {
-    QString new_dir = QFileDialog::getExistingDirectory(this, tr("Select pony data directory"), getSetting<QString>("general/pony-directory"),
+    QString new_dir = QFileDialog::getExistingDirectory(this, trUtf8("Select pony data directory"), getSetting<QString>("general/pony-directory"),
                                                         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
 
     if(new_dir != "") {

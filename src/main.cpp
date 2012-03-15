@@ -17,6 +17,9 @@
  */
 
 #include <QtGui/QApplication>
+#include <QtCore/QLocale>
+#include <QTranslator>
+#include <QDebug>
 #include <QFile>
 #include <QSettings>
 #include <iostream>
@@ -38,6 +41,14 @@ int main(int argc, char *argv[])
     QCoreApplication::addLibraryPath(QCoreApplication::applicationDirPath());
     QCoreApplication::setOrganizationName("qt-ponies");
     QCoreApplication::setApplicationName("qt-ponies");
+
+    QString locale = QLocale::system().name();
+
+    qDebug() << "Locale:" << locale;
+
+    QTranslator translator;
+    translator.load(":/translations/translations/qt-ponies_"+locale);
+    app.installTranslator(&translator);
 
     app.setQuitOnLastWindowClosed(false);
     QSettings::setDefaultFormat(QSettings::IniFormat);

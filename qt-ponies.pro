@@ -39,5 +39,10 @@ HEADERS  += \
 FORMS += \
     src/configwindow.ui
 
+TRANSLATIONS = \
+    translations/qt-ponies_de_DE.ts \
+    translations/qt-ponies_pl_PL.ts
+
+                  
 RESOURCES += \
     qt-ponies.qrc

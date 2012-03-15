@@ -49,6 +49,8 @@
 // setMask(current_behavior->current_animation->currentPixmap().mask());
 // or maybe there are better ways to do it
 
+// TODO: QMovie in separate thread?
+
 // FIXME: when ponies are not on top, they (all at once) flicker to top sometimes (on text show?)
 
 Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
@@ -155,15 +157,15 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     }
 
     menu = new QMenu(this);
-    QAction *sleep_action = new QAction("Sleeping",menu);
+    QAction *sleep_action = new QAction(trUtf8("Sleeping"),menu);
     sleep_action->setCheckable(true);
     connect(sleep_action, SIGNAL(toggled(bool)), this, SLOT(toggle_sleep(bool)));
 
     menu->addAction(name)->setEnabled(false);
     menu->addSeparator();
     menu->addAction(sleep_action);
-    menu->addAction("Remove "+name, config, SLOT(remove_pony()));
-    menu->addAction("Remove every "+name, config, SLOT(remove_pony_all()));
+    menu->addAction(trUtf8("Remove ")+name, config, SLOT(remove_pony()));
+    menu->addAction(trUtf8("Remove every ")+name, config, SLOT(remove_pony_all()));
 
     // Select behaviour that will can be choosen randomly
     for(auto &i: behaviors) {
