@@ -43,11 +43,12 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("qt-ponies");
 
     QString locale = QLocale::system().name();
+    QString trans_dir = "./translations";
 
     qDebug() << "Locale:" << locale;
 
     QTranslator translator;
-    translator.load(":/translations/translations/qt-ponies_"+locale);
+    translator.load("qt-ponies_"+locale, trans_dir);
     app.installTranslator(&translator);
 
     app.setQuitOnLastWindowClosed(false);
