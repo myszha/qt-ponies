@@ -1,0 +1,9 @@
+[Desktop Entry]                                           
+Name=Qt Ponies
+Comment=Ponies on your desktop
+Exec=/usr/bin/qt-ponies
+Icon=qt-ponies
+Terminal=false
+Type=Application
+Categories=Game
+

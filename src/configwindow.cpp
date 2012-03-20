@@ -136,7 +136,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
         try {
             ponies.emplace_back(std::make_shared<Pony>(settings.value("name").toString(), this));
             QObject::connect(&update_timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
-        }catch (std::exception e) {
+        }catch (std::exception &e) {
             std::cerr << "ERROR: Could not load pony '" << settings.value("name").toString() << "'." << std::endl;
         }
     }
@@ -164,7 +164,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
                 CSVParser::ParseLine(csv_data, line, ',', Interaction::OptionTypes);
                 try {
                     interactions.emplace_back(csv_data);
-                }catch (std::exception e) {
+                }catch (std::exception &e) {
                     std::cerr << "ERROR: Could not load interaction." << std::endl;
                 }
 
@@ -303,7 +303,7 @@ void ConfigWindow::add_pony()
             ponies.emplace_back(std::make_shared<Pony>(i.data().toString(), this));
             QObject::connect(&update_timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
 
-        }catch (std::exception e) {
+        }catch (std::exception &e) {
             std::cerr << "ERROR: Could not load pony '" << name << "'." << std::endl;
         }
 
