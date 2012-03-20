@@ -164,8 +164,8 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     menu->addAction(name)->setEnabled(false);
     menu->addSeparator();
     menu->addAction(sleep_action);
-    menu->addAction(trUtf8("Remove ")+name, config, SLOT(remove_pony()));
-    menu->addAction(trUtf8("Remove every ")+name, config, SLOT(remove_pony_all()));
+    menu->addAction(trUtf8("Remove %1").arg(name), config, SLOT(remove_pony()));
+    menu->addAction(trUtf8("Remove every %1").arg(name), config, SLOT(remove_pony_all()));
 
     // Select behaviour that will can be choosen randomly
     for(auto &i: behaviors) {
