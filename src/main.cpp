@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("qt-ponies");
     QCoreApplication::setApplicationName("qt-ponies");
 
-    QString locale = QLocale::system().name();
+    QString locale = QLocale::system().name().left(2);
     QString trans_dir = "./translations";
 
     qDebug() << "Locale:" << locale;
