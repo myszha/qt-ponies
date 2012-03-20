@@ -308,7 +308,7 @@ void Pony::mouseReleaseEvent(QMouseEvent* event)
             change_behavior_to(mouseover_behaviors);
         }else if(sleeping == true) {
             change_behavior_to(sleep_behaviors);
-        }else if(drag_behaviors.size() > 0){
+        }else if(!drag_behaviors.empty()){
             change_behavior();
         }
         event->accept();
@@ -328,7 +328,7 @@ void Pony::leaveEvent(QEvent* event)
     mouseover = false;
     if(sleeping == true) {
         change_behavior_to(sleep_behaviors);
-    }else if(mouseover_behaviors.size() > 0){
+    }else if(!mouseover_behaviors.empty()){
         change_behavior();
     }
     event->accept();

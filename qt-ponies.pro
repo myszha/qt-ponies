@@ -1,4 +1,3 @@
-
 QT       += core gui
 
 #TODO: change to pkgsrc when Qt 4.8 is available
@@ -46,3 +45,21 @@ TRANSLATIONS = \
                   
 RESOURCES += \
     qt-ponies.qrc
+
+unix {
+  BINDIR = $${PREFIX}/bin
+  DATADIR =$${PREFIX}/share
+
+  target.path = $$BINDIR
+
+  icon.path = $$DATADIR/pixmaps/
+  icon.files += res/$${TARGET}.png
+
+  desktop.path = $$DATADIR/applications/
+  desktop.files = res/$${TARGET}.desktop
+
+  data.path = $$DATADIR/qt-ponies
+  data.files += desktop-ponies
+
+  INSTALLS += target icon desktop data
+}
