@@ -146,7 +146,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     update_active_list();
 
     // Load interactions
-    QFile ifile(getSetting<QString>("general/pony-directory") + "/interactions.ini");
+    QFile ifile(QString("%1/interactions.ini").arg(getSetting<QString>("general/pony-directory")));
     if(!ifile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         std::cerr << "ERROR: Cannot open interactions.ini" << std::endl;
         std::cerr << ifile.errorString() << std::endl;
@@ -317,7 +317,7 @@ void ConfigWindow::update_active_list()
 {
     active_list_model->clear();
     for(auto &i: ponies) {
-        QStandardItem *item_icon = new QStandardItem(QIcon(ConfigWindow::getSetting<QString>("general/pony-directory") + "/" + i->directory +  "/icon.png"),"");
+        QStandardItem *item_icon = new QStandardItem(QIcon(QString("%1/%2/icon.png").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), i->directory)),"");
         QStandardItem *item_text = new QStandardItem(i->directory);
 
         QList<QStandardItem*> row;

@@ -200,8 +200,8 @@ void Behavior::init()
     std::mt19937 gen(QDateTime::currentMSecsSinceEpoch());
 
     // Load animations and verify them
-    animations[0] = new QMovie(ConfigWindow::getSetting<QString>("general/pony-directory") + "/" + path + "/" + animation_left );
-    animations[1] = new QMovie(ConfigWindow::getSetting<QString>("general/pony-directory") + "/" + path + "/" + animation_right);
+    animations[0] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, animation_left ));
+    animations[1] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, animation_right));
 
     if(!animations[0]->isValid())
         std::cerr << "ERROR: Pony: '"<< path <<"' Error opening left animation:'"<< animation_left << "' for behavior: '"<< name << "'."<<std::endl;
@@ -244,8 +244,8 @@ void Behavior::init()
                 // We are not using the animations declared for this behavior, instead we use the ones specified in follow_moving_behavior
                 delete animations[0];
                 delete animations[1];
-                animations[0] = new QMovie(ConfigWindow::getSetting<QString>("general/pony-directory") + "/" + path + "/" + moving_behavior.animation_left );
-                animations[1] = new QMovie(ConfigWindow::getSetting<QString>("general/pony-directory") + "/" + path + "/" + moving_behavior.animation_right );
+                animations[0] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, moving_behavior.animation_left ));
+                animations[1] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, moving_behavior.animation_right));
 
                 // Set centers of the moving animations
                 left_image_center = moving_behavior.left_image_center;
@@ -256,8 +256,8 @@ void Behavior::init()
 
         // Find stopped behavior and get left/right filenames from it
         if(follow_stopped_behavior == ""){
-            animations[2] = new QMovie(ConfigWindow::getSetting<QString>("general/pony-directory") + "/" + path + "/" + animation_left );
-            animations[3] = new QMovie(ConfigWindow::getSetting<QString>("general/pony-directory") + "/" + path + "/" + animation_right);
+            animations[2] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, animation_left ));
+            animations[3] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, animation_right));
         }else if( parent->behaviors.find(follow_stopped_behavior) == parent->behaviors.end()) {
             std::cerr << "ERROR: Pony: '"<<parent->name<<"' follow stopped behavior:'"<< follow_stopped_behavior << "' from: '"<< name << "' not present."<<std::endl;
         }else{
@@ -265,8 +265,8 @@ void Behavior::init()
             if(stopped_behavior.animation_left == "") {
                 std::cerr << "ERROR: Pony: '"<<parent->name<<"' follow stopped behavior:'"<< follow_moving_behavior << "' animation left from: '"<< name << "' not present."<<std::endl;
             }else{
-                animations[2] = new QMovie(ConfigWindow::getSetting<QString>("general/pony-directory") + "/" + path + "/" + stopped_behavior.animation_left );
-                animations[3] = new QMovie(ConfigWindow::getSetting<QString>("general/pony-directory") + "/" + path + "/" + stopped_behavior.animation_right );
+                animations[2] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, stopped_behavior.animation_left ));
+                animations[3] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, stopped_behavior.animation_right ));
             }
         }
     }

@@ -73,7 +73,7 @@ public:
         QString key(name);
         if(settings.group() != "") {
             // We currently are in a group - append the group name to the key
-            key = settings.group() + "/" + name;
+            key = QString("%1/%2").arg(settings.group(), name);
         }
         if(config_defaults.find(key) != config_defaults.end()){
             // There is a default for that option in config_defaults, use it
