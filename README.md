@@ -6,10 +6,16 @@ All pony data (images, behaviors, sounds) is taken from DesktopPonies, and is co
 
 Inspired by qponies project by svenstaro (https://github.com/svenstaro/qponies).
 
-Running
--------
+Installation
+------------
 Compile the program or download a precompiled binary from [https://github.com/myszha/qt-ponies/downloads](https://github.com/myszha/qt-ponies/downloads).
 
+Under Linux, you must download and install qt-ponies_$version_$arch.deb and qt-ponies-data_$version_all.deb .
+
+Under Windows, download and unpack qt-ponies-$version-win32.zip .
+
+Running
+-------
 Run 'qt-ponies'. If you have not added any ponies, the configuration window
 will be shown (as is the case at first startup).
 
@@ -39,7 +45,7 @@ Then build qt-ponies by invoking:
     # qmake  
     # make  
 
-**Or** you can use a precompiled Debian/Ubuntu package for i386 and amd64 (made by Schiwi), available in downloads.
+**Or** you can use a precompiled Debian/Ubuntu package for i386 and amd64, available in downloads.
 
 Other information
 -----------------
