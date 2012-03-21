@@ -473,8 +473,8 @@ void Behavior::update()
         parent->y_pos += vel_y;
     }
     if(movement == Movement::Diagonal){
-        vel_x = std::sqrt(speed*speed*2) * std::cos(angle);
-        vel_y = -std::sqrt(speed*speed*2) * std::sin(angle);
+        vel_x = speed * std::cos(angle);
+        vel_y = -speed * std::sin(angle);
         parent->x_pos += vel_x;
         parent->y_pos += vel_y;
     }
