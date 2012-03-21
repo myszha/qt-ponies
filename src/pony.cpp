@@ -59,8 +59,19 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_ShowWithoutActivating);
 
+#if defined QT_MAC_USE_COCOA && QT_VERSION >= 0x040800
+	//removes shadows that lag behind animation on OS X. QT 4.8+ needed.
+    setAttribute(Qt::WA_MacNoShadow, true);
+#endif
+
+#if defined QT_MAC_USE_COCOA
+	// on OS X, tool windows are hidden when another program gains focus.
+    Qt::WindowFlags windowflags = Qt::FramelessWindowHint;
+#else
     Qt::WindowFlags windowflags = Qt::FramelessWindowHint | Qt::Tool;
-    always_on_top = config->getSetting<bool>("general/always-on-top");
+#endif
+
+	always_on_top = config->getSetting<bool>("general/always-on-top");
     if(always_on_top) {
         windowflags |= Qt::WindowStaysOnTopHint;
     }
