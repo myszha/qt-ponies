@@ -62,7 +62,7 @@ unix {
   data.path = $$DATADIR/qt-ponies
   data.files += desktop-ponies
 
-  translations.path = $$DATADIR/qt-ponies/
+  translations.path = $$DATADIR/qt-ponies/translations/
   translations.files = translations/*.qm
 
   INSTALLS += target icon desktop data translations
