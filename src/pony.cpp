@@ -60,12 +60,12 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     setAttribute(Qt::WA_ShowWithoutActivating);
 
 #if defined QT_MAC_USE_COCOA && QT_VERSION >= 0x040800
-    //removes shadows that lag behind animation on OS X. QT 4.8+ needed.
+    // Removes shadows that lag behind animation on OS X. QT 4.8+ needed.
     setAttribute(Qt::WA_MacNoShadow, true);
 #endif
 
-#if defined QT_MAC_USE_COCOA
-    // on OS X, tool windows are hidden when another program gains focus.
+#ifdef QT_MAC_USE_COCOA
+    // On OS X, tool windows are hidden when another program gains focus.
     Qt::WindowFlags windowflags = Qt::FramelessWindowHint;
 #else
     Qt::WindowFlags windowflags = Qt::FramelessWindowHint | Qt::Tool;
@@ -79,7 +79,7 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
 #ifdef Q_WS_X11
     if(config->getSetting<bool>("general/bypass-wm")) {
         // Bypass the window manager, we do not need any other flags
-        windowflags = Qt::X11BypassWindowManagerHint;
+        windowflags |= Qt::X11BypassWindowManagerHint;
     }
 #endif
 
