@@ -78,7 +78,7 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
 
 #ifdef Q_WS_X11
     if(config->getSetting<bool>("general/bypass-wm")) {
-        // Bypass the window manager, we do not need any other flags
+        // Bypass the window manager
         windowflags |= Qt::X11BypassWindowManagerHint;
     }
 #endif
