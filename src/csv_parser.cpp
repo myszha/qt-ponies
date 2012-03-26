@@ -1,6 +1,5 @@
 #include <QPoint>
-
-#include <iostream>
+#include <QDebug>
 
 #include "csv_parser.h"
 
@@ -28,17 +27,17 @@ static QVariant convert_type(std::pair<std::string, QVariant::Type> type, QStrin
             bool ok = 0;
             int v = value.toInt(&ok);
             if(ok == false){
-                std::cerr << "ERROR parsing variable '"<< type.first << "' value: '" << value.toStdString() << "' to Int." << std::endl;
+                qWarning() << "ERROR parsing variable '"<< QString::fromStdString(type.first) << "' value: '" << value << "' to Int.";
             }
             return QVariant(v);
         }
         case QVariant::Type::Bool: {
             QVariant v(value);
             if(value.compare("true", Qt::CaseInsensitive) != 0 && value.compare("false", Qt::CaseInsensitive) != 0 ) {
-                std::cerr << "ERROR parsing variable '"<< type.first << "' value: '" << value.toStdString() << "' to Bool." << std::endl;
+                qWarning() << "ERROR parsing variable '"<< QString::fromStdString(type.first) << "' value: '" << value << "' to Bool.";
             }
             if(v.convert(QVariant::Type::Bool) == false){
-                std::cerr << "ERROR parsing variable '"<< type.first << "' value: '" << value.toStdString() << "' to Bool." << std::endl;
+                qWarning() << "ERROR parsing variable '"<< QString::fromStdString(type.first) << "' value: '" << value << "' to Bool.";
             }
             return v;
         }
@@ -46,7 +45,7 @@ static QVariant convert_type(std::pair<std::string, QVariant::Type> type, QStrin
             bool ok = 0;
             float v = value.toFloat(&ok);
             if(ok == false){
-                std::cerr << "ERROR parsing variable '"<< type.first << "' value: '" << value.toStdString() << "' to Float." << std::endl;
+                qWarning() << "ERROR parsing variable '"<< QString::fromStdString(type.first) << "' value: '" << value << "' to Float.";
             }
             return QVariant(v);
         }
@@ -55,16 +54,16 @@ static QVariant convert_type(std::pair<std::string, QVariant::Type> type, QStrin
             bool ok = 0;
             x = value.section(',',0,0).toInt(&ok);
             if(ok == false){
-                std::cerr << "ERROR parsing x of variable '"<< type.first << "' value: '" << value.toStdString() << "' to Point." << std::endl;
+                qWarning() << "ERROR parsing x of variable '"<< QString::fromStdString(type.first) << "' value: '" << value << "' to Point.";
             }
             y = value.section(',',1,1).toInt();
             if(ok == false){
-                std::cerr << "ERROR parsing y of variable "<< type.first << "' value: '" << value.toStdString() << "' to Point." << std::endl;
+                qWarning() << "ERROR parsing y of variable "<< QString::fromStdString(type.first) << "' value: '" << value << "' to Point.";
             }
             return QVariant(QPoint(x,y));
         }
         default: {
-            std::cerr << "ERROR: unknown type " << type.second << " while parsing value '" << value.toStdString() << "' for variable "<< type.first <<"."<< std::endl;
+            qWarning() << "ERROR: unknown type " << type.second << " while parsing value '" << value << "' for variable "<< QString::fromStdString(type.first) <<".";
             return QVariant(value);
         }
     }

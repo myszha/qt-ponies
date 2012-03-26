@@ -20,9 +20,9 @@
 #include <QDesktopWidget>
 #include <QWidget>
 #include <QDateTime>
+#include <QDebug>
 
 #include <string>
-#include <iostream>
 #include <sstream>
 #include <unordered_map>
 #include <random>
@@ -204,9 +204,9 @@ void Behavior::init()
     animations[1] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, animation_right));
 
     if(!animations[0]->isValid())
-        std::cerr << "ERROR: Pony: '"<< path <<"' Error opening left animation:'"<< animation_left << "' for behavior: '"<< name << "'."<<std::endl;
+        qCritical() << "ERROR: Pony:"<< path <<"Error opening left animation:"<< animation_left << "for behavior:"<< name;
     if(!animations[1]->isValid())
-        std::cerr << "ERROR: Pony: '"<< path <<"' Error opening right animation:'"<< animation_right << "' for behavior: '"<< name << "'."<<std::endl;
+        qCritical() << "ERROR: Pony:"<< path <<"Error opening right animation:"<< animation_right << "for behavior:"<< name;
 
     animations[0]->setCacheMode(QMovie::CacheAll);
     animations[1]->setCacheMode(QMovie::CacheAll);
@@ -235,11 +235,11 @@ void Behavior::init()
         if(follow_moving_behavior == ""){
             // If we do not have a moveing behavior, use standard left/right animations
         }else if( parent->behaviors.find(follow_moving_behavior) == parent->behaviors.end()) {
-            std::cerr << "ERROR: Pony: '"<<parent->name<<"' follow moving behavior:'"<< follow_moving_behavior << "' from: '"<< name << "' not present."<<std::endl;
+            qCritical() << "ERROR: Pony:"<<parent->name<<"follow moving behavior:"<< follow_moving_behavior << "from:"<< name << "not present.";
         }else{
             const Behavior &moving_behavior = parent->behaviors.at(follow_moving_behavior);
-            if(moving_behavior.animation_left == "") {
-                std::cerr << "ERROR: Pony: '"<<parent->name<<"' follow moving behavior:'"<< follow_moving_behavior << "' animation left from: '"<< name << "' not present."<<std::endl;
+            if(moving_behavior.animation_left == "") { // or animation_right==""
+                qCritical() << "ERROR: Pony:"<<parent->name<<"follow moving behavior:"<< follow_moving_behavior << "animation left from:"<< name << "not present.";
             }else{
                 // We are not using the animations declared for this behavior, instead we use the ones specified in follow_moving_behavior
                 delete animations[0];
@@ -259,11 +259,11 @@ void Behavior::init()
             animations[2] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, animation_left ));
             animations[3] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, animation_right));
         }else if( parent->behaviors.find(follow_stopped_behavior) == parent->behaviors.end()) {
-            std::cerr << "ERROR: Pony: '"<<parent->name<<"' follow stopped behavior:'"<< follow_stopped_behavior << "' from: '"<< name << "' not present."<<std::endl;
+            qCritical() << "ERROR: Pony:"<<parent->name<<"follow stopped behavior:"<< follow_stopped_behavior << "from:"<< name << "not present.";
         }else{
             const Behavior &stopped_behavior = parent->behaviors.at(follow_stopped_behavior);
             if(stopped_behavior.animation_left == "") {
-                std::cerr << "ERROR: Pony: '"<<parent->name<<"' follow stopped behavior:'"<< follow_moving_behavior << "' animation left from: '"<< name << "' not present."<<std::endl;
+                qCritical() << "ERROR: Pony:"<<parent->name<<"follow stopped behavior:"<< follow_moving_behavior << "animation left from:"<< name << "not present.";
             }else{
                 animations[2] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, stopped_behavior.animation_left ));
                 animations[3] = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path, stopped_behavior.animation_right ));
@@ -382,7 +382,7 @@ void Behavior::update()
         }
 
         if(destanation_point.x() == 0 && destanation_point.y() == 0){
-            std::cerr << "WARNING: " << parent->name << " behavior " << name << " is following, but has no target!" << std::endl;
+            qWarning() << "WARNING:" << parent->name << "behavior" << name << "is following, but has no target!";
             return;
         }
 
@@ -483,23 +483,3 @@ void Behavior::update()
 
 }
 
-void Behavior::info()
-{
-std::cout
-    <<"name: "<<name<<" "
-    <<"speed: "<<speed<<" "
-    <<"probability: "<<probability<<" "
-    <<"duration_min: "<<duration_min<<" "
-    <<"duration_max: "<<duration_max<<" "
-    <<"movement_allowed: "<<int(movement_allowed)<<" "
-    <<"animation_left: "<<animation_left<<" "
-    <<"animation_right: "<<animation_right<<" "
-    <<"linked_behavior: "<<linked_behavior<<" "
-    <<"starting_line: "<<starting_line<<" "
-    <<"ending_line: "<<ending_line<<" "
-    <<"skip_normally: "<<skip_normally<<" "
-    <<"x_coordinate: "<<x_coordinate<<" "
-    <<"y_coordinate: "<<y_coordinate<<" "
-    <<"follow_object: "<<follow_object<<std::endl;
-
-}

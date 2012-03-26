@@ -1,9 +1,9 @@
 #include "interaction.h"
 
 #include <QDateTime>
+#include <QDebug>
 
 #include <random>
-#include <iostream>
 
 const CSVParser::ParseTypes Interaction::OptionTypes {
     {              "InteractionName", QVariant::Type::String },
@@ -31,7 +31,7 @@ Interaction::Interaction(const std::vector<QVariant> &options)
     */
 
     if(options.size() != 8) {
-        std::cout << "ERROR: interaction contains wrong number of options" << std::endl;
+        qCritical() << "ERROR: interaction contains wrong number of options";
         throw std::exception();
     }
 

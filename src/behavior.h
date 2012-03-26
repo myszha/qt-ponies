@@ -20,10 +20,10 @@
 #define BEHAVIOR_H
 
 #include <QMovie>
-
-#include <cstdint>
 #include <QString>
 #include <QVariant>
+
+#include <cstdint>
 
 #include "csv_parser.h"
 
@@ -39,7 +39,6 @@ public:
     void init();
     void deinit();
     void update();
-    void info();
 
     enum Direction { Left = -1, Right = 1, Down = 1, Up = -1, Stand = 0};
 

@@ -21,13 +21,14 @@
 #include <QDateTime>
 #include <QFile>
 #include <QTextStream>
+#include <QDebug>
 
-#include <iostream>
 #include <algorithm>
 #include <cmath>
 
 #include "configwindow.h"
 #include "ui_configwindow.h"
+#include "ui_debug_window.h"
 
 // TODO: configuration:
 //       monitors (on witch to run, etc)
@@ -42,6 +43,7 @@ const std::unordered_map<QString, const QVariant> ConfigWindow::config_defaults 
     {"general/pony-directory",       "./desktop-ponies"  },
     {"general/interactions-enabled", true                },
     {"general/debug",                false               },
+    {"general/show-advanced",        false               },
     {"speech/enabled",               true                },
     {"speech/probability",           50                  },
     {"speech/duration",              2000                },
@@ -55,6 +57,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     signal_mapper = new QSignalMapper();
 
     ui->setupUi(this);
+    ui_debug->setupUi(this);
 #ifndef Q_WS_X11
     // Do not show X11 specific options on other platforms
     ui->label_bypass_wm->setVisible(false);
@@ -137,7 +140,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
             ponies.emplace_back(std::make_shared<Pony>(settings.value("name").toString(), this));
             QObject::connect(&update_timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
         }catch (std::exception &e) {
-            std::cerr << "ERROR: Could not load pony '" << settings.value("name").toString() << "'." << std::endl;
+            qCritical() << "ERROR: Could not load pony" << settings.value("name").toString();
         }
     }
     settings.endArray();
@@ -148,8 +151,8 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     // Load interactions
     QFile ifile(QString("%1/interactions.ini").arg(getSetting<QString>("general/pony-directory")));
     if(!ifile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        std::cerr << "ERROR: Cannot open interactions.ini" << std::endl;
-        std::cerr << ifile.errorString() << std::endl;
+        qCritical() << "ERROR: Cannot open interactions.ini";
+        qCritical() << ifile.errorString();
     }
 
     if( ifile.isOpen() ) {
@@ -165,7 +168,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
                 try {
                     interactions.emplace_back(csv_data);
                 }catch (std::exception &e) {
-                    std::cerr << "ERROR: Could not load interaction." << std::endl;
+                    qCritical() << "ERROR: Could not load interaction.";
                 }
 
             }
@@ -173,7 +176,7 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
 
         ifile.close();
     }else{
-        std::cerr << "ERROR: Cannot read interactions.ini" << std::endl;
+        qCritical() << "ERROR: Cannot read interactions.ini";
     }
 
 }
@@ -304,7 +307,7 @@ void ConfigWindow::add_pony()
             QObject::connect(&update_timer, SIGNAL(timeout()), ponies.back().get(), SLOT(update()));
 
         }catch (std::exception &e) {
-            std::cerr << "ERROR: Could not load pony '" << name << "'." << std::endl;
+            qCritical() << "ERROR: Could not load pony" << name;
         }
 
     }
@@ -370,7 +373,7 @@ void ConfigWindow::load_settings()
     ui->ponydata_directory->setText(     getSetting<QString> ("general/pony-directory",settings));
     ui->interactions_enabled->setChecked(getSetting<bool>    ("general/interactions-enabled", settings));
     ui->debug_enabled->setChecked(       getSetting<bool>    ("general/debug", settings));
-
+    ui->show_advanced->setChecked(       getSetting<bool>    ("general/show-advanced", settings));
 
     // Speech settings
     ui->speechenabled->setChecked(  getSetting<bool>    ("speech/enabled",settings));
@@ -404,6 +407,7 @@ void ConfigWindow::save_settings()
     settings.setValue("pony-directory", ui->ponydata_directory->text());
     settings.setValue("interactions-enabled", ui->interactions_enabled->isChecked());
     settings.setValue("debug", ui->debug_enabled->isChecked());
+    settings.setValue("show-advanced", ui->show_advanced->isChecked());
 
     settings.endGroup();
 
@@ -536,7 +540,7 @@ void ConfigWindow::update_interactions()
                 interaction_targets[rnd]->in_interaction = true;
                 interaction_targets[rnd]->change_behavior_to(selected_behavior);
                 if(getSetting<bool>("general/debug")) {
-                    std::cout << p->name << " interacting with " << interaction_targets[rnd]->name << " using " << selected_behavior << " for interaction " << i.name << std::endl;
+                    qDebug() << p->name << "interacting with" << interaction_targets[rnd]->name << "using" << selected_behavior << "for interaction" << i.name;
                 }
             }else{
                 // Interact with all suitable ponies
@@ -546,10 +550,15 @@ void ConfigWindow::update_interactions()
                     t->in_interaction = true;
                     t->change_behavior_to(selected_behavior);
                     if(getSetting<bool>("general/debug")) {
-                        std::cout << p->name << " interacting with " << t->name << " using " << selected_behavior << " for interaction " << i.name << std::endl;
+                        qDebug() << p->name << " interacting with " << t->name << " using " << selected_behavior << " for interaction " << i.name;
                     }
                 }
             }
         }
     }
+}
+
+void ConfigWindow::show_debuglog()
+{
+
 }

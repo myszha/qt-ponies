@@ -31,7 +31,6 @@
 
 #include <memory>
 #include <vector>
-#include <iostream>
 #include <unordered_map>
 
 #include "pony.h"
@@ -39,6 +38,7 @@
 
 namespace Ui {
     class ConfigWindow;
+    class DebugWindow;
 }
 
 namespace std {
@@ -100,6 +100,7 @@ private slots:
     void lettertab_changed(int index);
     void change_ponydata_directory();
     void update_interactions();
+    void show_debuglog();
 
 private:
     void reload_available_ponies();
@@ -110,6 +111,7 @@ private:
     std::unordered_map<std::pair<QString, QString>, float> distances;
 
     Ui::ConfigWindow *ui;
+    Ui::DebugWindow  *ui_debug;
     QSignalMapper *signal_mapper;
     QStandardItemModel *list_model;
     QStandardItemModel *active_list_model;

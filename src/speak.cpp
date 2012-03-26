@@ -17,7 +17,6 @@
  */
 
 #include <sstream>
-#include <iostream>
 
 #ifdef USE_PHONON
  #include <Phonon/MediaObject>

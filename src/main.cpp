@@ -22,7 +22,6 @@
 #include <QDebug>
 #include <QFile>
 #include <QSettings>
-#include <iostream>
 
 #include "csv_parser.h"
 #include "behavior.h"
