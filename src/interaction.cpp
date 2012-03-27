@@ -31,7 +31,7 @@ Interaction::Interaction(const std::vector<QVariant> &options)
     */
 
     if(options.size() != 8) {
-        qCritical() << "ERROR: interaction contains wrong number of options";
+        qCritical() << "Interaction contains wrong number of options";
         throw std::exception();
     }
 

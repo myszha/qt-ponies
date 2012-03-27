@@ -69,135 +69,158 @@
         <translation type="unfinished">&amp;Αλληλεπιδράσεις ενεργοποιμένα</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="373"/>
+        <location filename="../src/configwindow.ui" line="383"/>
+        <source>Advanced options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/configwindow.ui" line="395"/>
         <source>Toggle if debug messages are printed to console</source>
         <translation>Εναλλαγή αν μηνήματα αποσφαλμάτωσης είναι τυποποιμένο στην κονσόλα</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="376"/>
+        <location filename="../src/configwindow.ui" line="398"/>
         <source>&amp;Debug messages</source>
         <translation type="unfinished">&amp;Μηνύματα αποσφαλμάτωσης</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="404"/>
+        <location filename="../src/configwindow.ui" line="421"/>
+        <source>Show debug log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/configwindow.ui" line="432"/>
         <source>S&amp;peech</source>
         <translation type="unfinished">Ο&amp;μιλία</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="422"/>
+        <location filename="../src/configwindow.ui" line="450"/>
         <source> ms</source>
         <translation>χιλ./δευτ</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="451"/>
+        <location filename="../src/configwindow.ui" line="479"/>
         <source>For how long the speech is to stay on screen</source>
         <translation>Για πόσο καιρό η ομιλία θα μείνει στην οθόνη</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="454"/>
+        <location filename="../src/configwindow.ui" line="482"/>
         <source>&amp;Text delay</source>
         <translation type="unfinished">&amp;Καθυστέρηση ομιλίας</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="464"/>
+        <location filename="../src/configwindow.ui" line="492"/>
         <source>Toggles if ponies are to speak</source>
         <translation>Εναλλαγη αν τα πόνι θα μιλούν</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="467"/>
+        <location filename="../src/configwindow.ui" line="495"/>
         <source>&amp;Speech enabled</source>
         <translation type="unfinished">&amp;Ενεροποίση ομιλίας</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="496"/>
+        <location filename="../src/configwindow.ui" line="524"/>
         <source>NOT ACTIVE. Toggles the playing of sounds when a pony speaks.</source>
         <translation>ΌΧΙ ΕΡΓΟΝΟΠΟΙΜΈΝΑ. Εναλλαγή η αναπαραγωγή ήχου όταν μιλαέι ένα πόνι.</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="499"/>
+        <location filename="../src/configwindow.ui" line="527"/>
         <source>Play s&amp;ounds</source>
         <translation type="unfinished">Παίζει η&amp;χους</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="519"/>
+        <location filename="../src/configwindow.ui" line="547"/>
         <source>Sound</source>
         <translation>Ήχο</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="526"/>
+        <location filename="../src/configwindow.ui" line="554"/>
         <source>How frequently ponies speak</source>
         <translation>Ποσό συχνά μιλάνε τα πόνι</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="529"/>
+        <location filename="../src/configwindow.ui" line="557"/>
         <source>Sp&amp;eech probability</source>
         <translation type="unfinished">Πιθανότητες oμ&amp;ιλίας</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="542"/>
+        <location filename="../src/configwindow.ui" line="570"/>
         <source> %</source>
         <translation> %</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="572"/>
+        <location filename="../src/configwindow.ui" line="587"/>
         <source>Accept</source>
         <translation>Αποδοχή</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="579"/>
+        <location filename="../src/configwindow.ui" line="607"/>
         <source>Reset</source>
         <translation>Επαναφορά</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="597"/>
+        <location filename="../src/configwindow.ui" line="614"/>
+        <source>&amp;Show advanced options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/configwindow.ui" line="635"/>
         <source>toolBar</source>
         <translation>εργαΛεία</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.cpp" line="67"/>
+        <location filename="../src/configwindow.cpp" line="84"/>
         <source>Open configuration</source>
         <translation>Ανοιξέ διαμόρφωση</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.cpp" line="68"/>
+        <location filename="../src/configwindow.cpp" line="85"/>
         <source>Close application</source>
         <translation>Κλείσε εμφαρμογή</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.cpp" line="76"/>
+        <location filename="../src/configwindow.cpp" line="93"/>
         <source>Add ponies</source>
         <translation>Προσθέσε πόνι</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.cpp" line="79"/>
+        <location filename="../src/configwindow.cpp" line="96"/>
         <source>Active ponies</source>
         <translation>Ενεργά πόνι</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.cpp" line="81"/>
+        <location filename="../src/configwindow.cpp" line="98"/>
         <source>Configuration</source>
         <translation>Διαμορφώση</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.cpp" line="355"/>
+        <location filename="../src/configwindow.cpp" line="372"/>
         <source>Select pony data directory</source>
         <translation>Διάλογη κατάλογο δεδομένων πόνι</translation>
     </message>
 </context>
 <context>
+    <name>DebugWindow</name>
+    <message>
+        <location filename="../src/debugwindow.ui" line="14"/>
+        <source>Debug messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Pony</name>
     <message>
-        <location filename="../src/pony.cpp" line="160"/>
+        <location filename="../src/pony.cpp" line="171"/>
         <source>Sleeping</source>
         <translation>Κοιμούνται</translation>
     </message>
     <message>
-        <location filename="../src/pony.cpp" line="167"/>
+        <location filename="../src/pony.cpp" line="178"/>
         <source>Remove %1</source>
         <translation>Αφάιρεση %1</translation>
     </message>
     <message>
-        <location filename="../src/pony.cpp" line="168"/>
+        <location filename="../src/pony.cpp" line="179"/>
         <source>Remove every %1</source>
         <translation>Αφάιρεση όλων %1</translation>
     </message>

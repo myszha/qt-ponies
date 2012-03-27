@@ -44,8 +44,6 @@ int main(int argc, char *argv[])
     QString locale = QLocale::system().name().left(2).toLatin1();
     QString trans_dir = QCoreApplication::applicationDirPath() + "/translations";
 
-    qDebug() << "Locale:" << locale;
-
     QTranslator translator;
     translator.load(QString("qt-ponies_%1").arg(locale), trans_dir);
     app.installTranslator(&translator);
@@ -58,8 +56,9 @@ int main(int argc, char *argv[])
     app.setStyleSheet( QString::fromUtf8(qss.readAll()) );
     qss.close();
 
-
     ConfigWindow config;
+
+    qDebug() << "Locale:" << locale;
 
     if(config.ponies.size() == 0) {
         config.show();

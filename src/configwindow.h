@@ -38,8 +38,9 @@
 
 namespace Ui {
     class ConfigWindow;
-    class DebugWindow;
 }
+
+class DebugWindow;
 
 namespace std {
     template <>
@@ -111,7 +112,7 @@ private:
     std::unordered_map<std::pair<QString, QString>, float> distances;
 
     Ui::ConfigWindow *ui;
-    Ui::DebugWindow  *ui_debug;
+    std::unique_ptr<DebugWindow> ui_debug;
     QSignalMapper *signal_mapper;
     QStandardItemModel *list_model;
     QStandardItemModel *active_list_model;

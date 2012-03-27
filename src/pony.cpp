@@ -124,7 +124,7 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
 
     QFile ifile(QString("%1/%2/pony.ini").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), path));
     if(!ifile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qCritical() << "ERROR: Cannot open pony.ini for pony:"<< path;
+        qCritical() << "Cannot open pony.ini for pony:"<< path;
         qCritical() << ifile.errorString();
         throw std::exception();
     }
@@ -158,12 +158,12 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
 
         ifile.close();
     }else{
-        qCritical() << "ERROR: Cannot read pony.ini for pony:"<< path;
+        qCritical() << "Cannot read pony.ini for pony:"<< path;
         throw std::exception();
     }
 
     if(behaviors.size() == 0) {
-        qCritical() << "ERROR: Pony:"<<name<<"has no defined behaviors.";
+        qCritical() << "Pony:"<<name<<"has no defined behaviors.";
         throw std::exception();
     }
 
@@ -186,7 +186,7 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     }
 
     if(random_behaviors.size() == 0) {
-        qCritical() << "ERROR: Pony:"<<name<<"has no defined behaviors that can be randomly selected.";
+        qCritical() << "Pony:"<<name<<"has no defined behaviors that can be randomly selected.";
         throw std::exception();
     }
 
@@ -379,7 +379,7 @@ void Pony::update_animation(QMovie* animation)
 void Pony::change_behavior_to(const QString &new_behavior)
 {
     if(behaviors.find(new_behavior) == behaviors.end()) {
-        qCritical() << "ERROR: Pony:"<<name<<"behavior:"<< new_behavior << "does not exist.";
+        qCritical() << "Pony:"<<name<<"behavior:"<< new_behavior << "does not exist.";
         return;
     }
 
@@ -400,13 +400,18 @@ void Pony::change_behavior_to(const std::vector<Behavior*> &new_behavior)
 {
     int size = new_behavior.size();
     if(size > 0){
-            in_interaction = false; // We finished the interaction if there was one
+            in_interaction = false; // We interrupted an interaction if there was one, so stop it
             interaction_delays[current_interaction] = QDateTime::currentMSecsSinceEpoch() + current_interaction_delay;
 
             std::uniform_int_distribution<> dis(0, new_behavior.size()-1);
             current_behavior->deinit();
             current_behavior = new_behavior.at(dis(gen));
             current_behavior->init();
+
+            if(config->getSetting<bool>("general/debug")) {
+                    qDebug() << "Pony:"<<name<<"behavior: "<< current_behavior->name;
+            }
+
     }
 }
 
@@ -424,7 +429,7 @@ void Pony::change_behavior()
     // Check if linked behavior is present
     if(current_behavior != nullptr && current_behavior->linked_behavior != "") {
         if( behaviors.find(current_behavior->linked_behavior) == behaviors.end()) {
-            qCritical() << "ERROR: Pony:"<<name<<"linked behavior:"<< current_behavior->linked_behavior<< "from:"<< current_behavior->name << "not present.";
+            qCritical() << "Pony:"<<name<<"linked behavior:"<< current_behavior->linked_behavior<< "from:"<< current_behavior->name << "not present.";
             // TODO: current_behavior = nullptr and change_behavior(), so we can do another behavior if this is not found
         }else{
             current_behavior = &behaviors.at(current_behavior->linked_behavior);
@@ -515,7 +520,7 @@ void Pony::setup_current_behavior()
             // If we have a starting_line, use that
 
             if( speak_lines.find(current_behavior->starting_line) == speak_lines.end()) {
-                qWarning() << "ERROR: Pony:"<<name<<"starting line:"<< current_behavior->starting_line<< "from:"<< current_behavior->name << "not present.";
+                qWarning() << "Pony:"<<name<<"starting line:"<< current_behavior->starting_line<< "from:"<< current_behavior->name << "not present.";
             }else{
                 current_speech_line = speak_lines.at(current_behavior->starting_line).get();
             }            
@@ -524,7 +529,7 @@ void Pony::setup_current_behavior()
             // old_behavior == nullptr only if we didn't have any previous behaviors (i.e. at startup)
 
             if( speak_lines.find(old_behavior->ending_line) == speak_lines.end()) {
-                qWarning() << "ERROR: Pony:"<<name<<"ending line:"<< old_behavior->ending_line<< "from:"<< old_behavior->name << "not present.";
+                qWarning() << "Pony:"<<name<<"ending line:"<< old_behavior->ending_line<< "from:"<< old_behavior->name << "not present.";
             }else{
                 current_speech_line = speak_lines.at(old_behavior->ending_line).get();
             }

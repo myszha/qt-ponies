@@ -24,7 +24,8 @@ SOURCES += src/main.cpp \
     src/speak.cpp \ 
     src/configwindow.cpp \
     src/csv_parser.cpp \
-    src/interaction.cpp
+    src/interaction.cpp \
+    src/debugwindow.cpp
 
 HEADERS  += \
     src/pony.h \
@@ -33,10 +34,12 @@ HEADERS  += \
     src/speak.h \    
     src/configwindow.h \
     src/csv_parser.h \
-    src/interaction.h
+    src/interaction.h \
+    src/debugwindow.h
 
 FORMS += \
-    src/configwindow.ui
+    src/configwindow.ui \
+    src/debugwindow.ui
 
 TRANSLATIONS = \
     translations/qt-ponies_de.ts \
