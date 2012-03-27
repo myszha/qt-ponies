@@ -35,7 +35,7 @@
 #include "pony.h"
 
 // These are the variable types for Behavior configuration
-const CSVParser::ParseTypes Behavior::OptionTypes = {
+const CSVParser::ParseTypes Behavior::OptionTypes {
    {                     "type", QVariant::Type::String },
    {                     "name", QVariant::Type::String },
    {              "probability", QVariant::Type::Double },
