@@ -15,7 +15,7 @@ UI_DIR = src/ui
 RCC_DIR = src/rcc
 TEMPLATE = app
 
-QMAKE_CXXFLAGS += -std=c++0x -Wextra
+QMAKE_CXXFLAGS += -std=c++0x -Wextra -flto
 
 SOURCES += src/main.cpp \
     src/pony.cpp \

@@ -59,6 +59,12 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_ShowWithoutActivating);
 
+#ifdef Q_WS_X11
+    // Disables shadows under the pony window.
+    // We do not set this attribute for the label, because it looks better with a shadow.
+    setAttribute(Qt::WA_X11NetWmWindowTypeDock);
+#endif
+
 #if defined QT_MAC_USE_COCOA && QT_VERSION >= 0x040800
     // Removes shadows that lag behind animation on OS X. QT 4.8+ needed.
     setAttribute(Qt::WA_MacNoShadow, true);
