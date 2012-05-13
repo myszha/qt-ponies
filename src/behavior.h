@@ -33,8 +33,11 @@ class Behavior
 {
 public:
     Behavior(Pony* parent, const QString filepath, const std::vector<QVariant> &options);
+    Behavior(const Behavior &) = default;
     Behavior(Behavior &&b);
     ~Behavior();
+
+    Behavior& operator=(const Behavior&) = default;
 
     void init();
     void deinit();

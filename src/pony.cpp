@@ -470,7 +470,7 @@ void Pony::setup_current_behavior()
         if(current_behavior->type == Behavior::State::Following){
             // Find follow_object (which is not empty, because we checked it while initializing)
             auto found = std::find_if(config->ponies.begin(), config->ponies.end(),
-                                          [&current_behavior](const std::shared_ptr<Pony> &p) {
+                                          [this](const std::shared_ptr<Pony> &p) {
                                               return p->name.toLower() == current_behavior->follow_object.toLower();
                                           });
             if(found != config->ponies.end()){
@@ -590,7 +590,7 @@ void Pony::update() {
         // If we are following anypony, update their position
         if(follow_object != "" && current_behavior->state == Behavior::State::Following){
             auto found = std::find_if(config->ponies.begin(), config->ponies.end(),
-                                          [&follow_object](const std::shared_ptr<Pony> &p) {
+                                          [this](const std::shared_ptr<Pony> &p) {
                                               return p->name == follow_object;
                                           });
             if(found != config->ponies.end()){
