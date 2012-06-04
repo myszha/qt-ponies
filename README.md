@@ -32,7 +32,7 @@ A precompiled binary of qt-ponies is avialable in the downloads section.
 
 Compilation
 -----------
-A compiler supporting C++11 (g++ >= 4.6) is required, as are Qt (version >= 4.7) libraries (and X11 developement libraries on X11 sytems).
+A compiler supporting C++11 (g++ >= 4.6, clang >= 3.1) is required, as are Qt (version >= 4.7) libraries (and X11 developement libraries on X11 sytems).
 
 Under Debian/Ubuntu you can install the dependencies by invoking:
 
