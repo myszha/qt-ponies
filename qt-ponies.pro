@@ -17,6 +17,10 @@ TEMPLATE = app
 
 QMAKE_CXXFLAGS += -std=c++0x -Wextra -flto
 
+unix: {
+    LIBS += -lX11
+}
+
 SOURCES += src/main.cpp \
     src/pony.cpp \
     src/behavior.cpp \
