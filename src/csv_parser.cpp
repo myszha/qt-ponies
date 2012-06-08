@@ -21,7 +21,7 @@ static QVariant convert_type(std::pair<std::string, QVariant::Type> type, QStrin
 {
     switch(type.second){
         case QVariant::Type::String: {
-            return QVariant(value);
+            return QVariant(value.trimmed());
         }
         case QVariant::Type::Int: {
             bool ok = 0;
