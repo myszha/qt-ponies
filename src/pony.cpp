@@ -153,15 +153,15 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
                 }
                 else if(csv_data[0] == "Behavior") {
                     Behavior b(this, path, csv_data);
-                    behaviors.emplace(b.name, std::move(b));
+                    behaviors.insert({b.name, std::move(b)});
                 }
                 else if(csv_data[0] == "Effect") {
                     Effect e(this, path, csv_data);
-                    effects.emplace(e.name, std::move(e));
+                    effects.insert({e.name, std::move(e)});
                 }
                 else if(csv_data[0] == "Speak") {
                     std::shared_ptr<Speak> s = std::make_shared<Speak>(this, path, csv_data);
-                    speak_lines.emplace(s->name, std::move(s));
+                    speak_lines.insert({s->name, std::move(s)});
                 }
             }
         }

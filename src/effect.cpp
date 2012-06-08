@@ -395,5 +395,6 @@ void Effect::new_instance()
 
     std::shared_ptr<EffectInstance> &i = instances.back();
 
+    // Move the newly added effect instance to the appropriate position
     i->move(parent_pony->pos() + i->offset);
 }
