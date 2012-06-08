@@ -34,6 +34,7 @@
 int main(int argc, char *argv[])
 {
     CSVParser::AddParseTypes("Behavior", Behavior::OptionTypes);
+    CSVParser::AddParseTypes("Effect", Effect::OptionTypes);
     CSVParser::AddParseTypes("Speak", Speak::OptionTypes);
 
     QApplication app(argc, argv);

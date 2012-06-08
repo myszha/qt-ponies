@@ -82,23 +82,23 @@ const CSVParser::ParseTypes Behavior::OptionTypes {
   left_image_center = 20
 */
 
+static const std::unordered_map<std::string, Behavior::Movement> movement_map = {
+    {"none", Behavior::Movement::None},
+    {"horizontal_only", Behavior::Movement::Horizontal},
+    {"vertical_only", Behavior::Movement::Vertical},
+    {"horizontal_vertical", Behavior::Movement::Horizontal_Vertical},
+    {"diagonal_only", Behavior::Movement::Diagonal},
+    {"diagonal_horizontal", Behavior::Movement::Diagonal_Horizontal},
+    {"diagonal_vertical", Behavior::Movement::Diagonal_Vertical},
+    {"all", Behavior::Movement::All},
+    {"mouseover", Behavior::Movement::MouseOver},
+    {"sleep", Behavior::Movement::Sleep},
+    {"dragged", Behavior::Movement::Dragged}
+};
+
 Behavior::Behavior(Pony* parent, const QString filepath, const std::vector<QVariant> &options)
     : path(filepath), parent(parent)
 {
-    static std::unordered_map<std::string, Movement> movement_map = {
-        {"none", Movement::None},
-        {"horizontal_only", Movement::Horizontal},
-        {"vertical_only", Movement::Vertical},
-        {"horizontal_vertical", Movement::Horizontal_Vertical},
-        {"diagonal_only", Movement::Diagonal},
-        {"diagonal_horizontal", Movement::Diagonal_Horizontal},
-        {"diagonal_vertical", Movement::Diagonal_Vertical},
-        {"all", Movement::All},
-        {"mouseover", Movement::MouseOver},
-        {"sleep", Movement::Sleep},
-        {"dragged", Movement::Dragged}
-    };
-
     type = State::Normal;
     moving = true;
 
@@ -107,17 +107,20 @@ Behavior::Behavior(Pony* parent, const QString filepath, const std::vector<QVari
         animations[i] = nullptr;
     }
 
+    // TODO: fail not catastrophically
+    Q_ASSERT(options.size() >= 9);
+
     // Read behavior options
     name = options[1].toString().toLower();
     probability = options[2].toFloat();
     duration_max = options[3].toFloat();
     duration_min = options[4].toFloat();
-    speed = options[5].toString().toFloat();
+    speed = options[5].toFloat();
 
     animation_right = options[6].toString();
     animation_left = options[7].toString();
 
-    movement_allowed = movement_map[options[8].toString().toLower().toStdString()];
+    movement_allowed = movement_map.at(options[8].toString().toLower().toStdString());
 
     skip_normally = false;
     x_coordinate = 0;
@@ -308,6 +311,14 @@ void Behavior::init()
 
     // Move window due to change in image center
     parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
+
+    // Start all effects for this behavior
+    // if ConfigWindow::getSetting<bool>("general/effects-enabled")
+    for(auto &i: parent->effects){
+        if(i.second.behavior == name){
+            i.second.start();
+        }
+    }
 }
 
 void Behavior::deinit()
@@ -324,6 +335,14 @@ void Behavior::deinit()
     }
 
     current_animation = nullptr;
+
+    // Stop all effects for this behavior
+    for(auto &i: parent->effects){
+        if(i.second.behavior == name){
+            i.second.stop();
+        }
+    }
+
 }
 
 void Behavior::change_direction(bool right, bool moving)
@@ -345,6 +364,14 @@ void Behavior::change_direction(bool right, bool moving)
     width = current_animation->currentImage().size().width();
     height = current_animation->currentImage().size().height();
     direction_h = right==true ? Direction::Right : Direction::Left;
+
+    // Update the direction of all active effects.
+    for(auto &i: parent->effects){
+        if(i.second.behavior == name){
+                i.second.change_direction(right);
+        }
+    }
+
 
     if(right) {
         x_center = right_image_center.x();

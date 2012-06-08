@@ -32,7 +32,6 @@
 
 // TODO: configuration:
 //       monitors (on witch to run, etc)
-//       debug messages
 //
 //	avoidance areas (vincity of the mouse cursor for example)
 //FIXME: speech enabled toggle toggles sound group visibility

@@ -30,6 +30,7 @@
 #include <fstream>
 #include <random>
 #include <algorithm>
+#include <utility>
 
 #include <cmath>
 
@@ -49,7 +50,7 @@
 // setMask(current_behavior->current_animation->currentPixmap().mask());
 // or maybe there are better ways to do it
 
-// TODO: QMovie in separate thread?
+// NOTE: QMovie in separate thread?
 
 // FIXME: when ponies are not on top, they (all at once) flicker to top sometimes (on text show?)
 
@@ -91,8 +92,6 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
 
     setWindowFlags( windowflags );
 
-    // TODO: always on top toggle, we have to preserve the skip taskbar/pager flags, so we have to do
-    //       it by using Xlib
 #ifdef Q_WS_X11
     // Qt on X11 does not support the skip taskbar/pager window flags, we have to set them ourselves
     // We let Qt initialize the other window properties, which aren't deleted when we replace them with ours
@@ -148,16 +147,21 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
                 std::vector<QVariant> csv_data;
                 CSVParser::ParseLine(csv_data, line, ',');
 
+                // TODO: maybe add a try/catch here, in case of malformed pony.ini lines
                 if(csv_data[0] == "Name") {
                     name = csv_data[1].toString(); //Name,"name"
                 }
                 else if(csv_data[0] == "Behavior") {
                     Behavior b(this, path, csv_data);
-                    behaviors.insert({b.name, std::move(b)});
+                    behaviors.emplace(b.name, std::move(b));
+                }
+                else if(csv_data[0] == "Effect") {
+                    Effect e(this, path, csv_data);
+                    effects.emplace(e.name, std::move(e));
                 }
                 else if(csv_data[0] == "Speak") {
                     std::shared_ptr<Speak> s = std::make_shared<Speak>(this, path, csv_data);
-                    speak_lines.insert({s->name, std::move(s)});
+                    speak_lines.emplace(s->name, std::move(s));
                 }
             }
         }
@@ -253,7 +257,16 @@ void Pony::set_bypass_wm(bool bypass)
 
     setWindowFlags( windowflags );
     text_label.setWindowFlags(windowflags);
+
+    // Set window properties for all effect instance windows
+    for(auto &i: effects){
+        for(auto &j: i.second.instances){
+            j->setWindowFlags(windowflags);
+        }
+    }
+
     set_on_top(always_on_top);
+
 }
 
 void Pony::set_on_top(bool top)
@@ -268,6 +281,7 @@ void Pony::set_on_top(bool top)
 
     setWindowFlags(windowflags);
     text_label.setWindowFlags(windowflags);
+
 #ifdef Q_WS_X11
         Atom window_state = XInternAtom( QX11Info::display(), "_NET_WM_STATE", False );
         Atom window_props[] = {
@@ -279,10 +293,29 @@ void Pony::set_on_top(bool top)
             // Set the state to always on top, skip taskbar and pager
             XChangeProperty( QX11Info::display(), window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 3 );
             XChangeProperty( QX11Info::display(), text_label.window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 3 );
+
+            // Set window properties for all effect instance windows
+            for(auto &i: effects){
+                for(auto &j: i.second.instances){
+                    j->setWindowFlags(windowflags);
+                    XChangeProperty( QX11Info::display(), j->window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 3 );
+                    j->show();
+                }
+            }
+
         }else{
             // Only set skip pager/taskbar
             XChangeProperty( QX11Info::display(), window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 2 );
             XChangeProperty( QX11Info::display(), text_label.window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 2 );
+
+            // Set window properties for all effect instance windows
+            for(auto &i: effects){
+                for(auto &j: i.second.instances){
+                    j->setWindowFlags(windowflags);
+                    XChangeProperty( QX11Info::display(), j->window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 3 );
+                    j->show();
+                }
+            }
         }
 #endif
     this->show(); // Refresh the window so the changes apply
@@ -502,7 +535,7 @@ void Pony::setup_current_behavior()
 
 
     if(config->getSetting<bool>("general/debug")) {
-            qDebug() << "Pony:"<<name<<"behavior: "<< current_behavior->name <<"for" << behavior_duration << "msec";
+            qDebug() << "Pony:"<<name<<"behavior:"<< current_behavior->name <<"for" << behavior_duration << "msec";
     }
 
     // Update pony position (so it won't jump when we change desktops or something else unexpected happens)
@@ -601,5 +634,9 @@ void Pony::update() {
             }
         }
         current_behavior->update();
+    }
+
+    for(auto &i: effects){
+        i.second.update();
     }
 }

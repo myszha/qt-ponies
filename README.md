@@ -36,7 +36,7 @@ A compiler supporting C++11 (g++ >= 4.6, clang >= 3.1) is required, as are Qt (v
 
 Under Debian/Ubuntu you can install the dependencies by invoking:
 
-    # sudo apt-get install build-essential libx11-dev libqtcore4 libqtgui4 libqt4-dev qt4-qmake
+    # sudo apt-get install build-essential libx11-dev libxfixes-dev libqtcore4 libqtgui4 libqt4-dev qt4-qmake
 
 Then build qt-ponies by invoking:
 

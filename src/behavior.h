@@ -101,6 +101,9 @@ public:
     QPoint follow_moving_right_image_center;
     QPoint follow_moving_left_image_center;
 
+    int direction_h;
+    int direction_v;
+
 private:
     void choose_angle();
     void change_direction(bool right, bool moving = true);
@@ -111,8 +114,6 @@ private:
                               3 - follow_stopped right
                            */
     Pony* parent;
-    int direction_h;
-    int direction_v;
     int movement;
     bool moving;
     float angle;

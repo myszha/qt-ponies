@@ -29,6 +29,7 @@
 #include <unordered_map>
 #include <random>
 #include <memory>
+#include <vector>
 
 #include "behavior.h"
 #include "effect.h"
@@ -68,6 +69,8 @@ public:
     std::vector<Behavior*> random_behaviors;
     std::unordered_map<QString, Behavior> behaviors;
 
+    std::unordered_map<QString, Effect> effects;
+
     std::unordered_map<QString, std::shared_ptr<Speak>> speak_lines;
     std::vector<Speak*> random_speak_lines;
 
@@ -86,6 +89,8 @@ public:
     QString current_interaction;
     int current_interaction_delay;
 
+    std::mt19937 gen;
+
 public slots:
     void update();
     void display_menu(const QPoint &);    
@@ -102,7 +107,6 @@ private:
     void change_behavior_to(const std::vector<Behavior*> &new_behavior_list);
     void setup_current_behavior();
 
-    std::mt19937 gen;
     QLabel label;
     QLabel text_label;
     Behavior *old_behavior;
