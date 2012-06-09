@@ -68,12 +68,9 @@ EffectInstance::EffectInstance(Effect *owner, int64_t started, bool right, QWidg
     // Set window properties the same as the pony window
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_ShowWithoutActivating);
-    setFocusPolicy(Qt::NoFocus);
-    setAttribute(Qt::WA_TransparentForMouseEvents);
 
 #ifdef Q_WS_X11
     // Disables shadows under the pony window.
-    // We do not set this attribute for the label, because it looks better with a shadow.
     setAttribute(Qt::WA_X11NetWmWindowTypeDock);
 #endif
 
@@ -82,7 +79,25 @@ EffectInstance::EffectInstance(Effect *owner, int64_t started, bool right, QWidg
     setAttribute(Qt::WA_MacNoShadow, true);
 #endif
 
-    setWindowFlags( owner->parent_pony->windowFlags());
+#ifdef QT_MAC_USE_COCOA
+    // On OS X, tool windows are hidden when another program gains focus.
+    Qt::WindowFlags windowflags = Qt::FramelessWindowHint;
+#else
+    Qt::WindowFlags windowflags = Qt::FramelessWindowHint | Qt::Tool;
+#endif
+
+    if(ConfigWindow::getSetting<bool>("general/always-on-top")) {
+        windowflags |= Qt::WindowStaysOnTopHint;
+    }
+
+#ifdef Q_WS_X11
+    if(ConfigWindow::getSetting<bool>("general/bypass-wm")) {
+        // Bypass the window manager
+        windowflags |= Qt::X11BypassWindowManagerHint;
+    }
+#endif
+
+    setWindowFlags( windowflags );
 
 #ifdef Q_WS_X11
     // Qt on X11 does not support the skip taskbar/pager window flags, we have to set them ourselves
