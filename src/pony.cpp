@@ -312,7 +312,7 @@ void Pony::set_on_top(bool top)
             for(auto &i: effects){
                 for(auto &j: i.second.instances){
                     j->setWindowFlags(windowflags);
-                    XChangeProperty( QX11Info::display(), j->window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 3 );
+                    XChangeProperty( QX11Info::display(), j->window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 2 );
                     j->show();
                 }
             }

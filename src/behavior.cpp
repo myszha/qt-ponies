@@ -313,11 +313,11 @@ void Behavior::init()
     parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
 
     // Start all effects for this behavior
-    // TODO: add ability to enable/disable effects via configuration options
-    // if ConfigWindow::getSetting<bool>("general/effects-enabled")
-    for(auto &i: parent->effects){
-        if(i.second.behavior == name){
-            i.second.start();
+    if(ConfigWindow::getSetting<bool>("general/effects-enabled")){
+        for(auto &i: parent->effects){
+            if(i.second.behavior == name){
+                i.second.start();
+            }
         }
     }
 }

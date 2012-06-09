@@ -41,6 +41,7 @@ const std::unordered_map<QString, const QVariant> ConfigWindow::config_defaults 
     {"general/bypass-wm",            false               },
     {"general/pony-directory",       "./desktop-ponies"  },
     {"general/interactions-enabled", true                },
+    {"general/effects-enabled",      true                },
     {"general/debug",                false               },
     {"general/show-advanced",        false               },
     {"speech/enabled",               true                },
@@ -385,6 +386,7 @@ void ConfigWindow::load_settings()
     ui->x11_bypass_wm->setChecked(       getSetting<bool>    ("general/bypass-wm",settings));
     ui->ponydata_directory->setText(     getSetting<QString> ("general/pony-directory",settings));
     ui->interactions_enabled->setChecked(getSetting<bool>    ("general/interactions-enabled", settings));
+    ui->effects_enabled->setChecked     (getSetting<bool>    ("general/effects-enabled", settings));
     ui->debug_enabled->setChecked(       getSetting<bool>    ("general/debug", settings));
     ui->show_advanced->setChecked(       getSetting<bool>    ("general/show-advanced", settings));
 
@@ -421,6 +423,7 @@ void ConfigWindow::save_settings()
     settings.setValue("bypass-wm", ui->x11_bypass_wm->isChecked());
     settings.setValue("pony-directory", ui->ponydata_directory->text());
     settings.setValue("interactions-enabled", ui->interactions_enabled->isChecked());
+    settings.setValue("effects-enabled", ui->effects_enabled->isChecked());
     settings.setValue("debug", ui->debug_enabled->isChecked());
     settings.setValue("show-advanced", ui->show_advanced->isChecked());
 
