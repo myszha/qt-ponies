@@ -17,7 +17,7 @@ TEMPLATE = app
 
 QMAKE_CXXFLAGS += -std=c++0x -Wextra -flto
 
-unix: {
+unix:!macx {
     LIBS += -lX11 -lXfixes
 }
 
