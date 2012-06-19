@@ -89,82 +89,92 @@
         <translation>Pokaż komunikaty debugowania</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="432"/>
+        <location filename="../src/configwindow.ui" line="431"/>
+        <source>Toggle if effects are enabled</source>
+        <translation>Włącza efekty dla zachowań kucyków</translation>
+    </message>
+    <message>
+        <location filename="../src/configwindow.ui" line="434"/>
+        <source>Ef&amp;fects enabled</source>
+        <translation>E&amp;fekty włączone</translation>
+    </message>
+    <message>
+        <location filename="../src/configwindow.ui" line="455"/>
         <source>S&amp;peech</source>
         <translation>&amp;Mowa</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="450"/>
+        <location filename="../src/configwindow.ui" line="473"/>
         <source> ms</source>
         <translation> ms</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="479"/>
+        <location filename="../src/configwindow.ui" line="502"/>
         <source>For how long the speech is to stay on screen</source>
         <translation>Jak długo wiadomości tekstowe mają pozostawać na ekranie</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="482"/>
+        <location filename="../src/configwindow.ui" line="505"/>
         <source>&amp;Text delay</source>
         <translation>&amp;Czas wyświetlania wiadomości</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="492"/>
+        <location filename="../src/configwindow.ui" line="515"/>
         <source>Toggles if ponies are to speak</source>
         <translation>Włącza mowę kucyków</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="495"/>
+        <location filename="../src/configwindow.ui" line="518"/>
         <source>&amp;Speech enabled</source>
         <translation>Mow&amp;a włączona</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="524"/>
+        <location filename="../src/configwindow.ui" line="547"/>
         <source>NOT ACTIVE. Toggles the playing of sounds when a pony speaks.</source>
         <translation>NIEAKTYWNE. Przełącza odtwarzanie dźwięków gdy kucyk mówi.</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="527"/>
+        <location filename="../src/configwindow.ui" line="550"/>
         <source>Play s&amp;ounds</source>
         <translation>Odtwarzaj dźwię&amp;ki</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="547"/>
+        <location filename="../src/configwindow.ui" line="570"/>
         <source>Sound</source>
         <translation>Dźwięk</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="554"/>
+        <location filename="../src/configwindow.ui" line="577"/>
         <source>How frequently ponies speak</source>
         <translation>Jak często kucyk mówi</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="557"/>
+        <location filename="../src/configwindow.ui" line="580"/>
         <source>Sp&amp;eech probability</source>
         <translation>Pra&amp;wdopodobieństwo mowy</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="570"/>
+        <location filename="../src/configwindow.ui" line="593"/>
         <source> %</source>
         <translation> %</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="587"/>
+        <location filename="../src/configwindow.ui" line="610"/>
         <source>Accept</source>
         <translation>Zapisz</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="607"/>
+        <location filename="../src/configwindow.ui" line="630"/>
         <source>Reset</source>
         <translation>Zresetuj</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="614"/>
+        <location filename="../src/configwindow.ui" line="637"/>
         <source>&amp;Show advanced options</source>
         <translation>Pokaż opcje &amp;zaawansowane</translation>
     </message>
     <message>
-        <location filename="../src/configwindow.ui" line="635"/>
+        <location filename="../src/configwindow.ui" line="658"/>
         <source>toolBar</source>
         <translation>Toolbar</translation>
     </message>
@@ -210,17 +220,17 @@
 <context>
     <name>Pony</name>
     <message>
-        <location filename="../src/pony.cpp" line="171"/>
+        <location filename="../src/pony.cpp" line="181"/>
         <source>Sleeping</source>
         <translation>Śpi</translation>
     </message>
     <message>
-        <location filename="../src/pony.cpp" line="178"/>
+        <location filename="../src/pony.cpp" line="188"/>
         <source>Remove %1</source>
         <translation>Usuń %1</translation>
     </message>
     <message>
-        <location filename="../src/pony.cpp" line="179"/>
+        <location filename="../src/pony.cpp" line="189"/>
         <source>Remove every %1</source>
         <translation>Usuń każdego %1</translation>
     </message>
