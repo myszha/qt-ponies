@@ -60,11 +60,8 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_ShowWithoutActivating);
 
-#ifdef Q_WS_X11
     // Disables shadows under the pony window.
-    // We do not set this attribute for the label, because it looks better with a shadow.
     setAttribute(Qt::WA_X11NetWmWindowTypeDock);
-#endif
 
 #if defined QT_MAC_USE_COCOA && QT_VERSION >= 0x040800
     // Removes shadows that lag behind animation on OS X. QT 4.8+ needed.
@@ -111,6 +108,8 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     // Setup speech label
     text_label.hide();
     text_label.setAttribute(Qt::WA_ShowWithoutActivating);
+    // Disables showing of the toolbar button in some window managers.
+    text_label.setAttribute(Qt::WA_X11NetWmWindowTypeDock);
     text_label.setWindowFlags(windowflags);
     text_label.setAlignment(Qt::AlignHCenter);
     text_label.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
