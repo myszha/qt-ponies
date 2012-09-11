@@ -67,6 +67,11 @@ public:
     QTimer update_timer;
     QTimer interaction_timer;
 
+#ifdef Q_WS_X11
+    enum class X11_WM_Types { Unknown, Compiz, KWin };
+    X11_WM_Types getX11_WM();
+#endif
+
     static const std::unordered_map<QString, const QVariant> config_defaults;
 
     template <typename T>
@@ -106,6 +111,7 @@ private slots:
 private:
     void reload_available_ponies();
     void update_distances();
+    void detect_x11_wm();
 
     std::vector<Interaction> interactions;
 
@@ -122,6 +128,10 @@ private:
     QAction *action_addponies;
     QAction *action_activeponies;
     QAction *action_configuration;
+
+#ifdef Q_WS_X11
+    X11_WM_Types x11_wm;
+#endif
 
 };
 

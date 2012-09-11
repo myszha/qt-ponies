@@ -30,6 +30,13 @@
 #include "ui_configwindow.h"
 #include "debugwindow.h"
 
+#ifdef Q_WS_X11
+ #include <QX11Info>
+ #include <X11/Xatom.h>
+ #include <X11/Xlib.h> // Xlib #defines None as 0L, which conflicts with Behavior::Movement::None
+                       // This is why we include it after pony.h
+#endif
+
 // TODO: configuration:
 //       do not stop on mouseover or avoidance zones (for the mouse cursor at first)
 //       monitors (on witch to run, etc)
@@ -77,6 +84,9 @@ ConfigWindow::ConfigWindow(QWidget *parent) :
     // Do not show X11 specific options on other platforms
     ui->label_bypass_wm->setVisible(false);
     ui->x11_bypass_wm->setVisible(false);
+#else
+    // Check what X11 window manager we are running (to fix wm quirks)
+    detect_x11_wm();
 #endif
 
     // Setup tray icon and menu
@@ -203,6 +213,56 @@ ConfigWindow::~ConfigWindow()
     delete list_model;
     delete action_group;
 }
+
+
+#ifdef Q_WS_X11
+// Check under what window manager we are running. We use this information to fix the window manager quirks.
+//
+// eg: xprop -root | grep _NET_SUPPORTING_WM_CHECK # gives WINID
+//     xprop -id $WINID  | grep _NET_WM_NAME # gives WM name, ie. "KWin"
+
+void ConfigWindow::detect_x11_wm()
+{
+    Atom atom_supporting_wm = XInternAtom(QX11Info::display(), "_NET_SUPPORTING_WM_CHECK", False);
+    Atom atom_wm_name = XInternAtom(QX11Info::display(), "_NET_WM_NAME", False);
+    Atom atom_utf8_string = XInternAtom(QX11Info::display(), "UTF8_STRING", False);
+
+    Atom type;
+    int format;
+    unsigned long num_items;
+    unsigned long bytes_after;
+    unsigned char *supporting_winid = nullptr;
+    unsigned char *wm_name = nullptr;
+
+    if(XGetWindowProperty(QX11Info::display(), QX11Info::appRootWindow() , atom_supporting_wm, 0, 1,
+                          False, XA_WINDOW, &type, &format, &num_items, &bytes_after, &supporting_winid)
+       == Success && supporting_winid != nullptr) {
+
+        if(XGetWindowProperty(QX11Info::display(), *(reinterpret_cast<Window *>(supporting_winid)), atom_wm_name, 0, 2,
+                              False, atom_utf8_string, &type, &format, &num_items, &bytes_after, &wm_name)
+           == Success && wm_name != nullptr) {
+
+            // Find out what WM is running
+            if(      !strcmp(reinterpret_cast<char *>(wm_name), "KWin")){
+                x11_wm = X11_WM_Types::KWin;
+            }else if(!strcmp(reinterpret_cast<char *>(wm_name), "compiz")){
+                x11_wm = X11_WM_Types::Compiz;
+            }else{
+                x11_wm = X11_WM_Types::Unknown;
+            }
+
+            XFree(wm_name);
+        }
+
+        XFree(supporting_winid);
+    }
+}
+
+ConfigWindow::X11_WM_Types ConfigWindow::getX11_WM()
+{
+    return x11_wm;
+}
+#endif
 
 void ConfigWindow::remove_pony()
 {

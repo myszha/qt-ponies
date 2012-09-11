@@ -70,8 +70,10 @@ EffectInstance::EffectInstance(Effect *owner, int64_t started, bool right, QWidg
     setAttribute(Qt::WA_ShowWithoutActivating);
 
 #ifdef Q_WS_X11
-    // Disables shadows under the pony window.
-    setAttribute(Qt::WA_X11NetWmWindowTypeDock);
+    // On some window managers dock windows show on all desktops. KWin shows unwanted shadows when using another type of window.
+    if(owner->config->getX11_WM() == ConfigWindow::X11_WM_Types::KWin) {
+        setAttribute(Qt::WA_X11NetWmWindowTypeDock);
+    }
 #endif
 
 #if defined QT_MAC_USE_COCOA && QT_VERSION >= 0x040800
@@ -318,8 +320,8 @@ QPoint EffectInstance::get_location(int location, int centering)
     return l - c;
 }
 
-Effect::Effect(Pony *parent, const QString filepath, const std::vector<QVariant> &options)
-    : path(filepath), parent_pony(parent)
+Effect::Effect(Pony *parent, ConfigWindow* conf, const QString filepath, const std::vector<QVariant> &options)
+    : path(filepath), parent_pony(parent), config(conf)
 {
     // TODO: fail not catastrophically
     Q_ASSERT(options.size() == 12);

@@ -60,8 +60,11 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_ShowWithoutActivating);
 
-    // Disables shadows under the pony window.
-    setAttribute(Qt::WA_X11NetWmWindowTypeDock);
+    // Disables shadows under the pony window on KWin.
+    // On some window managers dock windows show on all desktops. KWin shows unwanted shadows when using another type of window.
+    if(config->getX11_WM() == ConfigWindow::X11_WM_Types::KWin) {
+        setAttribute(Qt::WA_X11NetWmWindowTypeDock);
+    }
 
 #if defined QT_MAC_USE_COCOA && QT_VERSION >= 0x040800
     // Removes shadows that lag behind animation on OS X. QT 4.8+ needed.
@@ -155,7 +158,7 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
                     behaviors.insert({b.name, std::move(b)});
                 }
                 else if(csv_data[0] == "Effect") {
-                    Effect e(this, path, csv_data);
+                    Effect e(this, config, path, csv_data);
                     effects.insert({e.name, std::move(e)});
                 }
                 else if(csv_data[0] == "Speak") {

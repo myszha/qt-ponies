@@ -34,12 +34,13 @@
 #include "csv_parser.h"
 
 class Pony;
+class ConfigWindow;
 class EffectInstance;
 
 class Effect
 {
 public:
-    explicit Effect(Pony* parent, const QString filepath, const std::vector<QVariant> &options);
+    explicit Effect(Pony* parent, ConfigWindow* conf, const QString filepath, const std::vector<QVariant> &options);
     ~Effect();
 
     enum Position {
@@ -87,6 +88,7 @@ private:
     bool follow;
 
     Pony* parent_pony;
+    ConfigWindow* config;
 
     friend class EffectInstance;
 
