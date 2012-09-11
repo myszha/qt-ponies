@@ -405,7 +405,7 @@ void Effect::change_direction(bool right)
 
 void Effect::new_instance()
 {
-    instances.push_back(std::make_shared<EffectInstance>(this, QDateTime::currentMSecsSinceEpoch(), parent_pony->current_behavior->direction_h == Behavior::Direction::Right));
+    instances.push_back(std::make_shared<EffectInstance>(this, QDateTime::currentMSecsSinceEpoch(), parent_pony->current_behavior->direction_h == Behavior::Direction::Right, parent_pony));
     last_instanced = QDateTime::currentMSecsSinceEpoch();
 
     std::shared_ptr<EffectInstance> &i = instances.back();

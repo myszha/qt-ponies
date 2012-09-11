@@ -31,6 +31,7 @@
 #include "debugwindow.h"
 
 // TODO: configuration:
+//       do not stop on mouseover or avoidance zones (for the mouse cursor at first)
 //       monitors (on witch to run, etc)
 //
 //	avoidance areas (vincity of the mouse cursor for example)

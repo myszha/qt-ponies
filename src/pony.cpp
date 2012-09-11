@@ -55,7 +55,7 @@
 // FIXME: when ponies are not on top, they (all at once) flicker to top sometimes (on text show?)
 
 Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
-    QMainWindow(parent), sleeping(false), in_interaction(false), current_interaction_delay(0), gen(QDateTime::currentMSecsSinceEpoch()), label(this), config(config), dragging(false), mouseover(false)
+    QMainWindow(parent), sleeping(false), in_interaction(false), current_interaction_delay(0), gen(QDateTime::currentMSecsSinceEpoch()), label(this), text_label(this), config(config), dragging(false), mouseover(false)
 {
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_ShowWithoutActivating);
