@@ -234,24 +234,27 @@ void ConfigWindow::detect_x11_wm()
     unsigned char *supporting_winid = nullptr;
     unsigned char *wm_name = nullptr;
 
+    x11_wm = X11_WM_Types::Unknown;
+
     if(XGetWindowProperty(QX11Info::display(), QX11Info::appRootWindow() , atom_supporting_wm, 0, 1,
                           False, XA_WINDOW, &type, &format, &num_items, &bytes_after, &supporting_winid)
        == Success && supporting_winid != nullptr) {
+        if (type == XA_WINDOW && format == 32) {
+            if(XGetWindowProperty(QX11Info::display(), *(reinterpret_cast<Window *>(supporting_winid)), atom_wm_name, 0, 4,
+                                  False, atom_utf8_string, &type, &format, &num_items, &bytes_after, &wm_name)
+               == Success && wm_name != nullptr) {
 
-        if(XGetWindowProperty(QX11Info::display(), *(reinterpret_cast<Window *>(supporting_winid)), atom_wm_name, 0, 2,
-                              False, atom_utf8_string, &type, &format, &num_items, &bytes_after, &wm_name)
-           == Success && wm_name != nullptr) {
+                if (type == atom_utf8_string && format == 8) {
+                    // Find out what WM is running
+                    if(      !strcmp(reinterpret_cast<char *>(wm_name), "KWin")){
+                        x11_wm = X11_WM_Types::KWin;
+                    }else if(!strcmp(reinterpret_cast<char *>(wm_name), "compiz")){
+                        x11_wm = X11_WM_Types::Compiz;
+                    }
+                }
 
-            // Find out what WM is running
-            if(      !strcmp(reinterpret_cast<char *>(wm_name), "KWin")){
-                x11_wm = X11_WM_Types::KWin;
-            }else if(!strcmp(reinterpret_cast<char *>(wm_name), "compiz")){
-                x11_wm = X11_WM_Types::Compiz;
-            }else{
-                x11_wm = X11_WM_Types::Unknown;
+                XFree(wm_name);
             }
-
-            XFree(wm_name);
         }
 
         XFree(supporting_winid);
