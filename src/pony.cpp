@@ -114,10 +114,6 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     text_label.setWindowFlags(windowflags);
     text_label.setAlignment(Qt::AlignHCenter);
     text_label.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-#ifdef Q_WS_X11
-    // Same as above
-    XChangeProperty( QX11Info::display(), text_label.window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 2 );
-#endif
 
     // Initially place the pony randomly on the screen, keeping a 50 pixel border
     x_pos = 50 + gen()%(QApplication::desktop()->availableGeometry(this).width()-100);
@@ -594,6 +590,21 @@ void Pony::setup_current_behavior()
             speech_started = behavior_started;
             text_label.adjustSize();
             text_label.move(x_pos-text_label.width()/2, y() - text_label.height());
+
+#ifdef Q_WS_X11
+            // Qt on X11 does not support the skip taskbar/pager window flags, we have to set them ourselves
+            // We let Qt initialize the other window properties, which aren't deleted when we replace them with ours
+            // (they probably are appended on show())
+
+            Atom window_state = XInternAtom( QX11Info::display(), "_NET_WM_STATE", False );
+            Atom window_props[] = {
+               XInternAtom( QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False ),
+               XInternAtom( QX11Info::display(), "_NET_WM_STATE_SKIP_PAGER"  , False )
+            };
+
+            XChangeProperty( QX11Info::display(), text_label.window()->winId(), window_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&window_props, 2 );
+#endif
+
             text_label.show();
             if(config->getSetting<bool>("sound/enabled")) {
                 current_speech_line->play();
