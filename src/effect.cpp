@@ -121,6 +121,25 @@ EffectInstance::EffectInstance(Effect *owner, int64_t started, bool right, QWidg
 #endif
     // TODO: add WS_EX_TRANSPARENT extended window style on windows.
 
+#ifdef Q_WS_X11
+    // Make sure the effect gets drawn on the same desktop as the pony
+    Atom wm_desktop = XInternAtom(QX11Info::display(), "_NET_WM_DESKTOP", False);
+    Atom type_ret;
+    int fmt_ret;
+    unsigned long nitems_ret;
+    unsigned long bytes_after_ret;
+    int *desktop = NULL;
+
+    if(XGetWindowProperty(QX11Info::display(), owner->parent_pony->window()->winId(), wm_desktop, 0, 1,
+                          False, XA_CARDINAL, &type_ret, &fmt_ret,
+                          &nitems_ret, &bytes_after_ret, reinterpret_cast<unsigned char **>(&desktop))
+       == Success && desktop != NULL) {
+       XChangeProperty(QX11Info::display(), window()->winId(), wm_desktop, XA_CARDINAL, 32, PropModeReplace,
+                       reinterpret_cast<unsigned char*>(desktop), 1);
+       XFree(desktop);
+    }
+#endif
+
     // Load animations and verify them
     // TODO: Do we need to change the direction of active effects? Maybe we only need to display the image for the direction at witch it was spawned.
     animation_left = new QMovie(QString("%1/%2/%3").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), owner->path, owner->image_left ));
