@@ -365,6 +365,13 @@ void Pony::mouseReleaseEvent(QMouseEvent* event)
         }else if(!drag_behaviors.empty()){
             change_behavior();
         }
+
+        // On some systems the window returns to it's original position when ending dragging, try to fix that.
+        x_pos = event->globalPos().x();
+        y_pos = event->globalPos().y();
+        QPoint new_pos(event->globalPos().x()-current_behavior->x_center,event->globalPos().y()-current_behavior->y_center);
+        move(new_pos);
+
         event->accept();
     }
 }
