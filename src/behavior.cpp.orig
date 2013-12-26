@@ -117,9 +117,6 @@ Behavior::Behavior(Pony* parent, const QString filepath, const std::vector<QVari
     duration_min = options[4].toFloat();
     speed = options[5].toFloat();
 
-    if(ConfigWindow::getSetting<bool>("general/small-ponies")){
-        speed /= 2.0;
-    }
     animation_right = options[6].toString();
     animation_left = options[7].toString();
 
@@ -306,23 +303,13 @@ void Behavior::init()
     }
 
     current_animation = animations[direction_h<0?0:1];
-    current_animation->jumpToNextFrame();
-
+    current_animation->start();
     width = current_animation->currentImage().size().width();
     height = current_animation->currentImage().size().height();
 
-    if(ConfigWindow::getSetting<bool>("general/small-ponies")){
-        x_center /= 2.0;
-        y_center /= 2.0;
-        width /= 2.0;
-        height /= 2.0;
-        parent->update_animation(current_animation,current_animation->currentImage().size() / 2.0);
-    } else {
-        parent->update_animation(current_animation,current_animation->currentImage().size());
-    }
+    parent->update_animation(current_animation);
 
     // Move window due to change in image center
-
     parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
 
     // Start all effects for this behavior
@@ -373,10 +360,19 @@ void Behavior::change_direction(bool right, bool moving)
     }
 
     current_animation = animations[animation];
-    current_animation->jumpToNextFrame();
+    current_animation->start();
+    parent->update_animation(current_animation);
     width = current_animation->currentImage().size().width();
     height = current_animation->currentImage().size().height();
     direction_h = right==true ? Direction::Right : Direction::Left;
+
+    // Update the direction of all active effects.
+    for(auto &i: parent->effects){
+        if(i.second.behavior == name){
+                i.second.change_direction(right);
+        }
+    }
+
 
     if(right) {
         x_center = right_image_center.x();
@@ -386,22 +382,6 @@ void Behavior::change_direction(bool right, bool moving)
         y_center = left_image_center.y();
     }
 
-    if(ConfigWindow::getSetting<bool>("general/small-ponies")){
-        x_center /= 2.0;
-        y_center /= 2.0;
-        width /= 2.0;
-        height /= 2.0;
-        parent->update_animation(current_animation,current_animation->currentImage().size() / 2.0);
-    } else {
-        parent->update_animation(current_animation,current_animation->currentImage().size());
-    }
-
-    // Update the direction of all active effects.
-    for(auto &i: parent->effects){
-        if(i.second.behavior == name){
-                i.second.change_direction(right);
-        }
-    }
 }
 
 void Behavior::update()

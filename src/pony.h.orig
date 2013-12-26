@@ -58,7 +58,7 @@ public:
 
     void change_behavior();
     void change_behavior_to(const QString &new_behavior);
-    void update_animation(QMovie* movie,QSize size);
+    void update_animation(QMovie* movie);
     void set_on_top(bool top);
     void set_bypass_wm(bool bypass);
     std::shared_ptr<Pony> get_shared_ptr();

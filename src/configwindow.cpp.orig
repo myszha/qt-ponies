@@ -52,7 +52,6 @@ const std::unordered_map<QString, const QVariant> ConfigWindow::config_defaults 
     {"general/effects-enabled",      true                },
     {"general/debug",                false               },
     {"general/show-advanced",        false               },
-    {"general/small-ponies",         false               },
     {"speech/enabled",               true                },
     {"speech/probability",           50                  },
     {"speech/duration",              2000                },
@@ -454,8 +453,6 @@ void ConfigWindow::load_settings()
     ui->effects_enabled->setChecked     (getSetting<bool>    ("general/effects-enabled", settings));
     ui->debug_enabled->setChecked(       getSetting<bool>    ("general/debug", settings));
     ui->show_advanced->setChecked(       getSetting<bool>    ("general/show-advanced", settings));
-    ui->small_ponies->setChecked(        getSetting<bool>    ("general/small-ponies", settings));
-
 
     debug = getSetting<bool>("general/debug", settings);
 
@@ -493,7 +490,6 @@ void ConfigWindow::save_settings()
     settings.setValue("effects-enabled", ui->effects_enabled->isChecked());
     settings.setValue("debug", ui->debug_enabled->isChecked());
     settings.setValue("show-advanced", ui->show_advanced->isChecked());
-    settings.setValue("small-ponies", ui->small_ponies->isChecked());
 
     debug = getSetting<bool>("debug", settings);
 

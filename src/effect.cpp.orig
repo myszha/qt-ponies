@@ -141,7 +141,6 @@ EffectInstance::EffectInstance(Effect *owner, int64_t started, bool right, QWidg
     }
 
     current_animation->jumpToFrame(0);
-    current_animation->jumpToNextFrame();
 
     image_width = current_animation->currentImage().width();
     image_height = current_animation->currentImage().height();
@@ -152,13 +151,6 @@ EffectInstance::EffectInstance(Effect *owner, int64_t started, bool right, QWidg
         offset = get_location(owner->location_left, owner->center_left);
     }
 
-    if(ConfigWindow::getSetting<bool>("general/small-ponies")){
-        image_width /= 2.0;
-        image_height /= 2.0;
-        current_animation->setScaledSize(current_animation->currentImage().size() / 2.0);
-    } else {
-        current_animation->setScaledSize(current_animation->currentImage().size() / 2.0);
-    }
     current_animation->start();
     update_animation();
     show();
@@ -185,7 +177,7 @@ void EffectInstance::change_direction(bool right)
     }
 
     current_animation->jumpToFrame(0);
-    current_animation->jumpToNextFrame();
+    current_animation->start();
 
     image_width = current_animation->currentImage().width();
     image_height = current_animation->currentImage().height();
@@ -196,14 +188,7 @@ void EffectInstance::change_direction(bool right)
         offset = get_location(owner->location_left, owner->center_left);
     }
 
-    if(ConfigWindow::getSetting<bool>("general/small-ponies")){
-        image_width /= 2.0;
-        image_height /= 2.0;
-        current_animation->setScaledSize(current_animation->currentImage().size() / 2.0);
-    } else {
-        current_animation->setScaledSize(current_animation->currentImage().size() / 2.0);
-    }
-    current_animation->start();
+
     update_animation();
 }
 

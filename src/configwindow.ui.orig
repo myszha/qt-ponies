@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="addpage">
        <layout class="QGridLayout" name="gridLayout_2">
@@ -253,7 +253,131 @@
             <string>&amp;General</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_7">
+            <item row="1" column="1" colspan="2">
+             <widget class="QCheckBox" name="alwaysontop">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
             <item row="7" column="0" colspan="3">
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="toolTip">
+               <string>Toggles if ponies are always on top of other windows</string>
+              </property>
+              <property name="text">
+               <string>&amp;Always on top</string>
+              </property>
+              <property name="buddy">
+               <cstring>alwaysontop</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_bypass_wm">
+              <property name="toolTip">
+               <string>Bypass the X11 window manager, showing ponies on every desktop on top of every window</string>
+              </property>
+              <property name="text">
+               <string>Show on every &amp;virtual desktop</string>
+              </property>
+              <property name="buddy">
+               <cstring>x11_bypass_wm</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" colspan="2">
+             <widget class="QCheckBox" name="x11_bypass_wm">
+              <property name="toolTip">
+               <string/>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="toolTip">
+               <string>Specifies in which directory the pony data and configuration are</string>
+              </property>
+              <property name="text">
+               <string>Pony data di&amp;rectory</string>
+              </property>
+              <property name="buddy">
+               <cstring>ponydata_directory</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="ponydata_directory">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QToolButton" name="change_ponydata_dir">
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="toolTip">
+               <string>Toggle if interactions are to be executed</string>
+              </property>
+              <property name="text">
+               <string>&amp;Interactions enabled</string>
+              </property>
+              <property name="buddy">
+               <cstring>interactions_enabled</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" colspan="2">
+             <widget class="QCheckBox" name="interactions_enabled">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0" colspan="3">
              <widget class="QGroupBox" name="box_advanced">
               <property name="title">
                <string>Advanced options</string>
@@ -301,104 +425,6 @@
               </layout>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="toolTip">
-               <string>Toggles if ponies are always on top of other windows</string>
-              </property>
-              <property name="text">
-               <string>&amp;Always on top</string>
-              </property>
-              <property name="buddy">
-               <cstring>alwaysontop</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="2">
-             <widget class="QToolButton" name="change_ponydata_dir">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1" colspan="2">
-             <widget class="QCheckBox" name="interactions_enabled">
-              <property name="text">
-               <string/>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1" colspan="2">
-             <widget class="QCheckBox" name="x11_bypass_wm">
-              <property name="toolTip">
-               <string/>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="ponydata_directory">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1" colspan="2">
-             <widget class="QCheckBox" name="alwaysontop">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="layoutDirection">
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-              <property name="autoRepeat">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="toolTip">
-               <string>Specifies in which directory the pony data and configuration are</string>
-              </property>
-              <property name="text">
-               <string>Pony data di&amp;rectory</string>
-              </property>
-              <property name="buddy">
-               <cstring>ponydata_directory</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_bypass_wm">
-              <property name="toolTip">
-               <string>Bypass the X11 window manager, showing ponies on every desktop on top of every window</string>
-              </property>
-              <property name="text">
-               <string>Show on every &amp;virtual desktop</string>
-              </property>
-              <property name="buddy">
-               <cstring>x11_bypass_wm</cstring>
-              </property>
-             </widget>
-            </item>
             <item row="5" column="0">
              <widget class="QLabel" name="label_9">
               <property name="toolTip">
@@ -419,49 +445,6 @@
               </property>
               <property name="checked">
                <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="0" colspan="3">
-             <spacer name="verticalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="toolTip">
-               <string>Toggle if interactions are to be executed</string>
-              </property>
-              <property name="text">
-               <string>&amp;Interactions enabled</string>
-              </property>
-              <property name="buddy">
-               <cstring>interactions_enabled</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="1">
-             <widget class="QCheckBox" name="small_ponies">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
-             <widget class="QLabel" name="label_10">
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the ponies in half size&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string>Small ponies</string>
               </property>
              </widget>
             </item>

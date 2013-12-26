@@ -1,0 +1,398 @@
+Csak qt-ponies-master -ben: qt-ponies.pro.user
+diff -r qt-ponies-master/src/behavior.cpp orig/qt-ponies-master/src/behavior.cpp
+120,122d119
+<     if(ConfigWindow::getSetting<bool>("general/small-ponies")){
+<         speed /= 2.0;
+<     }
+309,310c306
+<     current_animation->jumpToNextFrame();
+< 
+---
+>     current_animation->start();
+314,322c310
+<     if(ConfigWindow::getSetting<bool>("general/small-ponies")){
+<         x_center /= 2.0;
+<         y_center /= 2.0;
+<         width /= 2.0;
+<         height /= 2.0;
+<         parent->update_animation(current_animation,current_animation->currentImage().size() / 2.0);
+<     } else {
+<         parent->update_animation(current_animation,current_animation->currentImage().size());
+<     }
+---
+>     parent->update_animation(current_animation);
+325d312
+< 
+376c363,364
+<     current_animation->jumpToNextFrame();
+---
+>     current_animation->start();
+>     parent->update_animation(current_animation);
+380a369,376
+>     // Update the direction of all active effects.
+>     for(auto &i: parent->effects){
+>         if(i.second.behavior == name){
+>                 i.second.change_direction(right);
+>         }
+>     }
+> 
+> 
+389,404d384
+<     if(ConfigWindow::getSetting<bool>("general/small-ponies")){
+<         x_center /= 2.0;
+<         y_center /= 2.0;
+<         width /= 2.0;
+<         height /= 2.0;
+<         parent->update_animation(current_animation,current_animation->currentImage().size() / 2.0);
+<     } else {
+<         parent->update_animation(current_animation,current_animation->currentImage().size());
+<     }
+< 
+<     // Update the direction of all active effects.
+<     for(auto &i: parent->effects){
+<         if(i.second.behavior == name){
+<                 i.second.change_direction(right);
+<         }
+<     }
+diff -r qt-ponies-master/src/configwindow.cpp orig/qt-ponies-master/src/configwindow.cpp
+55d54
+<     {"general/small-ponies",         false               },
+457,458d455
+<     ui->small_ponies->setChecked(        getSetting<bool>    ("general/small-ponies", settings));
+< 
+496d492
+<     settings.setValue("small-ponies", ui->small_ponies->isChecked());
+diff -r qt-ponies-master/src/configwindow.ui orig/qt-ponies-master/src/configwindow.ui
+21c21
+<        <number>2</number>
+---
+>        <number>0</number>
+256,259c256,262
+<             <item row="7" column="0" colspan="3">
+<              <widget class="QGroupBox" name="box_advanced">
+<               <property name="title">
+<                <string>Advanced options</string>
+---
+>             <item row="1" column="1" colspan="2">
+>              <widget class="QCheckBox" name="alwaysontop">
+>               <property name="sizePolicy">
+>                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+>                 <horstretch>0</horstretch>
+>                 <verstretch>0</verstretch>
+>                </sizepolicy>
+261,262c264,265
+<               <property name="flat">
+<                <bool>false</bool>
+---
+>               <property name="layoutDirection">
+>                <enum>Qt::LeftToRight</enum>
+264c267,273
+<               <property name="checkable">
+---
+>               <property name="text">
+>                <string/>
+>               </property>
+>               <property name="checked">
+>                <bool>true</bool>
+>               </property>
+>               <property name="autoRepeat">
+267,301d275
+<               <layout class="QGridLayout" name="gridLayout_9">
+<                <item row="0" column="0">
+<                 <widget class="QLabel" name="label_7">
+<                  <property name="toolTip">
+<                   <string>Toggle if debug messages are printed to console</string>
+<                  </property>
+<                  <property name="text">
+<                   <string>&amp;Debug messages</string>
+<                  </property>
+<                  <property name="buddy">
+<                   <cstring>debug_enabled</cstring>
+<                  </property>
+<                 </widget>
+<                </item>
+<                <item row="0" column="1">
+<                 <widget class="QCheckBox" name="debug_enabled">
+<                  <property name="text">
+<                   <string/>
+<                  </property>
+<                 </widget>
+<                </item>
+<                <item row="1" column="1">
+<                 <widget class="QPushButton" name="show_debuglog">
+<                  <property name="sizePolicy">
+<                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+<                    <horstretch>0</horstretch>
+<                    <verstretch>0</verstretch>
+<                   </sizepolicy>
+<                  </property>
+<                  <property name="text">
+<                   <string>Show debug log</string>
+<                  </property>
+<                 </widget>
+<                </item>
+<               </layout>
+303a278,290
+>             <item row="7" column="0" colspan="3">
+>              <spacer name="verticalSpacer_4">
+>               <property name="orientation">
+>                <enum>Qt::Vertical</enum>
+>               </property>
+>               <property name="sizeHint" stdset="0">
+>                <size>
+>                 <width>20</width>
+>                 <height>40</height>
+>                </size>
+>               </property>
+>              </spacer>
+>             </item>
+317,320c304,307
+<             <item row="3" column="2">
+<              <widget class="QToolButton" name="change_ponydata_dir">
+<               <property name="text">
+<                <string>...</string>
+---
+>             <item row="2" column="0">
+>              <widget class="QLabel" name="label_bypass_wm">
+>               <property name="toolTip">
+>                <string>Bypass the X11 window manager, showing ponies on every desktop on top of every window</string>
+322,325d308
+<              </widget>
+<             </item>
+<             <item row="4" column="1" colspan="2">
+<              <widget class="QCheckBox" name="interactions_enabled">
+327c310
+<                <string/>
+---
+>                <string>Show on every &amp;virtual desktop</string>
+329,330c312,313
+<               <property name="checked">
+<                <bool>true</bool>
+---
+>               <property name="buddy">
+>                <cstring>x11_bypass_wm</cstring>
+344,375d326
+<             <item row="3" column="1">
+<              <widget class="QLineEdit" name="ponydata_directory">
+<               <property name="sizePolicy">
+<                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+<                 <horstretch>0</horstretch>
+<                 <verstretch>0</verstretch>
+<                </sizepolicy>
+<               </property>
+<              </widget>
+<             </item>
+<             <item row="1" column="1" colspan="2">
+<              <widget class="QCheckBox" name="alwaysontop">
+<               <property name="sizePolicy">
+<                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+<                 <horstretch>0</horstretch>
+<                 <verstretch>0</verstretch>
+<                </sizepolicy>
+<               </property>
+<               <property name="layoutDirection">
+<                <enum>Qt::LeftToRight</enum>
+<               </property>
+<               <property name="text">
+<                <string/>
+<               </property>
+<               <property name="checked">
+<                <bool>true</bool>
+<               </property>
+<               <property name="autoRepeat">
+<                <bool>false</bool>
+<               </property>
+<              </widget>
+<             </item>
+389,392c340,346
+<             <item row="2" column="0">
+<              <widget class="QLabel" name="label_bypass_wm">
+<               <property name="toolTip">
+<                <string>Bypass the X11 window manager, showing ponies on every desktop on top of every window</string>
+---
+>             <item row="3" column="1">
+>              <widget class="QLineEdit" name="ponydata_directory">
+>               <property name="sizePolicy">
+>                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+>                 <horstretch>0</horstretch>
+>                 <verstretch>0</verstretch>
+>                </sizepolicy>
+393a348,351
+>              </widget>
+>             </item>
+>             <item row="3" column="2">
+>              <widget class="QToolButton" name="change_ponydata_dir">
+395,398c353
+<                <string>Show on every &amp;virtual desktop</string>
+<               </property>
+<               <property name="buddy">
+<                <cstring>x11_bypass_wm</cstring>
+---
+>                <string>...</string>
+402,403c357,358
+<             <item row="5" column="0">
+<              <widget class="QLabel" name="label_9">
+---
+>             <item row="4" column="0">
+>              <widget class="QLabel" name="label_6">
+405c360
+<                <string>Toggle if effects are enabled</string>
+---
+>                <string>Toggle if interactions are to be executed</string>
+408c363
+<                <string>Ef&amp;fects enabled</string>
+---
+>                <string>&amp;Interactions enabled</string>
+411c366
+<                <cstring>effects_enabled</cstring>
+---
+>                <cstring>interactions_enabled</cstring>
+415,416c370,371
+<             <item row="5" column="1" colspan="2">
+<              <widget class="QCheckBox" name="effects_enabled">
+---
+>             <item row="4" column="1" colspan="2">
+>              <widget class="QCheckBox" name="interactions_enabled">
+425,428c380,383
+<             <item row="8" column="0" colspan="3">
+<              <spacer name="verticalSpacer_4">
+<               <property name="orientation">
+<                <enum>Qt::Vertical</enum>
+---
+>             <item row="6" column="0" colspan="3">
+>              <widget class="QGroupBox" name="box_advanced">
+>               <property name="title">
+>                <string>Advanced options</string>
+430,434c385,386
+<               <property name="sizeHint" stdset="0">
+<                <size>
+<                 <width>20</width>
+<                 <height>40</height>
+<                </size>
+---
+>               <property name="flat">
+>                <bool>false</bool>
+436c388,426
+<              </spacer>
+---
+>               <property name="checkable">
+>                <bool>false</bool>
+>               </property>
+>               <layout class="QGridLayout" name="gridLayout_9">
+>                <item row="0" column="0">
+>                 <widget class="QLabel" name="label_7">
+>                  <property name="toolTip">
+>                   <string>Toggle if debug messages are printed to console</string>
+>                  </property>
+>                  <property name="text">
+>                   <string>&amp;Debug messages</string>
+>                  </property>
+>                  <property name="buddy">
+>                   <cstring>debug_enabled</cstring>
+>                  </property>
+>                 </widget>
+>                </item>
+>                <item row="0" column="1">
+>                 <widget class="QCheckBox" name="debug_enabled">
+>                  <property name="text">
+>                   <string/>
+>                  </property>
+>                 </widget>
+>                </item>
+>                <item row="1" column="1">
+>                 <widget class="QPushButton" name="show_debuglog">
+>                  <property name="sizePolicy">
+>                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+>                    <horstretch>0</horstretch>
+>                    <verstretch>0</verstretch>
+>                   </sizepolicy>
+>                  </property>
+>                  <property name="text">
+>                   <string>Show debug log</string>
+>                  </property>
+>                 </widget>
+>                </item>
+>               </layout>
+>              </widget>
+438,439c428,429
+<             <item row="4" column="0">
+<              <widget class="QLabel" name="label_6">
+---
+>             <item row="5" column="0">
+>              <widget class="QLabel" name="label_9">
+441c431
+<                <string>Toggle if interactions are to be executed</string>
+---
+>                <string>Toggle if effects are enabled</string>
+444c434
+<                <string>&amp;Interactions enabled</string>
+---
+>                <string>Ef&amp;fects enabled</string>
+447c437
+<                <cstring>interactions_enabled</cstring>
+---
+>                <cstring>effects_enabled</cstring>
+451,452c441,442
+<             <item row="6" column="1">
+<              <widget class="QCheckBox" name="small_ponies">
+---
+>             <item row="5" column="1" colspan="2">
+>              <widget class="QCheckBox" name="effects_enabled">
+456,464c446,447
+<              </widget>
+<             </item>
+<             <item row="6" column="0">
+<              <widget class="QLabel" name="label_10">
+<               <property name="toolTip">
+<                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the ponies in half size&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+<               </property>
+<               <property name="text">
+<                <string>Small ponies</string>
+---
+>               <property name="checked">
+>                <bool>true</bool>
+diff -r qt-ponies-master/src/effect.cpp orig/qt-ponies-master/src/effect.cpp
+144d143
+<     current_animation->jumpToNextFrame();
+155,161d153
+<     if(ConfigWindow::getSetting<bool>("general/small-ponies")){
+<         image_width /= 2.0;
+<         image_height /= 2.0;
+<         current_animation->setScaledSize(current_animation->currentImage().size() / 2.0);
+<     } else {
+<         current_animation->setScaledSize(current_animation->currentImage().size() / 2.0);
+<     }
+188c180
+<     current_animation->jumpToNextFrame();
+---
+>     current_animation->start();
+199,206c191
+<     if(ConfigWindow::getSetting<bool>("general/small-ponies")){
+<         image_width /= 2.0;
+<         image_height /= 2.0;
+<         current_animation->setScaledSize(current_animation->currentImage().size() / 2.0);
+<     } else {
+<         current_animation->setScaledSize(current_animation->currentImage().size() / 2.0);
+<     }
+<     current_animation->start();
+---
+> 
+diff -r qt-ponies-master/src/pony.cpp orig/qt-ponies-master/src/pony.cpp
+414c414
+< void Pony::update_animation(QMovie* animation,QSize size)
+---
+> void Pony::update_animation(QMovie* animation)
+422,423d421
+<     animation->setScaledSize(size);
+<     animation->start();
+425,426c423,424
+<     resize(size);
+<     label.resize(size);
+---
+>     resize(animation->currentImage().size());
+>     label.resize(animation->currentImage().size());
+diff -r qt-ponies-master/src/pony.h orig/qt-ponies-master/src/pony.h
+61c61
+<     void update_animation(QMovie* movie,QSize size);
+---
+>     void update_animation(QMovie* movie);

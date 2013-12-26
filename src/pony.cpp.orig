@@ -411,7 +411,7 @@ void Pony::display_menu(const QPoint &pos)
     menu->exec(mapToGlobal(pos));
 }
 
-void Pony::update_animation(QMovie* animation,QSize size)
+void Pony::update_animation(QMovie* animation)
 {
     // FIXME: sometimes animation gets stuck
     // happens on mouse leave
@@ -419,11 +419,9 @@ void Pony::update_animation(QMovie* animation,QSize size)
     // it is updating, because it moves
     // it seems the label does not change to the new animation maybe?
 
-    animation->setScaledSize(size);
-    animation->start();
     label.setMovie(animation);
-    resize(size);
-    label.resize(size);
+    resize(animation->currentImage().size());
+    label.resize(animation->currentImage().size());
     label.repaint();
 }
 
