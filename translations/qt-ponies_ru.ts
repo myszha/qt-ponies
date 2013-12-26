@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="fr">
+<TS version="2.0" language="ru_RU">
 <context>
     <name>ConfigWindow</name>
     <message>
         <location filename="../src/configwindow.ui" line="14"/>
         <source>Qt Ponies</source>
-        <translation>Poney Qt</translation>
+        <translation>Qt Ponies</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="56"/>
         <source>Add pony</source>
-        <translation>Ajouter un poney</translation>
+        <translation>Добавить пони</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="210"/>
         <source>Remove pony</source>
-        <translation>Supprimer un poney</translation>
+        <translation>Удалить пони</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="253"/>
         <source>&amp;General</source>
-        <translation>&amp;Général</translation>
+        <translation>Основные</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="307"/>
         <source>Toggles if ponies are always on top of other windows</source>
-        <translation>Définit si les poney sont toujours au-dessus des autres fenêtres</translation>
+        <translation>Переключает пони поверх всех окон</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="310"/>
         <source>&amp;Always on top</source>
-        <translation>Toujours &amp;au-dessus</translation>
+        <translation>Поверх всего</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="392"/>
         <source>Bypass the X11 window manager, showing ponies on every desktop on top of every window</source>
-        <translation>Ignorer le gestionnaire de fenêtre X11, affiche les poneys sur chaque bureau au-dessus de chaque fenêtre</translation>
+        <translation>Обходит оконный менеджер X11, показывая пони на каждом рабочем столе поверх всех окон</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="395"/>
         <source>Show on every &amp;virtual desktop</source>
-        <translation>Afficher sur chaque bureau &amp;virtuel</translation>
+        <translation>Показывать на всех виртуальных рабочих столах</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="379"/>
         <source>Specifies in which directory the pony data and configuration are</source>
-        <translation>Spécifie le dossier où les données et la configuration se trouvent</translation>
+        <translation>Указывает каталок с конфигурацией и пони</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="382"/>
         <source>Pony data di&amp;rectory</source>
-        <translation>Dossier des &amp;données du programme</translation>
+        <translation>Каталог с пони</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="320"/>
@@ -61,162 +61,162 @@
     <message>
         <location filename="../src/configwindow.ui" line="441"/>
         <source>Toggle if interactions are to be executed</source>
-        <translation>Définir si les interactions doivent être éxécutées</translation>
+        <translation>Переключение взаимодействия</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="444"/>
         <source>&amp;Interactions enabled</source>
-        <translation>&amp;Interactions activées</translation>
+        <translation>Взаимодействие</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="259"/>
         <source>Advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Дополнительные опции</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="271"/>
         <source>Toggle if debug messages are printed to console</source>
-        <translation>Définir si les messages de déboguage doivent être affichés en console</translation>
+        <translation>Включение/отключение вывода в консоль отладки</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="274"/>
         <source>&amp;Debug messages</source>
-        <translation>Message de &amp;déboguage</translation>
+        <translation>Отладочный режим</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="297"/>
         <source>Show debug log</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать отладочную консоль</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="405"/>
         <source>Toggle if effects are enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Включение/отключение эффектов</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="408"/>
         <source>Ef&amp;fects enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Эффекты</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="461"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the ponies in half size&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/configwindow.ui" line="464"/>
-        <source>Small ponies</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Рисовать пони вдвое меньше</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="472"/>
         <source>S&amp;peech</source>
-        <translation>&amp;Paroles</translation>
+        <translation>Реплики</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="490"/>
         <source> ms</source>
-        <translation> ms</translation>
+        <translation> мс</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="519"/>
         <source>For how long the speech is to stay on screen</source>
-        <translation>Pour combien de temps les paroles doivent rester à l&apos;écran</translation>
+        <translation>Продолжительность видимости реплик в миллисекундах</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="522"/>
         <source>&amp;Text delay</source>
-        <translation>Delai du &amp;Texte</translation>
+        <translation>Продолжительность видимости реплик</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="532"/>
         <source>Toggles if ponies are to speak</source>
-        <translation>Définit si les poneys doivent parler</translation>
+        <translation>Включить/выключить реплики пони</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="535"/>
         <source>&amp;Speech enabled</source>
-        <translation>Parole&amp;s activées</translation>
+        <translation>Включить реплики</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="564"/>
         <source>NOT ACTIVE. Toggles the playing of sounds when a pony speaks.</source>
-        <translation>NON ACTIF. Définit le son d&apos;un poney qui parle.</translation>
+        <translation>НЕ АКТИВНО. Озвучивать реплики</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="567"/>
         <source>Play s&amp;ounds</source>
-        <translation>Jouer les s&amp;ons</translation>
+        <translation>Воспроизводить звуки</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="587"/>
         <source>Sound</source>
-        <translation>Son</translation>
+        <translation>Звук</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="594"/>
         <source>How frequently ponies speak</source>
-        <translation>Fréquence à laquelle les poneys parlent</translation>
+        <translation>Как часто пони произносят реплики</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="597"/>
         <source>Sp&amp;eech probability</source>
-        <translation>Probabilité de parol&amp;e</translation>
+        <translation>Вероятность реплик</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="610"/>
         <source> %</source>
-        <translation>.%</translation>
+        <translation> %</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="627"/>
         <source>Accept</source>
-        <translation>Accepter</translation>
+        <translation>Подтвердить</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="647"/>
         <source>Reset</source>
-        <translation>Réinitialiser</translation>
+        <translation>Сбросить</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="654"/>
         <source>&amp;Show advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать дополнительные опции</translation>
     </message>
     <message>
         <location filename="../src/configwindow.ui" line="675"/>
         <source>toolBar</source>
-        <translation>Barre d&apos;outils</translation>
+        <translation>Панель инструментов</translation>
     </message>
     <message>
         <location filename="../src/configwindow.cpp" line="96"/>
         <source>Open configuration</source>
-        <translation>Ouvrir la configuration</translation>
+        <translation>Открыть окно конфигурации</translation>
     </message>
     <message>
         <location filename="../src/configwindow.cpp" line="97"/>
         <source>Close application</source>
-        <translation>Fermer le programme</translation>
+        <translation>Закрыть приложение</translation>
     </message>
     <message>
         <location filename="../src/configwindow.cpp" line="105"/>
         <source>Add ponies</source>
-        <translation>Ajouter des poneys</translation>
+        <translation>Добавить пони</translation>
     </message>
     <message>
         <location filename="../src/configwindow.cpp" line="108"/>
         <source>Active ponies</source>
-        <translation>Poneys actifs</translation>
+        <translation>Активные пони</translation>
     </message>
     <message>
         <location filename="../src/configwindow.cpp" line="110"/>
         <source>Configuration</source>
-        <translation>Configuration</translation>
+        <translation>Конфигурация</translation>
     </message>
     <message>
         <location filename="../src/configwindow.cpp" line="437"/>
         <source>Select pony data directory</source>
-        <translation>Selectionner le dossier des données des poneys</translation>
+        <translation>Выберите каталог с пони</translation>
+    </message>
+    <message>
+        <location filename="../src/configwindow.ui" line="464"/>
+        <source>Small ponies</source>
+        <translation>Уменьшить пони</translation>
     </message>
 </context>
 <context>
@@ -224,7 +224,7 @@
     <message>
         <location filename="../src/debugwindow.ui" line="14"/>
         <source>Debug messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Отладочные соолбщения</translation>
     </message>
 </context>
 <context>
@@ -232,17 +232,17 @@
     <message>
         <location filename="../src/pony.cpp" line="185"/>
         <source>Sleeping</source>
-        <translation>Dormant</translation>
+        <translation>Усыпить</translation>
     </message>
     <message>
         <location filename="../src/pony.cpp" line="192"/>
         <source>Remove %1</source>
-        <translation>Supprimer %1</translation>
+        <translation>Удалить %1</translation>
     </message>
     <message>
         <location filename="../src/pony.cpp" line="193"/>
         <source>Remove every %1</source>
-        <translation>Tout supprimer %1</translation>
+        <translation>Удалить всех %1</translation>
     </message>
 </context>
 </TS>

@@ -25,7 +25,7 @@ SOURCES += src/main.cpp \
     src/pony.cpp \
     src/behavior.cpp \
     src/effect.cpp \
-    src/speak.cpp \ 
+    src/speak.cpp \
     src/configwindow.cpp \
     src/csv_parser.cpp \
     src/interaction.cpp \
@@ -35,7 +35,7 @@ HEADERS  += \
     src/pony.h \
     src/behavior.h \
     src/effect.h \
-    src/speak.h \    
+    src/speak.h \
     src/configwindow.h \
     src/csv_parser.h \
     src/interaction.h \
@@ -47,10 +47,11 @@ FORMS += \
 
 TRANSLATIONS = \
     translations/qt-ponies_de.ts \
+    translations/qt-ponies_ru.ts \
     translations/qt-ponies_pl.ts \
     translations/qt-ponies_fr.ts \
     translations/qt-ponies_el.ts
-                  
+
 RESOURCES += \
     qt-ponies.qrc
 

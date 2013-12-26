@@ -1,9 +1,9 @@
-[Desktop Entry]                                           
+[Desktop Entry]
+Type=Application
 Name=Qt Ponies
+GenericName=Implementation of DesktopPonies
 Comment=Ponies on your desktop
-Exec=/usr/bin/qt-ponies
+Exec=qt-ponies %U
 Icon=qt-ponies
 Terminal=false
-Type=Application
-Categories=Game;
-
+Categories=Utility;DesktopUtility;
