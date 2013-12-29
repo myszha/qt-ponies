@@ -32,7 +32,7 @@ A precompiled binary of qt-ponies is avialable in the downloads section.
 
 Compilation
 -----------
-A compiler supporting C++11 (g++ >= 4.6, clang >= 3.1) is required, as are Qt (version >= 4.7) libraries (and X11 developement libraries on X11 sytems).
+A compiler supporting C++11 (g++ >= 4.6, clang >= 3.1) is required, as are Qt (version = 4.8) libraries (and X11 developement libraries on X11 sytems).
 
 Under Debian/Ubuntu you can install the dependencies by invoking:
 
@@ -55,8 +55,6 @@ Tested on Linux amd64 3.2, Qt 4.7, g++ 4.6.2.
 Due to case-sensitivity of filenames under Unix, all 'pony.ini' files 
 must be lower case. The case of .gif files in pony.ini must also be 
 correct.
-
-Effects and sounds are not currently supported.
 
 On Unix systems an X server supporting ARGB visuals and and a compositing 
 window manager are required for transparency of pony windows. Something like

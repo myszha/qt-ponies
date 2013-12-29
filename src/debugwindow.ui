@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Debug messages</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../qt-ponies.qrc">
+    <normaloff>:/icons/res/tray_icon.png</normaloff>:/icons/res/tray_icon.png</iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QTextEdit" name="textEdit">
@@ -39,7 +43,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../qt-ponies.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
