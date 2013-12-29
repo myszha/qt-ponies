@@ -8,11 +8,13 @@ Inspired by qponies project by svenstaro (https://github.com/svenstaro/qponies).
 
 Installation
 ------------
-Compile the program or download a precompiled binary from [https://github.com/myszha/qt-ponies/downloads](https://github.com/myszha/qt-ponies/downloads).
+Compile the program or download a precompiled binary from [https://github.com/myszha/qt-ponies/releases](https://github.com/myszha/qt-ponies/releases).
 
-Under Debian-based, you must download and install qt-ponies\_$version\_$arch.deb and qt-ponies-data\_$version\_all.deb .
-
-Under Windows, download and unpack qt-ponies-$version-win32.zip .
+* Under Debian-based, you must download and install qt-ponies\_$version\_$arch.deb and qt-ponies-data\_$version\_all.deb 
+* Under Gentoo, you must download and install: qt-ponies-$version.ebuild
+* Under Arch Linux, use AUR: [qt-ponies](https://aur.archlinux.org/packages/qt-ponies);
+* Under openSUSE, you must take a package from [here](http://software.opensuse.org/package/qt-ponies);
+* Under Windows, download and unpack qt-ponies-$version-win32.zip 
 
 Running
 -------
@@ -50,7 +52,7 @@ Then build qt-ponies by invoking:
 Other information
 -----------------
 This is a work in progress.
-Tested on Linux amd64 3.2, Qt 4.7, g++ 4.6.2.
+Tested on Linux amd64 3.11, Qt 4.8, g++ 4.8.2.
 
 Due to case-sensitivity of filenames under Unix, all 'pony.ini' files 
 must be lower case. The case of .gif files in pony.ini must also be 
