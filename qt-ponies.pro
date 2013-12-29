@@ -1,11 +1,20 @@
-QT       += core gui
+QT += core gui
 
-#TODO: change to pkgsrc when Qt 4.8 is available
-PHONON=""
-
-!isEmpty(PHONON){
-    QT += phonon
-    DEFINES += USE_PHONON
+lessThan(QT_MAJOR_VERSION, 5) {
+    DEFINES += IS_QT4
+    packagesExist(phonon) {
+        QT += phonon
+        DEFINES += USE_PHONON
+    }
+    unix:!macx {
+        LIBS += -lX11 -lXfixes
+    }
+} else {
+    QT += widgets
+    packagesExist(phonon4qt5) {
+        QT += phonon4qt5
+        DEFINES += USE_PHONON
+    }
 }
 
 TARGET = qt-ponies
@@ -16,10 +25,6 @@ RCC_DIR = src/rcc
 TEMPLATE = app
 
 QMAKE_CXXFLAGS += -std=c++0x -Wextra
-
-unix:!macx {
-    LIBS += -lX11 -lXfixes
-}
 
 SOURCES += src/main.cpp \
     src/pony.cpp \
@@ -52,30 +57,29 @@ TRANSLATIONS = \
     translations/qt-ponies_fr.ts \
     translations/qt-ponies_el.ts
 
-RESOURCES += \
-    qt-ponies.qrc
+RESOURCES += qt-ponies.qrc
 
 unix {
-  isEmpty(PREFIX) {
-    PREFIX = /usr
-  }
+    isEmpty(PREFIX) {
+        PREFIX = /usr
+    }
 
-  BINDIR = $${PREFIX}/bin
-  DATADIR =$${PREFIX}/share
+    BINDIR = $${PREFIX}/bin
+    DATADIR =$${PREFIX}/share
 
-  target.path = $$BINDIR
+    target.path = $$BINDIR
 
-  icon.path = $$DATADIR/pixmaps/
-  icon.files += res/$${TARGET}.png
+    icon.path = $$DATADIR/pixmaps/
+    icon.files += res/$${TARGET}.png
 
-  desktop.path = $$DATADIR/applications/
-  desktop.files = res/$${TARGET}.desktop
+    desktop.path = $$DATADIR/applications/
+    desktop.files = res/$${TARGET}.desktop
 
-  data.path = $$DATADIR/qt-ponies
-  data.files += desktop-ponies
+    data.path = $$DATADIR/qt-ponies
+    data.files += desktop-ponies
 
-  translations.path = $$DATADIR/qt-ponies/translations/
-  translations.files = translations/*.qm
+    translations.path = $$DATADIR/qt-ponies/translations/
+    translations.files = translations/*.qm
 
-  INSTALLS += target icon desktop data translations
+    INSTALLS += target icon desktop data translations
 }

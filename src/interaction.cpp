@@ -39,12 +39,12 @@ Interaction::Interaction(const std::vector<QVariant> &options)
     pony = options[1].toString().toLower();
     probability = options[2].toFloat();
     distance = options[3].toFloat();
-    targets = qVariantValue<QList<QVariant>>(options[4]);
+    targets = options[4].toList();
     for(auto &i: targets){
         i = i.toString().toLower();
     }
     select_every_taget = options[5].toBool();
-    behaviors = qVariantValue<QList<QVariant>>(options[6]);
+    behaviors = options[6].toList();
     for(auto &i: behaviors){
         i = i.toString().toLower();
     }

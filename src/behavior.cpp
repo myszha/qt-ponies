@@ -1,5 +1,6 @@
 /*
  * Qt-ponies - ponies on the desktop
+ * Copyright (C) 2013 funeralismatic, XRevan86
  * Copyright (C) 2012 mysha
  *
  * This program is free software: you can redistribute it and/or modify

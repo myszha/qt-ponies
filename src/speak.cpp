@@ -1,5 +1,6 @@
 /*
  * Qt-ponies - ponies on the desktop
+ * Copyright (C) 2013 funeralismatic, XRevan86
  * Copyright (C) 2012 mysha
  *
  * This program is free software: you can redistribute it and/or modify
@@ -50,7 +51,7 @@ Speak::Speak(Pony* parent, const QString filepath, const std::vector<QVariant> &
 
         if(options.size()>3){ // Speak, name, "text", {"file.mp3", "file.ogg"}, skip_normally
             if(options[3] != "") {
-                soundfiles = qVariantValue<QList<QVariant>>(options[3]);
+                soundfiles = options[3].toList();
             }
 
             skip_normally = options[4].toBool();

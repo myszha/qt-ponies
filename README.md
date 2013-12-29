@@ -1,7 +1,7 @@
 qt-ponies
 =========
 
-Qt-ponies (pronounced 'cute-ponies') is an implementation of DesktopPonies (http://www.desktopponies.com/) in Qt.
+Qt-ponies (pronounced 'cute-ponies') is an implementation of DesktopPonies (http://desktopponies.bugs3.com/) in Qt.
 All pony data (images, behaviors, sounds) is taken from DesktopPonies, and is compatible with it.
 
 Inspired by qponies project by svenstaro (https://github.com/svenstaro/qponies).
@@ -10,7 +10,7 @@ Installation
 ------------
 Compile the program or download a precompiled binary from [https://github.com/myszha/qt-ponies/downloads](https://github.com/myszha/qt-ponies/downloads).
 
-Under Linux, you must download and install qt-ponies\_$version\_$arch.deb and qt-ponies-data\_$version\_all.deb .
+Under Debian-based, you must download and install qt-ponies\_$version\_$arch.deb and qt-ponies-data\_$version\_all.deb .
 
 Under Windows, download and unpack qt-ponies-$version-win32.zip .
 

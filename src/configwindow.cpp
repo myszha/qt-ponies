@@ -1,5 +1,6 @@
 /*
  * Qt-ponies - ponies on the desktop
+ * Copyright (C) 2013 funeralismatic, XRevan86
  * Copyright (C) 2012 mysha
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,10 +32,10 @@
 #include "debugwindow.h"
 
 #ifdef Q_WS_X11
- #include <QX11Info>
- #include <X11/Xatom.h>
- #include <X11/Xlib.h> // Xlib #defines None as 0L, which conflicts with Behavior::Movement::None
-                       // This is why we include it after pony.h
+#include <QX11Info>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h> // Xlib #defines None as 0L, which conflicts with Behavior::Movement::None
+                      // This is why we include it after pony.h
 #endif
 
 // TODO: configuration:
