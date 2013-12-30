@@ -12,8 +12,6 @@ Compile the program or download a precompiled binary from [https://github.com/my
 
 * Under Debian-based, you must download and install qt-ponies\_$version\_$arch.deb and qt-ponies-data\_$version\_all.deb 
 * Under Gentoo, you must download and install: qt-ponies-$version.ebuild
-* Under Arch Linux, use AUR: [qt-ponies](https://aur.archlinux.org/packages/qt-ponies);
-* Under openSUSE, you must take a package from [here](http://software.opensuse.org/package/qt-ponies);
 * Under Windows, download and unpack qt-ponies-$version-win32.zip 
 
 Running
