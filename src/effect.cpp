@@ -176,9 +176,8 @@ EffectInstance::EffectInstance(Effect *owner, int64_t started, bool right, QWidg
         image_width /= 2.0;
         image_height /= 2.0;
         current_animation->setScaledSize(current_animation->currentImage().size() / 2.0);
-    } else {
-        current_animation->setScaledSize(current_animation->currentImage().size() / 2.0);
     }
+
     current_animation->start();
     update_animation();
     show();
