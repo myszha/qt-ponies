@@ -34,7 +34,8 @@ const CSVParser::ParseTypes Speak::OptionTypes {
     {                     "name", QVariant::Type::String },
     {                     "text", QVariant::Type::String },
     {                  "{files}", QVariant::Type::String },
-    {            "skip_normally", QVariant::Type::Bool }
+    {            "skip_normally", QVariant::Type::Bool   },
+    {                    "group", QVariant::Type::Int    },
 };
 
 //TODO: move player to Pony and pass a pointer on play() to it
@@ -55,6 +56,9 @@ Speak::Speak(Pony* parent, const QString filepath, const std::vector<QVariant> &
             }
 
             skip_normally = options[4].toBool();
+            if(options.size()>5){ // Speak, name, "text", {"file.mp3", "file.ogg"}, skip_normally, group
+                group = options[5].toInt();
+            }
         }
     }
 }

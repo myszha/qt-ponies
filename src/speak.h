@@ -51,6 +51,7 @@ public:
     QString text;
     QList<QVariant> soundfiles;
     bool skip_normally;
+    int group;
 
 public slots:
     void stop();

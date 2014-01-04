@@ -87,6 +87,7 @@ private:
     Position center_right;
     Position center_left;
     bool follow;
+    bool prevent_repeat;
 
     Pony* parent_pony;
     ConfigWindow* config;

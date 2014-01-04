@@ -58,6 +58,8 @@ const CSVParser::ParseTypes Behavior::OptionTypes {
    {   "follow_moving_behavior", QVariant::Type::String },
    {       "right_image_center", QVariant::Type::Point  },
    {        "left_image_center", QVariant::Type::Point  },
+   {   "prevent_animation_loop", QVariant::Type::Bool   },
+   {           "behavior_group", QVariant::Type::Int    },
 };
 /*
   line_type = 0
@@ -81,6 +83,8 @@ const CSVParser::ParseTypes Behavior::OptionTypes {
   follow_moving_behavior = 18 // behavior name when moving; used when following other pony
   right_image_center = 19
   left_image_center = 20
+  prevent_animation_loop = 21
+  behavior_group = 22 // 0 = any group
 */
 
 static const std::unordered_map<std::string, Behavior::Movement> movement_map = {
@@ -160,6 +164,10 @@ Behavior::Behavior(Pony* parent, const QString filepath, const std::vector<QVari
             left_image_center = QPoint(0,0);
         }
 
+        if( options.size() > 20 ) {
+            prevent_animation_loop = options[21].toBool();
+            group = options[22].toInt();
+        }
     }
 
     state = type;

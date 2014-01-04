@@ -37,7 +37,8 @@ const CSVParser::ParseTypes Effect::OptionTypes {
    {             "center_right", QVariant::Type::String },
    {            "location_left", QVariant::Type::String },
    {              "center_left", QVariant::Type::String },
-   {                   "follow", QVariant::Type::Bool   }
+   {                   "follow", QVariant::Type::Bool   },
+   {           "prevent_repeat", QVariant::Type::Bool   },
 };
 
 // Something in Xlib.h makes the above initialization have a syntax error if included before it.
@@ -358,7 +359,6 @@ Effect::Effect(Pony *parent, ConfigWindow* conf, const QString filepath, const s
     : path(filepath), parent_pony(parent), config(conf)
 {
     // TODO: fail not catastrophically
-    Q_ASSERT(options.size() == 12);
 
     name = options[1].toString().toLower();
     behavior = options[2].toString().toLower();
@@ -373,6 +373,7 @@ Effect::Effect(Pony *parent, ConfigWindow* conf, const QString filepath, const s
     location_left = position_map.at(options[9].toString().toLower().toStdString());
     center_left = position_map.at(options[10].toString().toLower().toStdString());
     follow = options[11].toBool();
+    prevent_repeat = options[12].toBool();
 }
 
 Effect::~Effect()

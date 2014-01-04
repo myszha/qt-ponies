@@ -56,7 +56,17 @@
 // FIXME: when ponies are not on top, they (all at once) flicker to top sometimes (on text show?)
 
 Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
-    QMainWindow(parent), sleeping(false), in_interaction(false), current_interaction_delay(0), gen(QDateTime::currentMSecsSinceEpoch()), label(this), text_label(this), config(config), dragging(false), mouseover(false)
+    QMainWindow(parent),
+    sleeping(false),
+    in_interaction(false),
+    current_interaction_delay(0),
+    gen(QDateTime::currentMSecsSinceEpoch()),
+    label(this),
+    text_label(this),
+    config(config),
+    dragging(false),
+    mouseover(false),
+    current_group(0)
 {
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_ShowWithoutActivating);
@@ -202,11 +212,8 @@ Pony::Pony(const QString path, ConfigWindow *config, QWidget *parent) :
     }
 
 
+    // Sort the behaviours by probability, so that our roulette wheel random selection works
     std::sort(random_behaviors.begin(), random_behaviors.end(), [](const Behavior *val1, const Behavior *val2){ return val1->probability < val2->probability;} );
-    total_behavior_probability = 0;
-    for(auto &i: random_behaviors) {
-        total_behavior_probability += i->probability;
-    }
 
     // Select speech line that will be choosen randomly
     for(auto &i: speak_lines) {
@@ -447,14 +454,15 @@ void Pony::change_behavior_to(const QString &new_behavior)
 // Used for changing to dragged/mouseover/sleeping
 void Pony::change_behavior_to(const std::vector<Behavior*> &new_behavior)
 {
-    int size = new_behavior.size();
-    if(size > 0){
+    if(new_behavior.size() > 0){
             in_interaction = false; // We interrupted an interaction if there was one, so stop it
             interaction_delays[current_interaction] = QDateTime::currentMSecsSinceEpoch() + current_interaction_delay;
 
-            std::uniform_int_distribution<> dis(0, new_behavior.size()-1);
             current_behavior->deinit();
-            current_behavior = new_behavior.at(dis(gen));
+            int group = current_group;
+            current_behavior = *std::find_if(new_behavior.begin(), new_behavior.end(),[group](const Behavior* b){
+                return b->group == group;
+            });
             current_behavior->init();
 
             if(config->getSetting<bool>("general/debug")) {
@@ -486,19 +494,39 @@ void Pony::change_behavior()
     }else{
         // If linked behavior not present, select random behavior using roulette-wheel selection
 
+        // The behavior must in in the same group or the "any" group.
+        std::vector<Behavior*> available_behaviors;
+
+        int group = current_group;
+        std::copy_if(random_behaviors.begin(), random_behaviors.end(), std::back_inserter(available_behaviors), [group](const Behavior* behavior){
+            return (behavior->group == 0 || behavior->group == group);
+        });
+
+        // Recalculate the total probability of the available behaviours
+        float behavior_probability = 0;
+        for(auto &i: available_behaviors) {
+            behavior_probability += i->probability;
+        }
+
         in_interaction = false; // We finished the interaction if there was one
         interaction_delays[current_interaction] = QDateTime::currentMSecsSinceEpoch() + current_interaction_delay;
 
         float total = 0;
-        std::uniform_real_distribution<> dis(0, total_behavior_probability);
+        std::uniform_real_distribution<> dis(0, behavior_probability);
         float rnd = dis(gen);
-        for(auto &i: random_behaviors){
+        for(auto &i: available_behaviors){
             total += i->probability;
             if(rnd <= total) {
                 current_behavior = i;
                 break;
             }
         }
+        if(!current_behavior) {
+            qCritical() << "Pony:"<<name<<"no behavior found! Selecting first from the list.";
+            current_behavior = random_behaviors[0];
+        }
+
+        current_group = current_behavior->group;
 
     }
 
@@ -592,13 +620,23 @@ void Pony::setup_current_behavior()
             std::uniform_real_distribution<> real_dis(0, 100);
             // Speak only with the specified probability
             if((random_speak_lines.size()) > 0 && (real_dis(gen) <= config->getSetting<float>("speech/probability"))) {
-                std::uniform_int_distribution<> int_dis(0, random_speak_lines.size()-1);
-                current_speech_line = random_speak_lines[int_dis(gen)];
+
+                // The speech line must in in the same group or the "any" group.
+                std::vector<Speak*> available_lines;
+
+                int group = current_group;
+                std::copy_if(random_speak_lines.begin(), random_speak_lines.end(), std::back_inserter(available_lines), [group](const Speak* line){
+                    return (line->group == 0 || line->group == group);
+                });
+
+                std::uniform_int_distribution<> int_dis(0, available_lines.size()-1);
+                current_speech_line = available_lines[int_dis(gen)];
             }
         }
 
         if(current_speech_line != nullptr) {
             // Show text only if we found a suitable line
+            // TODO: Make the speech bubble look better
 
             text_label.setText(current_speech_line->text);
             speech_started = behavior_started;

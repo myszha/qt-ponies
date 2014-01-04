@@ -115,12 +115,12 @@ private:
     int64_t behavior_started;
     int64_t behavior_duration;
     int64_t speech_started;
-    float total_behavior_probability;
     ConfigWindow *config;
     QMenu* menu;
     bool dragging;
     bool mouseover;
     bool always_on_top;
+    int current_group;
 
 };
 

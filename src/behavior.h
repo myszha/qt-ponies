@@ -98,6 +98,9 @@ public:
     QPoint right_image_center;
     QPoint left_image_center;
 
+    bool prevent_animation_loop;
+    int group;
+
     // We do not need follow_stopped centers
     QPoint follow_moving_right_image_center;
     QPoint follow_moving_left_image_center;
