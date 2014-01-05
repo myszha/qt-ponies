@@ -349,7 +349,13 @@ void ConfigWindow::reload_available_ponies()
                 letters.push_back(i[0]);
             }
 
-            QStandardItem *item_icon = new QStandardItem(QIcon(pony_dir.absoluteFilePath("icon.png")),"");
+            QStringList icon_files = pony_dir.entryList({"*.gif"}, QDir::Files, QDir::IgnoreCase | QDir::Name);
+            QString icon;
+            if(!icon_files.isEmpty()) {
+                icon = icon_files.first();
+            }
+            QPixmap icon_pix(pony_dir.absoluteFilePath(icon));
+            QStandardItem *item_icon = new QStandardItem(QIcon(icon_pix.scaled(32,32,Qt::KeepAspectRatio)),"");
             QStandardItem *item_text = new QStandardItem(i);
 
             QList<QStandardItem*> row;
@@ -358,8 +364,6 @@ void ConfigWindow::reload_available_ponies()
         }
     }
     for(QChar &i: letters) ui->tabbar->addTab(i);
-
-
 }
 
 void ConfigWindow::newpony_list_changed(QModelIndex item)
@@ -400,7 +404,18 @@ void ConfigWindow::update_active_list()
 {
     active_list_model->clear();
     for(auto &i: ponies) {
-        QStandardItem *item_icon = new QStandardItem(QIcon(QString("%1/%2/icon.png").arg(ConfigWindow::getSetting<QString>("general/pony-directory"), i->directory)),"");
+
+        QDir dir(QString("%1/%2").arg(getSetting<QString>("general/pony-directory"),i->directory));
+        dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+        QStringList icon_files = dir.entryList({"*.gif"}, QDir::Files, QDir::IgnoreCase | QDir::Name);
+        QString icon;
+        if(!icon_files.isEmpty()) {
+            icon = icon_files.first();
+        }
+        QPixmap icon_pix(dir.absoluteFilePath(icon));
+        QStandardItem *item_icon = new QStandardItem(QIcon(icon_pix.scaled(32,32,Qt::KeepAspectRatio)),"");
+
         QStandardItem *item_text = new QStandardItem(i->directory);
 
         QList<QStandardItem*> row;
