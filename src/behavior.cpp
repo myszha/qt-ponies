@@ -124,6 +124,7 @@ Behavior::Behavior(Pony* parent, const QString filepath, const std::vector<QVari
 
     if(ConfigWindow::getSetting<bool>("general/small-ponies")){
         speed /= 2.0;
+        // FIXME: when unchecking small-ponies, the speed is still halved. Move this to update.
     }
     animation_right = options[6].toString();
     animation_left = options[7].toString();
