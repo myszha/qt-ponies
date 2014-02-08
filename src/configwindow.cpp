@@ -666,3 +666,12 @@ void ConfigWindow::show_debuglog()
 {
     ui_debug->show();
 }
+
+void ConfigWindow::receiveFromInstance(const QString &message)
+{
+    if ( message == "showConfigWindow" ) {
+        show();
+        raise();
+        QApplication::setActiveWindow(this);
+    }
+}

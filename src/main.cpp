@@ -29,8 +29,11 @@
 #include "effect.h"
 #include "speak.h"
 
+#include "singleapplication.h"
 #include "configwindow.h"
 #include "pony.h"
+
+#define APPID "qt-ponies"
 
 int main(int argc, char *argv[])
 {
@@ -38,7 +41,7 @@ int main(int argc, char *argv[])
     CSVParser::AddParseTypes("Effect", Effect::OptionTypes);
     CSVParser::AddParseTypes("Speak", Speak::OptionTypes);
 
-    QApplication app(argc, argv);
+    DSingleApplication app(APPID, argc, argv);
     QCoreApplication::addLibraryPath(QCoreApplication::applicationDirPath());
     QCoreApplication::setOrganizationName("qt-ponies");
     QCoreApplication::setApplicationName("qt-ponies");
@@ -51,7 +54,14 @@ int main(int argc, char *argv[])
     app.installTranslator(&translator);
 
     app.setQuitOnLastWindowClosed(false);
+    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+    QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
     QSettings::setDefaultFormat(QSettings::IniFormat);
+
+    if ( app.isRunning() ) {
+        app.sendMessage("showConfigWindow");
+        return 0;
+    }
 
     QFile qss(":/styles/res/style.qss");
     qss.open(QFile::ReadOnly);
@@ -59,6 +69,7 @@ int main(int argc, char *argv[])
     qss.close();
 
     ConfigWindow config;
+    QObject::connect(qApp, SIGNAL(messageReceived(QString)), &config, SLOT(receiveFromInstance(QString)));
 
     qDebug() << "Locale:" << locale;
 

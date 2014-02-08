@@ -1,4 +1,4 @@
-QT += core gui
+QT += core gui network
 
 lessThan(QT_MAJOR_VERSION, 5) {
     DEFINES += IS_QT4
@@ -34,7 +34,8 @@ SOURCES += src/main.cpp \
     src/configwindow.cpp \
     src/csv_parser.cpp \
     src/interaction.cpp \
-    src/debugwindow.cpp
+    src/debugwindow.cpp \
+    src/singleapplication.cpp
 
 HEADERS  += \
     src/pony.h \
@@ -44,7 +45,8 @@ HEADERS  += \
     src/configwindow.h \
     src/csv_parser.h \
     src/interaction.h \
-    src/debugwindow.h
+    src/debugwindow.h \
+    src/singleapplication.h
 
 FORMS += \
     src/configwindow.ui \

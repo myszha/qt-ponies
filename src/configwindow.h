@@ -108,6 +108,7 @@ private slots:
     void change_ponydata_directory();
     void update_interactions();
     void show_debuglog();
+    void receiveFromInstance(const QString &message);
 
 private:
     void reload_available_ponies();
