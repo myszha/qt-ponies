@@ -122,10 +122,6 @@ Behavior::Behavior(Pony* parent, const QString filepath, const std::vector<QVari
     duration_min = options[4].toFloat();
     speed = options[5].toFloat();
 
-    if(ConfigWindow::getSetting<bool>("general/small-ponies")){
-        speed /= 2.0;
-        // FIXME: when unchecking small-ponies, the speed is still halved. Move this to update.
-    }
     animation_right = options[6].toString();
     animation_left = options[7].toString();
 
@@ -427,6 +423,13 @@ void Behavior::update()
 
     QRect screen = QApplication::desktop()->availableGeometry(parent);
 
+    float real_speed = speed;
+
+    // Change speed if the pony is small
+    if(ConfigWindow::getSetting<bool>("general/small-ponies")){
+        real_speed *= .5f;
+    }
+
     // If we are moving to a destanation point, calculate direction and move there
     if(state == State::Following  || state == State::MovingToPoint) {
         // Check if we are close enough to destanation point
@@ -480,17 +483,17 @@ void Behavior::update()
         // Move only if we are within the screen boundaries
         // Else we may go offscreen when two ponies are following each other
         if((parent->x() >= screen.left()) && (dir_x < 0)) {
-            parent->x_pos += dir_x * speed;
+            parent->x_pos += dir_x * real_speed;
         }
         if((parent->x() <= screen.right() - width) && (dir_x > 0)) {
-            parent->x_pos += dir_x * speed;
+            parent->x_pos += dir_x * real_speed;
         }
 
         if((parent->y() >= screen.top()) && (dir_y < 0)){
-            parent->y_pos += dir_y * speed;
+            parent->y_pos += dir_y * real_speed;
         }
         if((parent->y() <= screen.bottom() - height) && (dir_y > 0)){
-            parent->y_pos += dir_y * speed;
+            parent->y_pos += dir_y * real_speed;
         }
 
         parent->move(parent->x_pos-x_center,parent->y_pos-y_center);
@@ -520,8 +523,8 @@ void Behavior::update()
     }
 
     // Calculate the velocity
-    float vel_x = direction_h * speed;
-    float vel_y = direction_v * speed;
+    float vel_x = direction_h * real_speed;
+    float vel_y = direction_v * real_speed;
 
     // Update posiotion depending on movement type
     if(movement == Movement::Horizontal){
@@ -531,8 +534,8 @@ void Behavior::update()
         parent->y_pos += vel_y;
     }
     if(movement == Movement::Diagonal){
-        vel_x = std::sqrt(speed*speed*2) * std::cos(angle);
-        vel_y = -std::sqrt(speed*speed*2) * std::sin(angle);
+        vel_x = real_speed * std::cos(angle);
+        vel_y = -real_speed * std::sin(angle);
         parent->x_pos += vel_x;
         parent->y_pos += vel_y;
     }
