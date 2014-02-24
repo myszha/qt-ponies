@@ -20,8 +20,8 @@
 #include <sstream>
 
 #ifdef USE_PHONON
- #include <Phonon/MediaObject>
- #include <Phonon/AudioOutput>
+ #include <phonon/MediaObject>
+ #include <phonon/AudioOutput>
 #endif
 
 #include "configwindow.h"

@@ -1,8 +1,12 @@
 QT += core gui network
 
+# Uncomment to enable buggy sound support. 
+# You will have to add the sounds from the Desktop Ponies project manually.
+# CONFIG += USE_SOUND
+
 lessThan(QT_MAJOR_VERSION, 5) {
     DEFINES += IS_QT4
-    packagesExist(phonon) {
+    USE_SOUND:packagesExist(phonon) {
         QT += phonon
         DEFINES += USE_PHONON
     }
@@ -11,7 +15,7 @@ lessThan(QT_MAJOR_VERSION, 5) {
     }
 } else {
     QT += widgets
-    packagesExist(phonon4qt5) {
+    USE_SOUND:packagesExist(phonon4qt5) {
         QT += phonon4qt5
         DEFINES += USE_PHONON
     }
