@@ -6,4 +6,4 @@ Comment=Ponies on your desktop
 Exec=qt-ponies %U
 Icon=qt-ponies
 Terminal=false
-Categories=Utility;DesktopUtility;
+Categories=Utility;
